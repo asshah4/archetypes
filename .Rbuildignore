@@ -8,3 +8,5 @@
 ^\.github$
 ^LICENSE\.md$
 ^cran-comments\.md$
+^sandbox\.R$
+^R/dev\.R$

@@ -1,0 +1,102 @@
+#' Pipe operator
+#'
+#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+#' @param lhs A value or the magrittr placeholder.
+#' @param rhs A function call using the magrittr semantics.
+#' @return The result of calling `rhs(lhs)`.
+NULL
+
+#' Identify if an Object has been Named
+#'
+#' A simple function to help identify if an object has names. If it is a `list`
+#' or `vector`, then each element should be named.
+#'
+#' @return Returns `TRUE` or `FALSE` depending on if the object has been named
+#'
+#' @param x An object to be tested
+#'
+#' @param ... Further arguments passed to or from other methods
+#'
+#' @export
+is.named <- function(x, ...) {
+
+	classes <- class(x)
+	n <- length(x)
+	nms <- names(x)
+
+	# Exclude NULL first
+	if (is.null(nms)) {
+		return(FALSE)
+	}
+
+	# By class
+	if ("list" %in% classes || "vector" %in% classes) { # Lists or Vectors
+		if (length(nms) == n) {
+			return(TRUE)
+		} else {
+			return(FALSE)
+		}
+	} else {
+		if (length(nms) == n) {
+			return(TRUE)
+		} else {
+			return(FALSE)
+		}
+	}
+
+}
+
+#' Convert a List into a Table
+#'
+#' Expands a list of character vectors into a tidy, logic table.
+#'
+#' @return A `data.frame` object
+#'
+#' @param named_list A `list` object that is named
+#'
+#' @param ... Further arguments passed to or from other methods
+#'
+#' @export
+list_to_table <- function(named_list, id = "terms", ...) {
+
+	# Create table/matrix of roles
+	list_table <- suppressWarnings(stack(named_list))
+	names(list_table) <- c(id, "roles")
+	list_table$.id <- TRUE
+	list_table <- reshape(list_table, direction = "wide", idvar = id, timevar = "roles")
+	names(list_table) <- gsub("\\.id\\.", "", names(list_table))
+	list_table[is.na(list_table)] <- FALSE
+
+	# Return
+	list_table
+
+}
+
+#' Convert a Table into a List
+#'
+#' Takes a `data.frame` and uses the columns to generate a named list.
+#'
+#' @param df A `data.frame` object with logical values for each term
+#'
+#' @param ... Further arguments passed to or from other methods
+#'
+#' @export
+table_to_list <- function(df, ...) {
+
+	named_list <-
+		tidyr::pivot_longer(df, -1) %>%
+		.[.$value == TRUE, ] %>%
+		.[-3] %>%
+		unstack()
+
+	# Return
+	named_list
+
+}
