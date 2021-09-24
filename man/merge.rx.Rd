@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x, y}{Objects of class \code{rx}, or can be coerced to \code{rx} class}
+
+\item{...}{Further arguments passed to or from other methods}
 }
 \value{
 An object of \code{rx} class

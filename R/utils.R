@@ -36,19 +36,14 @@ is.named <- function(x, ...) {
 		return(FALSE)
 	}
 
-	# By class
-	if ("list" %in% classes || "vector" %in% classes) { # Lists or Vectors
-		if (length(nms) == n) {
-			return(TRUE)
-		} else {
-			return(FALSE)
-		}
+	nms[nms == ""] <- NA
+	nms <- stats::na.omit(nms)
+
+	# By length
+	if (length(nms) == n) {
+		return(TRUE)
 	} else {
-		if (length(nms) == n) {
-			return(TRUE)
-		} else {
-			return(FALSE)
-		}
+		return(FALSE)
 	}
 
 }
@@ -61,16 +56,18 @@ is.named <- function(x, ...) {
 #'
 #' @param named_list A `list` object that is named
 #'
+#' @param id Name of column that contains terms
+#'
 #' @param ... Further arguments passed to or from other methods
 #'
 #' @export
 list_to_table <- function(named_list, id = "terms", ...) {
 
 	# Create table/matrix of roles
-	list_table <- suppressWarnings(stack(named_list))
+	list_table <- suppressWarnings(utils::stack(named_list))
 	names(list_table) <- c(id, "roles")
 	list_table$.id <- TRUE
-	list_table <- reshape(list_table, direction = "wide", idvar = id, timevar = "roles")
+	list_table <- stats::reshape(list_table, direction = "wide", idvar = id, timevar = "roles")
 	names(list_table) <- gsub("\\.id\\.", "", names(list_table))
 	list_table[is.na(list_table)] <- FALSE
 
@@ -94,7 +91,7 @@ table_to_list <- function(df, ...) {
 		tidyr::pivot_longer(df, -1) %>%
 		.[.$value == TRUE, ] %>%
 		.[-3] %>%
-		unstack()
+		utils::unstack()
 
 	# Return
 	named_list

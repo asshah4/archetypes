@@ -16,9 +16,6 @@ rx(f, ...)
 \item{f}{An object of class \code{formula}}
 
 \item{...}{Further arguments passed to or from other methods}
-
-\item{roles}{A named list pair that places each term into a label, such as
-\verb{roles = list(outcome = "mpg", exposure = c("wt", "hp")}.}
 }
 \value{
 An \code{rx} object, which has the classes of \code{c("rx", "formula")}
@@ -33,19 +30,6 @@ upon the functionality of formulas.
 When supplying a \code{formula} object, each RHS term of the formula is
 considered an outcome variable, and is analyzed as a single outcome. Each
 LHS term is consider a predictor, and can be modified as below:
-\itemize{
-\item \code{X()} is placed around a term to define as an independent exposure, which
-will be placed in separate formulae from any other term marked as an
-exposure
-\item \code{F()} is placed around a term for any predictors that should be
-maintained/fixed in all models, which can include complex terms, such as
-mixed effects
-\item \code{C()} is placed around a term for any predictors that are a potential
-confounders
-}
 
-For example, the equation below describes two independent exposures "x1"
-and "x2" that should be conditionally tested for every level of "z"
-
-\deqn{y ~ X(x1) + X(x2) + x3 + x4 + F((1 | z))}
+TODO an explanation below
 }

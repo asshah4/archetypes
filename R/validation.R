@@ -10,11 +10,20 @@ validate_roles <- function(f, roles) {
 		)
 	}
 
-	# Requires roles to have appropriate terms
-	user_vars <- unname(unlist(roles))
-	form_vars <- all.vars(f)
+	# Variables from both formula and what is specified in the roles
+	original_vars <- all.vars(f)
+	role_vars <-
+		roles %>%
+		unlist() %>%
+		unname() %>%
+		unique() %>%
+		paste(., collapse = " + ") %>%
+		paste("~", .) %>%
+		stats::formula() %>%
+		all.vars()
 
-	if (!all(user_vars %in% form_vars)) {
+	# Requires roles to have appropriate terms
+	if (!all(role_vars %in% original_vars)) {
 		stop(
 			"The variables in the `roles` argument are not terms within the formula.",
 			call. = FALSE

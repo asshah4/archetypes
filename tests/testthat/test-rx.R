@@ -4,13 +4,17 @@ test_that("deparsing of formulas works", {
 	f2 <- mpg ~ X(hp) + cyl
 	f3 <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
 	f4 <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + F(qsec)
-	set_rx_labels(list(X = "exposure", "F" = "fixed"))
+	f5 <- mpg ~ X(wt) + F((1 | cyl)) + vs + F(gear)
+	set_rx_theme("murmur")
 	labs1 <- deparse_formula(f1)
 	labs4 <- deparse_formula(f4)
 	expect_true(is.named(labs1))
 	expect_true(is.named(labs4))
-	reset_rx_labels()
 
+	# Fixed variables within parentheses
+	x <- rx(f5)
+	expect_true("(1 | cyl)" %in% attributes(x)$roles$terms)
+	reset_rx_labels()
 
 })
 

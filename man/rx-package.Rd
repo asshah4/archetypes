@@ -2,11 +2,22 @@
 % Please edit documentation in R/rx-package.R
 \docType{package}
 \name{rx-package}
-\alias{rx}
 \alias{rx-package}
-\title{rx: Prescribing New Formulas}
+\alias{_PACKAGE}
+\title{rx package}
 \description{
-What the package does (one paragraph).
+This package provides a simple interface for expanding upon the
+    `formula` class by adding the capacity for labeling terms. This allows for 
+    a flexible interface with other packages that are driven by formulas, 
+    particularly in the causal modeling space.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/asshah4/rx}
+  \item Report bugs at \url{https://github.com/asshah4/rx/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Anish Shah \email{ashah282@uic.edu} (\href{https://orcid.org/0000-0002-9729-1558}{ORCID})

@@ -1,3 +1,7 @@
+#' rx package
+#'
+#' @docType package
+#' @aliases rx-package
 #' @keywords internal
 "_PACKAGE"
 

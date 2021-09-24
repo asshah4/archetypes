@@ -9,6 +9,8 @@ list_to_table(named_list, id = "terms", ...)
 \arguments{
 \item{named_list}{A \code{list} object that is named}
 
+\item{id}{Name of column that contains terms}
+
 \item{...}{Further arguments passed to or from other methods}
 }
 \value{

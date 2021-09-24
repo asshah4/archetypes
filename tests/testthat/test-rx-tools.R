@@ -4,7 +4,7 @@ test_that("addition works", {
 	f2 <- wt ~ hp + cyl
 
 	x <- rx(f1)
-	y <- rx(f2)
+	y <- f2
 
 	# Merge
 	z <- merge(x, y)
@@ -15,6 +15,7 @@ test_that("addition works", {
 	expect_s3_class(z, "rx")
 
 	# Subtract (should only work if the LHS > 1 and RHS > 1)
+	expect_error(x - y)
 
 })
 

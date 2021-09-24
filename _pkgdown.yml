@@ -1,0 +1,28 @@
+url: https://asshah4.github.io/rx/
+
+destination: docs
+
+home:
+  title: Prescribing Formulas
+  description: Expanding upon the formula class
+
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fas fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/asshah4/rx/
