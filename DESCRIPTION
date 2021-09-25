@@ -24,7 +24,6 @@ Imports:
 Suggests: 
     covr,
     testthat (>= 3.0.0),
-    murmur,
 Remotes:
     asshah4/rx
 URL: https://github.com/asshah4/rx
