@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • rx</title>
+<title>Split Formula by Another Formula — split.rx • rx</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,11 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Split Formula by Another Formula — split.rx" />
+<meta property="og:description" content="Subtract the elements of one formula from that of another. This only applies
+to formulas where the primary object is a superset of the secondary object.
+This is limited to formulas that are rx formula objects as to inot impact
+the functionality of generic stats::formula() objects." />
 
 
 
@@ -58,7 +62,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -105,90 +109,47 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Split Formula by Another Formula</h1>
+    <small class="dont-index">Source: <a href='https://github.com/asshah4/rx/blob/master/R/rx-tools.R'><code>R/rx-tools.R</code></a></small>
+    <div class="hidden name"><code>split.rx.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Subtract the elements of one formula from that of another. This only applies
+to formulas where the primary object is a superset of the secondary object.
+This is limited to formulas that are <code>rx</code> formula objects as to inot impact
+the functionality of generic <code><a href='https://rdrr.io/r/stats/formula.html'>stats::formula()</a></code> objects.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='co'># S3 method for rx</span>
+<span class='fu'><a href='https://rdrr.io/r/base/split.html'>split</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="Ops.rx.html">Ops(<i>&lt;rx&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Formula Operations</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="is.named.html">is.named()</a></code> </p>
-        </td>
-        <td><p>Identify if an Object has been Named</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="labels.rx.html">labels(<i>&lt;rx&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Find Labels from Object</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="list_to_table.html">list_to_table()</a></code> </p>
-        </td>
-        <td><p>Convert a List into a Table</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="merge.rx.html">merge(<i>&lt;rx&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Merge Two Formulas</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="options.html">set_rx_labels()</a></code> <code><a href="options.html">set_rx_theme()</a></code> <code><a href="options.html">reset_rx_labels()</a></code> </p>
-        </td>
-        <td><p>Set Custom Labels</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="rx.html">rx()</a></code> </p>
-        </td>
-        <td><p>Prescribing a Formula</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="split.rx.html">split(<i>&lt;rx&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Split Formula by Another Formula</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="table_to_list.html">table_to_list()</a></code> </p>
-        </td>
-        <td><p>Convert a Table into a List</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>Objects of class <code>rx</code>, or can be coerced to <code>rx</code> class</p></td>
+    </tr>
+    <tr>
+      <th>y</th>
+      <td><p>Objects of class <code>rx</code>, or can be coerced to <code>rx</code> class</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Further arguments passed to or from other methods</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other tools: 
+<code><a href='Ops.rx.html'>Ops.rx</a>()</code>,
+<code><a href='merge.rx.html'>merge.rx</a>()</code></p></div>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

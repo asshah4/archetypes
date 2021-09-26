@@ -10,6 +10,12 @@
     <loc>https://asshah4.github.io/rx//reference/deparse_formula.html</loc>
   </url>
   <url>
+    <loc>https://asshah4.github.io/rx//reference/get_lhs.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/rx//reference/get_rhs.html</loc>
+  </url>
+  <url>
     <loc>https://asshah4.github.io/rx//reference/is.named.html</loc>
   </url>
   <url>
@@ -32,6 +38,9 @@
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/rx.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/rx//reference/split.rx.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/table_to_list.html</loc>
