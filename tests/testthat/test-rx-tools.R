@@ -1,21 +1,26 @@
-test_that("addition works", {
+test_that("arithmetic works", {
 
-	f1 <- mpg + wt ~ hp
+	f1 <- mpg + wt ~ hp + cyl + gear
 	f2 <- wt ~ hp + cyl
 
 	x <- rx(f1)
 	y <- f2
 
 	# Merge
-	z <- merge(x, y)
-	expect_s3_class(z, "rx")
+	merge_z <- merge(x, y)
+	add_z <- x + y
+	expect_s3_class(merge_z, "rx")
+	expect_equal(merge_z, add_z, ignore_attr = TRUE)
 
-	# Add
-	z <- x + y
-	expect_s3_class(z, "rx")
-
-	# Subtract (should only work if the LHS > 1 and RHS > 1)
-	expect_error(x - y)
+	# Split
+	split_x <- split(x, y)
+	split_z <- add_z - y
+	expect_s3_class(split_x, "rx")
+	expect_equal(split_x, split_z, ignore_attr = TRUE)
+	expect_error({
+		rx(mpg ~ hp) - rx(wt ~ hp)
+	})
+	expect_error(x/y)
 
 })
 

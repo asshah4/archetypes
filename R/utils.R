@@ -91,9 +91,50 @@ table_to_list <- function(df, ...) {
 		tidyr::pivot_longer(df, -1) %>%
 		.[.$value == TRUE, ] %>%
 		.[-3] %>%
-		utils::unstack()
+		utils::unstack(.)
+
+	if (is.data.frame(named_list)) {
+
+		tmp <- t(named_list)
+		nms <- colnames(tmp)
+		named_list <- as.list(tmp)
+		names(named_list) <- nms
+
+	}
 
 	# Return
 	named_list
+
+}
+
+#' Get left hand side terms
+#' @keywords internal
+get_lhs <- function(f) {
+
+	f[[2]] %>%
+		deparse(.) %>%
+		strsplit(., "\ \\+\ ") %>%
+		unlist(.) %>%
+		gsub(" ", "", .)
+
+}
+
+#' Get right hand side terms. If tidy = TRUE, then return without wrappers.
+#' @keywords internal
+get_rhs <- function(f, tidy = TRUE) {
+
+	if (tidy) {
+		rhs <-
+			paste(f[2], f[1], f[3], collapse = "") %>%
+			strsplit(., " ~ ") %>%
+			unlist(.) %>%
+			.[2] %>%
+			paste("~", .) %>%
+			formula(.) %>%
+			all.vars()
+	} else {
+		rhs <-
+			labels(stats::terms(f))
+	}
 
 }

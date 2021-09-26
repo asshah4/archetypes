@@ -19,13 +19,8 @@ deparse_formula <- function(f, ...) {
 
 	# Obtain left and right hand side of equation
 	all_terms <- all.vars(f)
-	rhs_terms <- raw_terms <- labels(stats::terms(f))
-	lhs_terms <-
-		f[[2]] %>%
-		deparse(.) %>%
-		strsplit(., "\ \\+\ ") %>%
-		unlist(.) %>%
-		gsub(" ", "", .)
+	rhs_terms <- raw_terms <- get_rhs(f, tidy = FALSE)
+	lhs_terms <- get_lhs(f)
 
 	# Search for mixed/random effect specifiers
 	special_index <-
@@ -68,6 +63,34 @@ deparse_formula <- function(f, ...) {
 
 }
 
+#' Formula Operations
+#'
+#' This is a method that extends the [methods::Ops()] group generic function to
+#' include generic operators for `rx` formulas. This is limited to `rx` formulas
+#' as to not impact the functionality of generic [stats::formula()] objects.
+#'
+#' @return An object of `rx` class
+#'
+#' @inheritParams methods::Ops
+#'
+#' @family tools
+#'
+#' @export
+Ops.rx <- function(e1, e2) {
+	FUN <- .Generic
+	if (FUN == "+") {
+		x <- merge(e1, e2)
+		environment(x) <- parent.frame()
+		return(x)
+	} else if (FUN == "-") {
+		x <- split(e1, e2)
+		environment(x) <- parent.frame()
+		return(x)
+	} else {
+		stop("Other unary and binary operators are not available for this class.")
+	}
+}
+
 #' Merge Two Formulas
 #'
 #' @description
@@ -81,6 +104,7 @@ deparse_formula <- function(f, ...) {
 #' @param ... Further arguments passed to or from other methods
 #'
 #' @family tools
+#'
 #' @export
 merge.rx <- function(x, y, ...) {
 
@@ -90,15 +114,19 @@ merge.rx <- function(x, y, ...) {
 		y <- rx(y)
 	}
 
-	lhs_x <- gsub(" ", "", unlist(strsplit(deparse(x[[2]]), "\ \\+\ ")))
-	lhs_y <- gsub(" ", "", unlist(strsplit(deparse(y[[2]]), "\ \\+\ ")))
+	lhs_x <- get_lhs(x)
+	lhs_y <- get_lhs(y)
+	#lhs_x <- gsub(" ", "", unlist(strsplit(deparse(x[[2]]), "\ \\+\ ")))
+	#lhs_y <- gsub(" ", "", unlist(strsplit(deparse(y[[2]]), "\ \\+\ ")))
 	lhs <-
 		c(lhs_x, lhs_y) %>%
 		unique() %>%
 		paste0(., collapse = " + ")
 
-	rhs_x <- gsub(" ", "", unlist(strsplit(deparse(x[[3]]), "\ \\+\ ")))
-	rhs_y <- gsub(" ", "", unlist(strsplit(deparse(y[[3]]), "\ \\+\ ")))
+	rhs_x <- get_rhs(x)
+	rhs_y <- get_rhs(y)
+	#rhs_x <- gsub(" ", "", unlist(strsplit(deparse(x[[3]]), "\ \\+\ ")))
+	#rhs_y <- gsub(" ", "", unlist(strsplit(deparse(y[[3]]), "\ \\+\ ")))
 	rhs <- unique(c(rhs_x, rhs_y))
 
 	# Attributes need to be extracted as well
@@ -122,25 +150,84 @@ merge.rx <- function(x, y, ...) {
 
 }
 
-#' Formula Operations
+#' Split Formula by Another Formula
 #'
-#' This is a method that extends the [methods::Ops()] group generic function to
-#' include generic operators for `rx` formulas. This is limited to `rx` formulas
-#' as to not impact the functionality of generic [stats::formula()] objects.
+#' Subtract the elements of one formula from that of another. This only applies
+#' to formulas where the primary object is a superset of the secondary object.
+#' This is limited to formulas that are `rx` formula objects as to inot impact
+#' the functionality of generic [stats::formula()] objects.
 #'
-#' @return An object of `rx` class
+#' @inheritParams merge.rx
 #'
-#' @inheritParams methods::Ops
 #' @family tools
+#'
 #' @export
-Ops.rx <- function(e1, e2) {
-	FUN <- .Generic
-	if (FUN == "+") {
-		x <- merge(e1, e2)
-		environment(x) <- parent.frame()
-		return(x)
-	} else {
-		stop("Other unary and binary operators are not available for this class.")
-	}
-}
+split.rx <- function(x, y, ...) {
 
+	# Check that x is a superset of y
+	xvars <- all.vars(x)
+	yvars <- all.vars(y)
+
+	if (!all(yvars %in% xvars)) {
+		stop(
+			"The second object is not a subset of the first and cannot be subtracted.",
+			call. = FALSE
+		)
+	}
+
+	# Second argument validation
+	validate_class(x, "rx")
+	validate_class(y, c("rx", "formula"))
+	if (!("rx" %in% class(y))) {
+		y <- rx(y)
+	}
+
+	# Terms
+	lhs_x <- get_lhs(x)
+	lhs_y <- get_lhs(y)
+	rhs_x <- get_rhs(x, tidy = FALSE)
+	rhs_y <- get_rhs(y, tidy = FALSE)
+
+	# Options
+	lhs_label <- getOption("rx.lhs")
+	rhs_label <- getOption("rx.rhs")
+
+	# Attributes for both outcomes of X and Y
+	out_x <-
+		attributes(x)$roles %>%
+		.[.[lhs_label] == TRUE, ]
+	out_y <-
+		attributes(y)$roles %>%
+		.[.[lhs_label] == TRUE, ]
+	out_x[which(!(out_x$terms %in% out_y$terms)),]
+	pred_x <-
+		attributes(x)$roles %>%
+		.[.[rhs_label] == TRUE, ]
+	pred_y <-
+		attributes(y)$roles %>%
+		.[.[rhs_label] == TRUE, ]
+
+	named_list <-
+		rbind(out_x[which(!(out_x$terms %in% out_y$terms)), ],
+					pred_x[which(!(pred_x$terms %in% pred_y$terms)), ]) %>%
+		table_to_list() %>%
+		lapply(., unique)
+
+	# New formula
+	lhs <-
+		setdiff(lhs_x, lhs_y) %>%
+		unique() %>%
+		paste0(., collapse = " + ")
+
+	rhs <- setdiff(rhs_x, rhs_y)
+
+	f <-
+		stats::reformulate(rhs, lhs) %>%
+		rx(., roles = named_list)
+
+	environment(f) <- parent.frame()
+
+	# Return
+	f
+
+}

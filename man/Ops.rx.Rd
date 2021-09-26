@@ -21,6 +21,7 @@ as to not impact the functionality of generic \code{\link[stats:formula]{stats::
 }
 \seealso{
 Other tools: 
-\code{\link{merge.rx}()}
+\code{\link{merge.rx}()},
+\code{\link{split.rx}()}
 }
 \concept{tools}
