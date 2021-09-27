@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Formula Operations — Ops.rx • rx</title>
+<title>Split Formula by Another Formula — separate • rx</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,11 @@
 
 
 
-<meta property="og:title" content="Formula Operations — Ops.rx" />
-<meta property="og:description" content="This is a method that extends the methods::Ops() group generic function to
-include generic operators for rx formulas. This is limited to rx formulas
-as to not impact the functionality of generic stats::formula() objects." />
+<meta property="og:title" content="Split Formula by Another Formula — separate" />
+<meta property="og:description" content="Subtract the elements of one formula from that of another. This only applies
+to formulas where the primary object is a superset of the secondary object.
+This is limited to formulas that are rx formula objects as to inot impact
+the functionality of generic stats::formula() objects." />
 
 
 
@@ -110,41 +111,42 @@ as to not impact the functionality of generic stats::formula() objects." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Formula Operations</h1>
+    <h1>Split Formula by Another Formula</h1>
     <small class="dont-index">Source: <a href='https://github.com/asshah4/rx/blob/master/R/rx-tools.R'><code>R/rx-tools.R</code></a></small>
-    <div class="hidden name"><code>Ops.rx.Rd</code></div>
+    <div class="hidden name"><code>separate.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is a method that extends the <code><a href='https://rdrr.io/r/methods/S4groupGeneric.html'>methods::Ops()</a></code> group generic function to
-include generic operators for <code>rx</code> formulas. This is limited to <code>rx</code> formulas
-as to not impact the functionality of generic <code><a href='https://rdrr.io/r/stats/formula.html'>stats::formula()</a></code> objects.</p>
+    <p>Subtract the elements of one formula from that of another. This only applies
+to formulas where the primary object is a superset of the secondary object.
+This is limited to formulas that are <code>rx</code> formula objects as to inot impact
+the functionality of generic <code><a href='https://rdrr.io/r/stats/formula.html'>stats::formula()</a></code> objects.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for rx</span>
-<span class='fu'><a href='https://rdrr.io/r/base/groupGeneric.html'>Ops</a></span><span class='op'>(</span><span class='va'>e1</span>, <span class='va'>e2</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>separate</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>e1</th>
-      <td><p>objects.</p></td>
+      <th>x</th>
+      <td><p>Objects of class <code>rx</code>, or can be coerced to <code>rx</code> class</p></td>
     </tr>
     <tr>
-      <th>e2</th>
-      <td><p>objects.</p></td>
+      <th>y</th>
+      <td><p>Objects of class <code>rx</code>, or can be coerced to <code>rx</code> class</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Further arguments passed to or from other methods</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An object of <code>rx</code> class</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other tools: 
-<code><a href='merge.rx.html'>merge.rx</a>()</code>,
-<code><a href='separate.html'>separate</a>()</code></p></div>
+<code><a href='Ops.rx.html'>Ops.rx</a>()</code>,
+<code><a href='merge.rx.html'>merge.rx</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
