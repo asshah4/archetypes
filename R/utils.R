@@ -130,7 +130,7 @@ get_rhs <- function(f, tidy = TRUE) {
 			unlist(.) %>%
 			.[2] %>%
 			paste("~", .) %>%
-			formula(.) %>%
+			stats::formula(.) %>%
 			all.vars()
 	} else {
 		rhs <-

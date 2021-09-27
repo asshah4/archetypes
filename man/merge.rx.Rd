@@ -20,6 +20,6 @@ Merge two formulas together based on common terms.
 \seealso{
 Other tools: 
 \code{\link{Ops.rx}()},
-\code{\link{split.rx}()}
+\code{\link{separate}()}
 }
 \concept{tools}

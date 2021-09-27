@@ -13,10 +13,10 @@ test_that("arithmetic works", {
 	expect_equal(merge_z, add_z, ignore_attr = TRUE)
 
 	# Split
-	split_x <- split(x, y)
-	split_z <- add_z - y
-	expect_s3_class(split_x, "rx")
-	expect_equal(split_x, split_z, ignore_attr = TRUE)
+	sep_x <- separate(x, y)
+	sep_z <- add_z - y
+	expect_s3_class(sep_x, "rx")
+	expect_equal(sep_x, sep_z, ignore_attr = TRUE)
 	expect_error({
 		rx(mpg ~ hp) - rx(wt ~ hp)
 	})

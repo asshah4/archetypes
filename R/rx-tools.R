@@ -83,7 +83,7 @@ Ops.rx <- function(e1, e2) {
 		environment(x) <- parent.frame()
 		return(x)
 	} else if (FUN == "-") {
-		x <- split(e1, e2)
+		x <- separate(e1, e2)
 		environment(x) <- parent.frame()
 		return(x)
 	} else {
@@ -162,7 +162,7 @@ merge.rx <- function(x, y, ...) {
 #' @family tools
 #'
 #' @export
-split.rx <- function(x, y, ...) {
+separate <- function(x, y, ...) {
 
 	# Check that x is a superset of y
 	xvars <- all.vars(x)
