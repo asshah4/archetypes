@@ -11,6 +11,9 @@ deparse_formula(f, ...)
 
 \item{...}{Further arguments passed to or from other methods}
 }
+\value{
+A named list of variables under their specific labels
+}
 \description{
 This function takes a formula that has been labeled and parses it through to
 identify the individual roles of the terms. The labels are set via the

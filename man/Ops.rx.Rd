@@ -12,7 +12,7 @@
 \item{e2}{objects.}
 }
 \value{
-An object of \code{rx} class
+An object or list of objects of \code{rx} class
 }
 \description{
 This is a method that extends the \code{\link[methods:S4groupGeneric]{methods::Ops()}} group generic function to
@@ -22,6 +22,6 @@ as to not impact the functionality of generic \code{\link[stats:formula]{stats::
 \seealso{
 Other tools: 
 \code{\link{merge.rx}()},
-\code{\link{separate}()}
+\code{\link{split.rx}()}
 }
 \concept{tools}

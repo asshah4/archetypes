@@ -6,6 +6,8 @@
 #' presumes the that left-hand side of the equation will be labeled __lhs__ and
 #' the right-hand side will be labeled __rhs__.
 #'
+#' @return A named list of variables under their specific labels
+#'
 #' @inheritParams rx
 #'
 #' @keywords internal
@@ -69,7 +71,7 @@ deparse_formula <- function(f, ...) {
 #' include generic operators for `rx` formulas. This is limited to `rx` formulas
 #' as to not impact the functionality of generic [stats::formula()] objects.
 #'
-#' @return An object of `rx` class
+#' @return An object or list of objects of `rx` class
 #'
 #' @inheritParams methods::Ops
 #'
@@ -83,7 +85,7 @@ Ops.rx <- function(e1, e2) {
 		environment(x) <- parent.frame()
 		return(x)
 	} else if (FUN == "-") {
-		x <- separate(e1, e2)
+		x <- split(e1, e2)
 		environment(x) <- parent.frame()
 		return(x)
 	} else {
@@ -116,8 +118,6 @@ merge.rx <- function(x, y, ...) {
 
 	lhs_x <- get_lhs(x)
 	lhs_y <- get_lhs(y)
-	#lhs_x <- gsub(" ", "", unlist(strsplit(deparse(x[[2]]), "\ \\+\ ")))
-	#lhs_y <- gsub(" ", "", unlist(strsplit(deparse(y[[2]]), "\ \\+\ ")))
 	lhs <-
 		c(lhs_x, lhs_y) %>%
 		unique() %>%
@@ -125,8 +125,6 @@ merge.rx <- function(x, y, ...) {
 
 	rhs_x <- get_rhs(x)
 	rhs_y <- get_rhs(y)
-	#rhs_x <- gsub(" ", "", unlist(strsplit(deparse(x[[3]]), "\ \\+\ ")))
-	#rhs_y <- gsub(" ", "", unlist(strsplit(deparse(y[[3]]), "\ \\+\ ")))
 	rhs <- unique(c(rhs_x, rhs_y))
 
 	# Attributes need to be extracted as well
@@ -157,12 +155,14 @@ merge.rx <- function(x, y, ...) {
 #' This is limited to formulas that are `rx` formula objects as to inot impact
 #' the functionality of generic [stats::formula()] objects.
 #'
+#' @return An `rx` object
+#'
 #' @inheritParams merge.rx
 #'
 #' @family tools
 #'
 #' @export
-separate <- function(x, y, ...) {
+split.rx <- function(x, y, ...) {
 
 	# Check that x is a superset of y
 	xvars <- all.vars(x)
@@ -229,5 +229,25 @@ separate <- function(x, y, ...) {
 
 	# Return
 	f
+
+}
+
+#' Divide a Formula into Parts
+#'
+#' An `rx` formula can be split into simpler parts as needed. If there are
+#' multiple dependent variables, then they can be split into individual
+#' formulas. If there are multiple independent variables, they can also be split
+#' into individual formulas.
+#'
+#' @return A list of `rx` objects
+#'
+#' @param x An object of `rx` or `formula` class (or can be coerced into one)
+#'
+#' @param side Which side of the formula should be divided into parts. This
+#'   parameter can is a character vector from `c("lhs", "rhs")`, and defines how
+#'   this formula division should occur.
+#'
+#' @export
+divide <- function(x, side, ...) {
 
 }

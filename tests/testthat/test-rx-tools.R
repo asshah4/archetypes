@@ -1,3 +1,12 @@
+test_that("deparsing a formula returns a label list", {
+
+	f <- mpg + wt ~ hp + cyl + gear
+	flist <- deparse_formula(f)
+	expect_named(flist, expected = c("lhs", "rhs"), ignore.order = TRUE)
+
+})
+
+
 test_that("arithmetic works", {
 
 	f1 <- mpg + wt ~ hp + cyl + gear
@@ -13,37 +22,16 @@ test_that("arithmetic works", {
 	expect_equal(merge_z, add_z, ignore_attr = TRUE)
 
 	# Split
-	sep_x <- separate(x, y)
-	sep_z <- add_z - y
-	expect_s3_class(sep_x, "rx")
-	expect_equal(sep_x, sep_z, ignore_attr = TRUE)
+	split_x <- split(x, y)
+	split_z <- add_z - y
+	expect_s3_class(split_x, "rx")
+	expect_equal(split_x, split_z, ignore_attr = TRUE)
 	expect_error({
-		rx(mpg ~ hp) - rx(wt ~ hp)
+		x <- rx(mpg ~ hp)
+		y <- rx(wt ~ hp)
+		x - y
 	})
 	expect_error(x/y)
 
 })
 
-test_that("labels can be extracted", {
-
-	f <- mpg ~ hp + wt + gear + cyl
-	object <- rx(f)
-	labs <- labels.rx(object)
-	expect_named(labs, c("lhs", "rhs"))
-	expect_length(labs, 2)
-
-	# TODO If no labels are present, should not error
-
-})
-
-test_that("global labels can be adjusted", {
-
-	f <- mpg + cyl ~ X(wt) + hp + X(vs)
-	labels <- list(lhs = "outcomes", rhs = "predictors", X = "exposure")
-	set_rx_labels(labels)
-	expect_equal(getOption("rx.lhs"), "outcomes")
-	x <- rx(f)
-	expect_equal(ncol(attributes(x)$roles), 4)
-	reset_rx_labels()
-
-})

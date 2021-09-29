@@ -11,7 +11,6 @@
 #'
 #' @param f An object of class `formula`
 #'
-#'
 #' @param ... Further arguments passed to or from other methods
 #'
 #' @details
@@ -21,7 +20,7 @@
 #' LHS term is consider a predictor, and can be modified as below:
 #'
 #' TODO an explanation below
-#'
+#' @method rx formula
 #' @export
 rx <- function(f, ...) {
 	UseMethod("rx", object = f)

@@ -6,7 +6,7 @@
 \alias{rx.default}
 \title{Prescribing a Formula}
 \usage{
-rx(f, ...)
+\method{rx}{formula}(f, ...)
 
 \method{rx}{formula}(f, ...)
 
