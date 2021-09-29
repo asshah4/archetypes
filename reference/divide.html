@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Merge Two Formulas — merge.rx • rx</title>
+<title>Divide a Formula into Parts — divide • rx</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,11 @@
 
 
 
-<meta property="og:title" content="Merge Two Formulas — merge.rx" />
-<meta property="og:description" content="Merge two formulas together based on common terms." />
+<meta property="og:title" content="Divide a Formula into Parts — divide" />
+<meta property="og:description" content="An rx formula can be split into simpler parts as needed. If there are
+multiple dependent variables, then they can be split into individual
+formulas. If there are multiple independent variables, they can also be split
+into individual formulas." />
 
 
 
@@ -108,39 +111,38 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Merge Two Formulas</h1>
+    <h1>Divide a Formula into Parts</h1>
     <small class="dont-index">Source: <a href='https://github.com/asshah4/rx/blob/master/R/rx-tools.R'><code>R/rx-tools.R</code></a></small>
-    <div class="hidden name"><code>merge.rx.Rd</code></div>
+    <div class="hidden name"><code>divide.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Merge two formulas together based on common terms.</p>
+    <p>An <code>rx</code> formula can be split into simpler parts as needed. If there are
+multiple dependent variables, then they can be split into individual
+formulas. If there are multiple independent variables, they can also be split
+into individual formulas.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for rx</span>
-<span class='fu'><a href='https://rdrr.io/r/base/merge.html'>merge</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>divide</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>side</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x, y</th>
-      <td><p>Objects of class <code>rx</code>, or can be coerced to <code>rx</code> class</p></td>
+      <th>x</th>
+      <td><p>An object of <code>rx</code> or <code>formula</code> class (or can be coerced into one)</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Further arguments passed to or from other methods</p></td>
+      <th>side</th>
+      <td><p>Which side of the formula should be divided into parts. This
+parameter can is a character vector from <code><a href='https://rdrr.io/r/base/c.html'>c("lhs", "rhs")</a></code>, and defines how
+this formula division should occur.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of <code>rx</code> class</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other tools: 
-<code><a href='Ops.rx.html'>Ops.rx</a>()</code>,
-<code><a href='split.rx.html'>split.rx</a>()</code></p></div>
+    <p>A list of <code>rx</code> objects</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
