@@ -4,19 +4,19 @@
     <loc>https://asshah4.github.io/rx//index.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/Ops.rx.html</loc>
-  </url>
-  <url>
     <loc>https://asshah4.github.io/rx//reference/deparse_formula.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/divide.html</loc>
+    <loc>https://asshah4.github.io/rx//reference/get_env.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/get_lhs.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/get_rhs.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/rx//reference/give_env.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/is.named.html</loc>
@@ -28,7 +28,7 @@
     <loc>https://asshah4.github.io/rx//reference/list_to_table.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/merge.rx.html</loc>
+    <loc>https://asshah4.github.io/rx//reference/math.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/options.html</loc>
@@ -41,9 +41,6 @@
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/rx.html</loc>
-  </url>
-  <url>
-    <loc>https://asshah4.github.io/rx//reference/split.rx.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/rx//reference/table_to_list.html</loc>
