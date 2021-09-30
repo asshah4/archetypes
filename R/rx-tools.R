@@ -76,16 +76,16 @@ deparse_formula <- function(f, ...) {
 #' @inheritParams methods::Ops
 #'
 #' @family tools
-#'
+#' @name math
 #' @export
 Ops.rx <- function(e1, e2) {
 	FUN <- .Generic
 	if (FUN == "+") {
-		x <- merge(e1, e2)
+		x <- add(e1, e2)
 		environment(x) <- parent.frame()
 		return(x)
 	} else if (FUN == "-") {
-		x <- split(e1, e2)
+		x <- subtract(e1, e2)
 		environment(x) <- parent.frame()
 		return(x)
 	} else {
@@ -93,7 +93,7 @@ Ops.rx <- function(e1, e2) {
 	}
 }
 
-#' Merge Two Formulas
+#' Add Two Formulas Together
 #'
 #' @description
 #'
@@ -106,9 +106,9 @@ Ops.rx <- function(e1, e2) {
 #' @param ... Further arguments passed to or from other methods
 #'
 #' @family tools
-#'
+#' @rdname math
 #' @export
-merge.rx <- function(x, y, ...) {
+add <- function(x, y, ...) {
 
 	# Second argument validation
 	validate_class(y, c("rx", "formula"))
@@ -148,7 +148,7 @@ merge.rx <- function(x, y, ...) {
 
 }
 
-#' Split Formula by Another Formula
+#' Subtract Formula From Another Formula
 #'
 #' Subtract the elements of one formula from that of another. This only applies
 #' to formulas where the primary object is a superset of the secondary object.
@@ -157,12 +157,12 @@ merge.rx <- function(x, y, ...) {
 #'
 #' @return An `rx` object
 #'
-#' @inheritParams merge.rx
+#' @inheritParams add
 #'
 #' @family tools
-#'
+#' @rdname math
 #' @export
-split.rx <- function(x, y, ...) {
+subtract <- function(x, y, ...) {
 
 	# Check that x is a superset of y
 	xvars <- all.vars(x)
@@ -225,29 +225,10 @@ split.rx <- function(x, y, ...) {
 		stats::reformulate(rhs, lhs) %>%
 		rx(., roles = named_list)
 
-	environment(f) <- parent.frame()
+	give_env(f)
 
 	# Return
 	f
 
 }
 
-#' Divide a Formula into Parts
-#'
-#' An `rx` formula can be split into simpler parts as needed. If there are
-#' multiple dependent variables, then they can be split into individual
-#' formulas. If there are multiple independent variables, they can also be split
-#' into individual formulas.
-#'
-#' @return A list of `rx` objects
-#'
-#' @param x An object of `rx` or `formula` class (or can be coerced into one)
-#'
-#' @param side Which side of the formula should be divided into parts. This
-#'   parameter can is a character vector from `c("lhs", "rhs")`, and defines how
-#'   this formula division should occur.
-#'
-#' @export
-divide <- function(x, side, ...) {
-
-}

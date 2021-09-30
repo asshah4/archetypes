@@ -16,13 +16,13 @@ test_that("arithmetic works", {
 	y <- f2
 
 	# Merge
-	merge_z <- merge(x, y)
+	merge_z <- add(x, y)
 	add_z <- x + y
 	expect_s3_class(merge_z, "rx")
 	expect_equal(merge_z, add_z, ignore_attr = TRUE)
 
 	# Split
-	split_x <- split(x, y)
+	split_x <- subtract(x, y)
 	split_z <- add_z - y
 	expect_s3_class(split_x, "rx")
 	expect_equal(split_x, split_z, ignore_attr = TRUE)
@@ -32,6 +32,10 @@ test_that("arithmetic works", {
 		x - y
 	})
 	expect_error(x/y)
+
+	# Divide
+
+
 
 })
 
