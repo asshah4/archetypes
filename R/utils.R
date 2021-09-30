@@ -140,12 +140,14 @@ get_rhs <- function(f, tidy = TRUE) {
 }
 
 #' Add parent environment back to formula
+#' @keywords internal
 give_env <- function(x, env = parent.frame()) {
 	environment(x) <- env
 	x
 }
 
 #' Obtain environment of original formula
+#' @keywords internal
 get_env <- function(x) {
 	env <- environment(x)
 	env
