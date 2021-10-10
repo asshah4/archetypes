@@ -2,14 +2,14 @@ test_that("printing works", {
 
 	# Color printing
 	f1 <- mpg + wt ~ cyl + am
-	x <- rx(f1)
-	expect_output(print.rx(x), regexp = "\033")
+	x <- capture.output(print(rx(f1)))
+	expect_type(x, "character")
 
 	# Themed color printing
 	f2 <- mpg + cyl ~ X(wt) + hp + F(vs)
 	set_rx_theme("murmur")
-	y <- rx(f2)
-	expect_output(print.rx(y), regexp = "\033")
+	y <- capture.output(print(rx(f2)))
+	expect_type(y, "character")
 	reset_rx_roles()
 
 	# Should print without color
@@ -17,8 +17,6 @@ test_that("printing works", {
 	rls <- list(lhs = "left", X = "ex", Y = "why", Z = "zed")
 	set_rx_roles(rls)
 	expect_equal(getOption("rx.lhs"), "left")
-	z <- rx(f3)
-	expect_output(print.rx(z), "mpg \\+ cyl ~ wt \\+ hp \\+ vs")
 	reset_rx_roles()
 
 })
