@@ -12,8 +12,10 @@
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
-A character vector or list of such vectors from an object of the \code{rx} class.
+A character vector or list of such vectors from an object of the \code{rx}
+class.
 }
 \description{
-Retrieve the term labels from the \code{rx} object if available. At minimum, will have an \emph{outcomes} and \emph{predictors}.
+Retrieve the term labels from the \code{rx} object if available. At minimum, will
+have the names of the variables themselves.
 }

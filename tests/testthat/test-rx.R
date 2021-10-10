@@ -14,7 +14,7 @@ test_that("deparsing of formulas works", {
 	# Fixed variables within parentheses
 	x <- rx(f5)
 	expect_true("(1 | cyl)" %in% attributes(x)$roles$terms)
-	reset_rx_labels()
+	reset_rx_roles()
 
 })
 
@@ -25,13 +25,14 @@ test_that("basic rx() works appropriately", {
 
 	# Ensure roles are possible
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
-	set_rx_labels(list(X = "exposure"))
+	set_rx_roles(list(X = "exposure"))
 	expect_error(validate_class(f, "rx"))
 
 	x <- rx(f)
 	expect_s3_class(x, c("rx", "formula"))
 	expect_error(validate_roles(x, roles = list(opts = "sunroof")))
 	expect_equal(sum(attributes(x)$roles$exposure), 2)
-	reset_rx_labels()
+	reset_rx_roles()
 
 })
+

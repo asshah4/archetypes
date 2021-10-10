@@ -2,23 +2,21 @@
 % Please edit documentation in R/rx-tools.R
 \name{deparse_formula}
 \alias{deparse_formula}
-\title{Decompose a Labeled Formula}
+\title{Decompose a \code{rx} formula}
 \usage{
 deparse_formula(f, ...)
 }
 \arguments{
 \item{f}{An object of class \code{formula}}
-
-\item{...}{Further arguments passed to or from other methods}
 }
 \value{
-A named list of variables under their specific labels
+A named list of variables under their specific roles
 }
 \description{
-This function takes a formula that has been labeled and parses it through to
-identify the individual roles of the terms. The labels are set via the
-\code{\link[=set_rx_labels]{set_rx_labels()}} function, which modifies global options. The default
-presumes the that left-hand side of the equation will be labeled \strong{lhs} and
-the right-hand side will be labeled \strong{rhs}.
+This function takes a formula that has been labeled roles and parses it through to
+identify the individual roles of the terms. The roles are set via the
+\code{\link[=set_rx_roles]{set_rx_roles()}} function, which modifies global options. The default
+presumes the that left-hand side of the equation will be roleed \strong{lhs} and
+the right-hand side will be roleed \strong{rhs}.
 }
 \keyword{internal}

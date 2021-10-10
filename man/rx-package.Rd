@@ -6,10 +6,7 @@
 \alias{_PACKAGE}
 \title{rx package}
 \description{
-This package provides a simple interface for expanding upon the
-    `formula` class by adding the capacity for labeling terms. This allows for 
-    a flexible interface with other packages that are driven by formulas, 
-    particularly in the causal modeling space.
+This package provides a simple interface for expanding upon the `formula` class by adding the capacity for labeling terms. This allows for a flexible interface with other packages that are driven by formulas, particularly in the causal modeling space.
 }
 \seealso{
 Useful links:

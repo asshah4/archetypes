@@ -6,16 +6,18 @@
 \alias{rx.default}
 \title{Prescribing a Formula}
 \usage{
-\method{rx}{formula}(f, ...)
+rx(f, ...)
 
-\method{rx}{formula}(f, ...)
+\method{rx}{formula}(f, labels = NULL, ...)
 
 \method{rx}{default}(f, ...)
 }
 \arguments{
 \item{f}{An object of class \code{formula}}
 
-\item{...}{Further arguments passed to or from other methods}
+\item{labels}{A list of formulas specifying variable labels, which can later
+be extracted for presentation. e.g. \code{list(y ~ "Primary Outcome")}. It
+defaults to \code{NULL}, which will use the variable names itself.}
 }
 \value{
 An \code{rx} object, which has the classes of \code{c("rx", "formula")}

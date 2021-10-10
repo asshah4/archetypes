@@ -4,9 +4,9 @@ test_that("validation methods", {
 	expect_error(validate_roles(f1, r1))
 
 	f2 <- mpg ~ hp
-	set_rx_labels(list(rhs = "predictors"))
+	set_rx_roles(list(rhs = "predictors"))
 	r2 <- list(predictors = "wt")
 	expect_error(validate_roles(f2, r2))
-	reset_rx_labels()
+	reset_rx_roles()
 })
 

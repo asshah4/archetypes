@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{table_to_list}
 \alias{table_to_list}
-\title{Convert a Table into a List}
+\title{Convert a Logical Table into a List}
 \usage{
 table_to_list(df, ...)
 }

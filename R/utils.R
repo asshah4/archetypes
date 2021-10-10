@@ -76,7 +76,7 @@ list_to_table <- function(named_list, id = "terms", ...) {
 
 }
 
-#' Convert a Table into a List
+#' Convert a Logical Table into a List
 #'
 #' Takes a `data.frame` and uses the columns to generate a named list.
 #'
@@ -94,12 +94,7 @@ table_to_list <- function(df, ...) {
 		utils::unstack(.)
 
 	if (is.data.frame(named_list)) {
-
-		tmp <- t(named_list)
-		nms <- colnames(tmp)
-		named_list <- as.list(tmp)
-		names(named_list) <- nms
-
+		named_list <- as.list(named_list)
 	}
 
 	# Return
@@ -136,6 +131,9 @@ get_rhs <- function(f, tidy = TRUE) {
 		rhs <-
 			labels(stats::terms(f))
 	}
+
+	# Return
+	rhs
 
 }
 

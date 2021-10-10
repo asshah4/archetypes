@@ -2,27 +2,27 @@
 % Please edit documentation in R/labels.R
 \name{options}
 \alias{options}
-\alias{set_rx_labels}
+\alias{set_rx_roles}
 \alias{set_rx_theme}
-\alias{reset_rx_labels}
-\title{Set Custom Labels}
+\alias{reset_rx_roles}
+\title{Set Custom Roles}
 \usage{
-set_rx_labels(labels)
+set_rx_roles(roles)
 
 set_rx_theme(theme)
 
-reset_rx_labels()
+reset_rx_roles()
 }
 \arguments{
-\item{labels}{A named list pair of character vectors that should be used to
-"wrap" formula terms, and change their labels. The default options labels
+\item{roles}{A named list pair of character vectors that should be used to
+"wrap" formula terms, and change their roles. The default options roles
 the independent variables as \code{rhs} and the dependent variables as \code{lhs}.}
 
-\item{theme}{A preset list of labels customized for specific packages. These
+\item{theme}{A preset list of roles customized for specific packages. These
 can be expanded via \href{https://github.com/asshah4/rx/pulls}{pull request}.
 
 Currently supported themes:\tabular{llll}{
-   package \tab lhs \tab rhs \tab labels \cr
+   package \tab lhs \tab rhs \tab roles \cr
    \code{murmur} \tab outcomes \tab predictors \tab X = exposure; F = fixed \cr
    \code{ggdag} \tab lhs \tab rhs \tab X = exposure; Y = "outcome", L = "latent" \cr
 }}
@@ -32,18 +32,18 @@ Changes to global options within the working environment.
 }
 \description{
 This function allows for setting global options for how \code{rx} should label
-individual terms in a formula. The default labels are \code{lhs} for the response
+individual terms in a formula. The default roles are \code{lhs} for the response
 or dependent variables, and the \code{rhs} are the terms or independent variables,
 which require no shorthand or wrappers to work. This will exist for the
 reminder of the working session.
 }
 \details{
 To modify the defaults, simply provide a named list pair in the argument
-\strong{labels} that renames \code{lhs} and \code{rhs}. For example, the default labels can
+\strong{roles} that renames \code{lhs} and \code{rhs}. For example, the default roles can
 be revised using \code{list(lhs = "outcomes", rhs = "predictors")}.
 
-To add new labels, add additional named/paired arguments. The name serves as
-the wrapper for the formula, creating a shorthand for adding labels. For
+To add new roles, add additional named/paired arguments. The name serves as
+the wrapper for the formula, creating a shorthand for adding roles. For
 example, using \code{list(X = "exposure")} will label any component of a formula
 as an "exposure" variable. To use the wrapping feature, simply use the
 \strong{name} of the list argument in parentheses around the individual term, as

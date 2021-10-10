@@ -1,12 +1,12 @@
-#' Decompose a Labeled Formula
+#' Decompose a `rx` formula
 #'
-#' This function takes a formula that has been labeled and parses it through to
-#' identify the individual roles of the terms. The labels are set via the
-#' [rx::set_rx_labels()] function, which modifies global options. The default
-#' presumes the that left-hand side of the equation will be labeled __lhs__ and
-#' the right-hand side will be labeled __rhs__.
+#' This function takes a formula that has been labeled roles and parses it through to
+#' identify the individual roles of the terms. The roles are set via the
+#' [rx::set_rx_roles()] function, which modifies global options. The default
+#' presumes the that left-hand side of the equation will be roleed __lhs__ and
+#' the right-hand side will be roleed __rhs__.
 #'
-#' @return A named list of variables under their specific labels
+#' @return A named list of variables under their specific roles
 #'
 #' @inheritParams rx
 #'
@@ -17,7 +17,7 @@ deparse_formula <- function(f, ...) {
 	# Obtain global options
 	lhs <- getOption("rx.lhs")
 	rhs <- getOption("rx.rhs")
-	labs <- getOption("rx.labels")
+	labs <- getOption("rx.roles")
 
 	# Obtain left and right hand side of equation
 	all_terms <- all.vars(f)
@@ -33,12 +33,12 @@ deparse_formula <- function(f, ...) {
 		sub("[[:alnum:]]\\(", "", .) %>%
 		sub("\\)$", "", .)
 
-	# The list of labels to be returned
-	label_list <- list()
-	label_list[[lhs]] <- lhs_terms
-	label_list[[rhs]] <- rhs_terms
+	# The list of roles to be returned
+	role_list <- list()
+	role_list[[lhs]] <- lhs_terms
+	role_list[[rhs]] <- rhs_terms
 
-	# If available, each prescribed label should be parsed through for wrappers
+	# If available, each prescribed role should be parsed through for wrappers
 	if (length(labs) > 0) {
 
 		labs <- labs[!names(labs) %in% c("lhs", "rhs")]
@@ -55,13 +55,13 @@ deparse_formula <- function(f, ...) {
 				gsub(regex, "", .) %>%
 				gsub("\\)$", "", .)
 
-			label_list[[lbl]] <- wrpr_terms
+			role_list[[lbl]] <- wrpr_terms
 
 		}
 
 	}
 
-	label_list
+	role_list
 
 }
 
