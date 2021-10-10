@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Prescribing a Formula — rx • rx</title>
+<title>Print an rx formula — print.rx • rx</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,8 @@
 
 
 
-<meta property="og:title" content="Prescribing a Formula — rx" />
-<meta property="og:description" content="
-This function defines a new modified formula class of type rx. It expands
-upon the functionality of formulas." />
+<meta property="og:title" content="Print an rx formula — print.rx" />
+<meta property="og:description" content="Print an rx formula" />
 
 
 
@@ -110,49 +108,19 @@ upon the functionality of formulas." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Prescribing a Formula</h1>
-    <small class="dont-index">Source: <a href='https://github.com/asshah4/rx/blob/master/R/rx.R'><code>R/rx.R</code></a></small>
-    <div class="hidden name"><code>rx.Rd</code></div>
+    <h1>Print an <code>rx</code> formula</h1>
+    <small class="dont-index">Source: <a href='https://github.com/asshah4/rx/blob/master/R/output.R'><code>R/output.R</code></a></small>
+    <div class="hidden name"><code>print.rx.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><a href='https://lifecycle.r-lib.org/articles/stages.html#experimental'><img src='figures/lifecycle-experimental.svg' alt='[Experimental]' /></a></p>
-<p>This function defines a new modified <code>formula</code> class of type <code>rx</code>. It expands
-upon the functionality of formulas.</p>
+    <p>Print an <code>rx</code> formula</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rx</span><span class='op'>(</span><span class='va'>f</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='co'># S3 method for rx</span>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
-<span class='co'># S3 method for formula</span>
-<span class='fu'>rx</span><span class='op'>(</span><span class='va'>f</span>, labels <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='co'># S3 method for default</span>
-<span class='fu'>rx</span><span class='op'>(</span><span class='va'>f</span>, <span class='va'>...</span><span class='op'>)</span></pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>f</th>
-      <td><p>An object of class <code>formula</code></p></td>
-    </tr>
-    <tr>
-      <th>labels</th>
-      <td><p>A list of formulas specifying variable labels, which can later
-be extracted for presentation. e.g. <code><a href='https://rdrr.io/r/base/list.html'>list(y ~ "Primary Outcome")</a></code>. It
-defaults to <code>NULL</code>, which will use the variable names itself.</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An <code>rx</code> object, which has the classes of <code><a href='https://rdrr.io/r/base/c.html'>c("rx", "formula")</a></code></p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>When supplying a <code>formula</code> object, each RHS term of the formula is
-considered an outcome variable, and is analyzed as a single outcome. Each
-LHS term is consider a predictor, and can be modified as below:</p>
-<p>TODO an explanation below</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

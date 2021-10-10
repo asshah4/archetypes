@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Decompose a Labeled Formula — deparse_formula • rx</title>
+<title>Decompose a rx formula — deparse_formula • rx</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,12 @@
 
 
 
-<meta property="og:title" content="Decompose a Labeled Formula — deparse_formula" />
-<meta property="og:description" content="This function takes a formula that has been labeled and parses it through to
-identify the individual roles of the terms. The labels are set via the
-set_rx_labels() function, which modifies global options. The default
-presumes the that left-hand side of the equation will be labeled lhs and
-the right-hand side will be labeled rhs." />
+<meta property="og:title" content="Decompose a rx formula — deparse_formula" />
+<meta property="og:description" content="This function takes a formula that has been labeled roles and parses it through to
+identify the individual roles of the terms. The roles are set via the
+set_rx_roles() function, which modifies global options. The default
+presumes the that left-hand side of the equation will be roleed lhs and
+the right-hand side will be roleed rhs." />
 
 
 
@@ -112,17 +112,17 @@ the right-hand side will be labeled rhs." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Decompose a Labeled Formula</h1>
+    <h1>Decompose a <code>rx</code> formula</h1>
     <small class="dont-index">Source: <a href='https://github.com/asshah4/rx/blob/master/R/rx-tools.R'><code>R/rx-tools.R</code></a></small>
     <div class="hidden name"><code>deparse_formula.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function takes a formula that has been labeled and parses it through to
-identify the individual roles of the terms. The labels are set via the
-<code><a href='options.html'>set_rx_labels()</a></code> function, which modifies global options. The default
-presumes the that left-hand side of the equation will be labeled <strong>lhs</strong> and
-the right-hand side will be labeled <strong>rhs</strong>.</p>
+    <p>This function takes a formula that has been labeled roles and parses it through to
+identify the individual roles of the terms. The roles are set via the
+<code><a href='options.html'>set_rx_roles()</a></code> function, which modifies global options. The default
+presumes the that left-hand side of the equation will be roleed <strong>lhs</strong> and
+the right-hand side will be roleed <strong>rhs</strong>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>deparse_formula</span><span class='op'>(</span><span class='va'>f</span>, <span class='va'>...</span><span class='op'>)</span></pre>
@@ -134,15 +134,11 @@ the right-hand side will be labeled <strong>rhs</strong>.</p>
       <th>f</th>
       <td><p>An object of class <code>formula</code></p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Further arguments passed to or from other methods</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A named list of variables under their specific labels</p>
+    <p>A named list of variables under their specific roles</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
