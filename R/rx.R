@@ -4,10 +4,10 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' This function defines a new modified `formula` class of type `rx`. It expands
+#' This function defines a new modified `formula` class of type `fx`. It expands
 #' upon the functionality of formulas.
 #'
-#' @return An `rx` object, which has the classes of `c("rx", "formula")`
+#' @return An `fx` object, which has the classes of `c("fx", "formula")`
 #'
 #' @param f An object of class `formula`
 #'
@@ -23,13 +23,13 @@
 #'
 #' TODO an explanation below
 #' @export
-rx <- function(f, ...) {
-	UseMethod("rx", object = f)
+fx <- function(f, ...) {
+	UseMethod("fx", object = f)
 }
 
-#' @rdname rx
+#' @rdname fx
 #' @export
-rx.formula <- function(f, labels = NULL, ...) {
+fx.formula <- function(f, labels = NULL, ...) {
 
 	# Deparse the formula in search for current roles via special terms
 	role_list <- deparse_formula(f)
@@ -38,11 +38,11 @@ rx.formula <- function(f, labels = NULL, ...) {
 
 	# Left and right hand sides
 	lhs <-
-		getOption("rx.lhs") %>%
+		getOption("fx.lhs") %>%
 		role_list[[.]] %>%
 		paste(., collapse = " + ")
 	rhs <-
-		getOption("rx.rhs") %>%
+		getOption("fx.rhs") %>%
 		role_list[[.]]
 
 	# The formula should be simplified with removal of special characters
@@ -67,7 +67,7 @@ rx.formula <- function(f, labels = NULL, ...) {
 	}
 
 	# Return new class
-	new_rx(
+	new_fx(
 		new_formula,
 		roles = role_table,
 		labels = label_list
@@ -75,27 +75,28 @@ rx.formula <- function(f, labels = NULL, ...) {
 
 }
 
-#' @rdname rx
+#' @rdname fx
 #' @export
-rx.default <- function(f, ...) {
+fx.default <- function(f, ...) {
 	stop(
-		"`rx()` is not defined for a `", class(f)[1], "` object.",
+		"`fx()` is not defined for a `", class(f)[1], "` object.",
 		call. = FALSE
 	)
 }
 
-#' Constructor for `rx` class
+#' Constructor for `fx` class
 #' @noRd
-new_rx <- function(f, roles, labels) {
+new_fx <- function(f, roles, labels) {
 
 	structure(
 		f,
 		roles = roles,
 		labels = labels,
-		class = c("rx", class(f))
+		class = c("fx", class(f))
 	)
 
 }
+
 
 
 

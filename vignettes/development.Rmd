@@ -1,0 +1,70 @@
+---
+title: "Development Thoughts"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Development Thoughts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```r
+library(forks)
+```
+
+# Statement of Need
+
+The _raison d'étre_ of the `{forks}` package, pronounced __/fɔrks/__ ...
+
+# Development
+
+The `{forks}` package was developed as an extension of the `formula` class in base R. The `{vctrs}` package was used to extend the approach to formula handling.
+
+## Considerations
+
+These are some of the thoughts that led to the development of this package.
+
+- The base `formula` class, as it applies to modeling and relationship descriptions
+- Expansion of formulas into groups/lists of related formulas
+- Fixed or protected roles of individual terms (e.g. outcomes, exposures, predictors, mediators, confounders)
+- Customized or unprotected roles for individual terms (specific for individual packages)
+- Operations that applies to individual terms and their distribution at the level of the data itself
+- Operations that apply to an overall formula itself, affecting the relationships between terms
+- Labels for individual terms (e.g. `mtcars$cyl ~ "Number of Cylinders"`)
+
+## Vectors
+
+As `{vctrs}` forms the base for this, a key concept is the idea of vector types and hierarchy.
+
+<center>
+
+```{r, echo=FALSE, fig.align='center'}
+DiagrammeR::grViz("digraph {
+
+graph [layout = dot, rankdir = BT]
+node [shape = rectangle, fontname = arial]
+t [label = TERMS, color = white, fontcolor = crimson]
+f [label = FORMULA, color = white, fontcolor = crimson]
+m [label = model, color = white]
+fl [label = 'formula list', color = white]
+ml [label = 'model list', color = white]
+
+t -> f [color = rosybrown]
+f -> fl [color = rosybrown]
+f -> m [color = rosybrown]
+fl -> ml [color = rosybrown]
+m -> ml [color = rosybrown]
+
+}")
+```
+
+</center>
+
+Theoretically, the `term` objects will carry attributes that can then be composed into a `formula`, which in turn have emergent properties or attributes. The vectorized hierarchy implemented likely applies at least at these lower levels.
+

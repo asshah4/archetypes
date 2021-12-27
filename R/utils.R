@@ -1,18 +1,3 @@
-#' Pipe operator
-#'
-#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @export
-#' @importFrom magrittr %>%
-#' @usage lhs \%>\% rhs
-#' @param lhs A value or the magrittr placeholder.
-#' @param rhs A function call using the magrittr semantics.
-#' @return The result of calling `rhs(lhs)`.
-NULL
-
 #' Identify if an Object has been Named
 #'
 #' A simple function to help identify if an object has names. If it is a `list`
@@ -54,51 +39,40 @@ is.named <- function(x, ...) {
 #'
 #' @return A `data.frame` object
 #'
-#' @param named_list A `list` object that is named
+#' @param x A named `list` object
 #'
 #' @param id Name of column that contains terms
+#'
+#' @param val Name of column that contains specific values
 #'
 #' @param ... Further arguments passed to or from other methods
 #'
 #' @export
-list_to_table <- function(named_list, id = "terms", ...) {
+list_to_table <- function(x, id = "terms", val = "ops", ...) {
 
-	# Create table/matrix of roles
-	list_table <- suppressWarnings(utils::stack(named_list))
-	names(list_table) <- c(id, "roles")
-	list_table$.id <- TRUE
-	list_table <- stats::reshape(list_table, direction = "wide", idvar = id, timevar = "roles")
-	names(list_table) <- gsub("\\.id\\.", "", names(list_table))
-	list_table[is.na(list_table)] <- FALSE
-
-	# Return
-	list_table
+	tbl <- as.data.frame(cbind(names(x), unlist(unname(x))))
+	colnames(tbl) <- c(id, val)
+	tbl
 
 }
 
 #' Convert a Logical Table into a List
 #'
-#' Takes a `data.frame` and uses the columns to generate a named list.
+#' Takes a `data.frame` and uses the columns to generate a named list. This removes the original column names, as it assumes that the data is contained within the frame itself. It defaults to using the first column as the names of the list.
 #'
-#' @param df A `data.frame` object with logical values for each term
+#' @param x A `data.frame` object with values for each term
+
+#' @param id Name of column that contains terms
 #'
 #' @param ... Further arguments passed to or from other methods
 #'
 #' @export
-table_to_list <- function(df, ...) {
+table_to_list <- function(x, id = "terms", ...) {
 
-	named_list <-
-		tidyr::pivot_longer(df, -1) %>%
-		.[.$value == TRUE, ] %>%
-		.[-3] %>%
-		utils::unstack(.)
-
-	if (is.data.frame(named_list)) {
-		named_list <- as.list(named_list)
-	}
-
-	# Return
-	named_list
+	nms <- tbl[[id]]
+	val <- tbl[[which(!colnames(tbl) %in% id)]]
+	names(val) <- nms
+	as.list(val)
 
 }
 
@@ -150,3 +124,4 @@ get_env <- function(x) {
 	env <- environment(x)
 	env
 }
+

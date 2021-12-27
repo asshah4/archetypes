@@ -4,12 +4,14 @@
 \alias{list_to_table}
 \title{Convert a List into a Table}
 \usage{
-list_to_table(named_list, id = "terms", ...)
+list_to_table(x, id = "terms", val = "ops", ...)
 }
 \arguments{
-\item{named_list}{A \code{list} object that is named}
+\item{x}{A named \code{list} object}
 
 \item{id}{Name of column that contains terms}
+
+\item{val}{Name of column that contains specific values}
 
 \item{...}{Further arguments passed to or from other methods}
 }

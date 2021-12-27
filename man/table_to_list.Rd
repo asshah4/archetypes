@@ -4,13 +4,15 @@
 \alias{table_to_list}
 \title{Convert a Logical Table into a List}
 \usage{
-table_to_list(df, ...)
+table_to_list(x, id = "terms", ...)
 }
 \arguments{
-\item{df}{A \code{data.frame} object with logical values for each term}
+\item{x}{A \code{data.frame} object with values for each term}
+
+\item{id}{Name of column that contains terms}
 
 \item{...}{Further arguments passed to or from other methods}
 }
 \description{
-Takes a \code{data.frame} and uses the columns to generate a named list.
+Takes a \code{data.frame} and uses the columns to generate a named list. This removes the original column names, as it assumes that the data is contained within the frame itself. It defaults to using the first column as the names of the list.
 }

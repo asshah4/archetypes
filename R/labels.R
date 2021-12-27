@@ -1,21 +1,41 @@
-#' Find Labels from Object
+#' Labels for an `rx` Object
 #'
-#' Retrieve the term labels from the `rx` object if available. At minimum, will
-#' have the names of the variables themselves.
+#' These functions serve to help manipulate labels for an `rx` formula. They
+#' retrieve and manipulate term labels from the `rx` object if available. At
+#' minimum, will have the names of the variables themselves.
 #'
 #' @return A character vector or list of such vectors from an object of the `rx`
 #'   class.
 #'
 #' @param object An object of `rx` class
 #'
-#' @inheritParams base::labels
-#'
+#' @name labels
 #' @export
-labels.rx <- function(object, ...) {
+labels.rx <- function(object) {
 
 	attributes(object)$labels
 
 }
+
+#' @param ... Name-value pairs of term labels
+#' @rdname labels
+#' @export
+set_labels <- function(object, ...) {
+
+	# Arguments to use
+	dots <- list(...)
+	validate_class(object, "rx")
+	labs <- labels(object)
+
+	# For any matched terms, replace the basic label with the new label
+	new_labs <- utils::modifyList(labs, dots)
+	attributes(object)$labels <- new_labs
+
+	# Return
+	object
+
+}
+
 
 #' Find Roles from Formula
 #'
@@ -46,11 +66,11 @@ roles.rx <- function(object, ...) {
 #'
 #' @description
 #'
-#' This function allows for setting global options for how `rx` should label
-#' individual terms in a formula. The default roles are `lhs` for the response
-#' or dependent variables, and the `rhs` are the terms or independent variables,
-#' which require no shorthand or wrappers to work. This will exist for the
-#' reminder of the working session.
+#' This function allows for setting global options for how `rx` should give
+#' roles to individual terms in a formula. The default roles are `lhs` for the
+#' response or dependent variables, and the `rhs` are the terms or independent
+#' variables, which require no shorthand or wrappers to work. This will exist
+#' for the reminder of the working session.
 #'
 #' @details
 #'
@@ -72,7 +92,6 @@ roles.rx <- function(object, ...) {
 #' @param roles A named list pair of character vectors that should be used to
 #'   "wrap" formula terms, and change their roles. The default options roles
 #'   the independent variables as `rhs` and the dependent variables as `lhs`.
-#'
 #'
 #' @name options
 #' @export
@@ -120,7 +139,7 @@ set_rx_roles <- function(roles) {
 #'
 #'   Currently supported themes:
 #'
-#'   | package | lhs | rhs | roles |
+#'   | Package | LHS | RHS | Roles |
 #'   | :--- | --- | --- | --- |
 #'   | `murmur` | outcomes | predictors | X = exposure; F = fixed |
 #'   | `ggdag` | lhs | rhs | X = exposure; Y = "outcome", L = "latent" |

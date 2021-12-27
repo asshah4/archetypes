@@ -22,7 +22,7 @@ the independent variables as \code{rhs} and the dependent variables as \code{lhs
 can be expanded via \href{https://github.com/asshah4/rx/pulls}{pull request}.
 
 Currently supported themes:\tabular{llll}{
-   package \tab lhs \tab rhs \tab roles \cr
+   Package \tab LHS \tab RHS \tab Roles \cr
    \code{murmur} \tab outcomes \tab predictors \tab X = exposure; F = fixed \cr
    \code{ggdag} \tab lhs \tab rhs \tab X = exposure; Y = "outcome", L = "latent" \cr
 }}
@@ -31,11 +31,11 @@ Currently supported themes:\tabular{llll}{
 Changes to global options within the working environment.
 }
 \description{
-This function allows for setting global options for how \code{rx} should label
-individual terms in a formula. The default roles are \code{lhs} for the response
-or dependent variables, and the \code{rhs} are the terms or independent variables,
-which require no shorthand or wrappers to work. This will exist for the
-reminder of the working session.
+This function allows for setting global options for how \code{rx} should give
+roles to individual terms in a formula. The default roles are \code{lhs} for the
+response or dependent variables, and the \code{rhs} are the terms or independent
+variables, which require no shorthand or wrappers to work. This will exist
+for the reminder of the working session.
 }
 \details{
 To modify the defaults, simply provide a named list pair in the argument

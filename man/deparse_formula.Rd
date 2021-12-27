@@ -6,16 +6,13 @@
 \usage{
 deparse_formula(f, ...)
 }
-\arguments{
-\item{f}{An object of class \code{formula}}
-}
 \value{
 A named list of variables under their specific roles
 }
 \description{
 This function takes a formula that has been labeled roles and parses it through to
 identify the individual roles of the terms. The roles are set via the
-\code{\link[=set_rx_roles]{set_rx_roles()}} function, which modifies global options. The default
+\code{\link[rx:options]{rx::set_rx_roles()}} function, which modifies global options. The default
 presumes the that left-hand side of the equation will be roleed \strong{lhs} and
 the right-hand side will be roleed \strong{rhs}.
 }
