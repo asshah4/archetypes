@@ -76,40 +76,6 @@ table_to_list <- function(x, id = "terms", ...) {
 
 }
 
-#' Get left hand side terms
-#' @keywords internal
-get_lhs <- function(f) {
-
-	f[[2]] %>%
-		deparse(.) %>%
-		strsplit(., "\ \\+\ ") %>%
-		unlist(.) %>%
-		gsub(" ", "", .)
-
-}
-
-#' Get right hand side terms. If tidy = TRUE, then return without wrappers.
-#' @keywords internal
-get_rhs <- function(f, tidy = TRUE) {
-
-	if (tidy) {
-		rhs <-
-			paste(f[2], f[1], f[3], collapse = "") %>%
-			strsplit(., " ~ ") %>%
-			unlist(.) %>%
-			.[2] %>%
-			paste("~", .) %>%
-			stats::formula(.) %>%
-			all.vars()
-	} else {
-		rhs <-
-			labels(stats::terms(f))
-	}
-
-	# Return
-	rhs
-
-}
 
 #' Add parent environment back to formula
 #' @keywords internal
@@ -125,3 +91,59 @@ get_env <- function(x) {
 	env
 }
 
+# Terms ----
+
+#' Get terms from prescribed formulas
+#' @name getters
+#' @export
+get_terms <- function(x, ...) {
+	UseMethod("get_terms", object = x)
+}
+
+#' @rdname getters
+#' @export
+get_terms.term_vctr <- function(x, side = "both", ...) {
+	switch(
+		side,
+		left = {
+			tm <- vec_data(x)
+			t <- tm$terms[tm$sides == "left"]
+			t
+		},
+		right = {
+			tm <- vec_data(x)
+			t <- tm$terms[tm$sides == "right"]
+			t
+		},
+		both = {
+			tm <- vec_data(x)
+			t <- tm$terms[!is.na(tm$sides)]
+			t
+		}
+	)
+}
+
+# {vctrs} general casting and coercion ----
+
+#' @export
+vec_ptype2.vctrs_list_of.character <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_ptype2.character.vctrs_list_of <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_cast.vctrs_list_of.character <- function(x, to, ...) {
+	cl <- as.list(x) # Make list of characters
+	loc <- new_list_of(cl, ptype = character()) # Turn into list_of class
+	loc # Return list of characters
+}
+
+#' @export
+vec_cast.character.vctrs_list_of <- function(x, to, ...) {
+	cv <- unlist(x) # Flatten list of characters
+	cv # Return character vector (named)
+}

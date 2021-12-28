@@ -14,10 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```r
-library(forks)
-```
-
 # Statement of Need
 
 The _raison d'étre_ of the `{forks}` package, pronounced __/fɔrks/__ ...
@@ -40,7 +36,7 @@ These are some of the thoughts that led to the development of this package.
 
 ## Vectors
 
-As `{vctrs}` forms the base for this, a key concept is the idea of vector types and hierarchy.
+As `{vctrs}` forms the base for this, a key concept is the idea of vector types and __coercion hierarchy__.
 
 <center>
 
@@ -49,12 +45,14 @@ DiagrammeR::grViz("digraph {
 
 graph [layout = dot, rankdir = BT]
 node [shape = rectangle, fontname = arial]
-t [label = TERMS, color = white, fontcolor = crimson]
-f [label = FORMULA, color = white, fontcolor = crimson]
+c [label = character, color = white]
+t [label = <<b>TERMS</b>>, color = white, fontcolor = crimson]
+f [label = <<b>FORMULA</b>>, color = white, fontcolor = crimson]
 m [label = model, color = white]
 fl [label = 'formula list', color = white]
 ml [label = 'model list', color = white]
 
+c -> t [color = rosybrown]
 t -> f [color = rosybrown]
 f -> fl [color = rosybrown]
 f -> m [color = rosybrown]
@@ -66,5 +64,5 @@ m -> ml [color = rosybrown]
 
 </center>
 
-Theoretically, the `term` objects will carry attributes that can then be composed into a `formula`, which in turn have emergent properties or attributes. The vectorized hierarchy implemented likely applies at least at these lower levels.
+In theory, the `character` class is considered enriched as a `term` class. In turn, a `term` class is considered enriched as a `formula` class. These enriched classes of <span style = "color:crimson">term</span> and <span style = "color:crimson">formula</span> could be implemented as vectors under this type of hierarchy, with emergent properties that develop as we ascend.
 

@@ -1,3 +1,5 @@
+# Vectors ----
+
 #' Vector of formula terms
 #' @keywords internal
 #' @noRd
@@ -28,20 +30,32 @@ new_term <- function(terms = character(),
 #' @noRd
 methods::setOldClass(c("term_vctr", "vctrs_vctr"))
 
-#' `term` vector
+#' Vectorized terms using a `term_vctr`
 #'
 #' @param x
+#'
 #' * For `term()` or `tx()`: A character vector
+#'
 #' * For `is_term()`: An object to test
+#'
+#' @param sides Left or right hand side of the equation
+#'
+#' @param roles Specific role the variable plays within the formula
+#'
+#' @param operations Modification of the term to be applied when combining with
+#'   data
+#'
+#' @param labels Display-quality label describing the variable
+#'
 #' @name term
 #' @export
-tx <- function(x, ...) {
+tx <- function(x = character(), ...) {
 	UseMethod("term", object = x)
 }
 
 #' @rdname term
 #' @export
-term <- function(x, ...) {
+term <- function(x = character(), ...) {
 	UseMethod("term", object = x)
 }
 
@@ -51,10 +65,15 @@ term.character <- function(x = character(),
 													 sides = character(),
 													 roles = character(),
 													 operations = character(),
-													 labels = character()) {
+													 labels = character(),
+													 ...) {
 
+	# Early break if not viable method dispatch
+	if (length(x) == 0) {
+		return(new_term())
+	}
 
-	# Finding missing values
+	# Finding missing value
 	if (length(sides) == 0) sides <- NA
 	if (length(roles) == 0) roles <- NA
 	if (length(operations) == 0) operations <- NA
@@ -68,7 +87,7 @@ term.character <- function(x = character(),
 	labels <- vec_cast(labels, character())
 
 	new_term(
-		terms = x,
+		term = x,
 		sides = sides,
 		roles = roles,
 		operations = operations,
@@ -81,8 +100,8 @@ term.character <- function(x = character(),
 #' @export
 term.formula <- function(x,
 												 roles = list(),
-												 labels = list()) {
-
+												 labels = list(),
+												 ...) {
 
 	# All terms are needed to build term vector
 	n <- length(all.vars(x))
@@ -121,9 +140,9 @@ term.formula <- function(x,
 		# Make parameters
 		t <- all_terms[i]
 		side <- if (t %in% left_terms) {
-			"lhs"
+			"left"
 		} else if (t %in% right_terms) {
-			"rhs"
+			"right"
 		}
 		op <- if (t %in% names(ops)) {
 			ops[[t]]
@@ -147,7 +166,7 @@ term.formula <- function(x,
 
 		# Place into term list
 		term_list[[i]] <- new_term(
-			terms = x,
+			term = x,
 			sides = side,
 			roles = role,
 			operations = op,
@@ -158,7 +177,7 @@ term.formula <- function(x,
 
 	# Return as a vector of terms
 	term_list |>
-		vec_list_cast(to = new_term())
+		vec_list_cast(to = term())
 
 }
 
@@ -178,7 +197,7 @@ is_term <- function(x) {
 	inherits(x, "term_vctr")
 }
 
-### Formating and printing ----
+# Formating and printing ----
 
 #' @export
 format.term_vctr <- function(x, ...) {
@@ -207,12 +226,13 @@ obj_print_data.term_vctr <- function(x) {
 
 #' @export
 vec_ptype_abbr.term_vctr <- function(x, ...) {
-	"tm"
+	"trms"
 }
 
-### Casting and Coercion ----
+# Casting and Coercion ----
 
-### Self coercion
+### self ###
+
 #' @export
 vec_ptype2.term_vctr.term_vctr <- function(x, y, ...) {
 	x
@@ -223,7 +243,8 @@ vec_cast.term_vctr.term_vctr <- function(x, to, ...) {
 	x
 }
 
-### Character coercion
+### Character coercion ###
+
 #' @export
 vec_ptype2.term_vctr.character <- function(x, y, ...) {
 	# `x` is term
@@ -250,4 +271,29 @@ vec_cast.character.term_vctr <- function(x, to, ...) {
 	# Order is flipped, such that `x` is term
 	attributes(x) <- NULL
 	x[[1]]
+}
+
+### list_of() ###
+
+#' @export
+vec_ptype2.vctrs_list_of.term_vctr <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_ptype2.term_vctr.vctrs_list_of <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_cast.vctrs_list_of.term_vctr <- function(x, to, ...) {
+	tl <- as.list(x) # Convert to list
+	lot <- new_list_of(tl, ptype = term()) # make new list of
+	lot # return list of terms
+}
+
+#' @export
+vec_cast.term_vctr.vctrs_list_of <- function(x, to, ...) {
+	t <- vec_list_cast(x, term()) # Convert to a flattened vector
+	t # Return vector of terms
 }

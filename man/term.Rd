@@ -7,21 +7,22 @@
 \alias{term.formula}
 \alias{term.default}
 \alias{is_term}
-\title{\code{term} vector}
+\title{Vectorized terms using a \code{term_vctr}}
 \usage{
-tx(x, ...)
+tx(x = character(), ...)
 
-term(x, ...)
+term(x = character(), ...)
 
 \method{term}{character}(
   x = character(),
   sides = character(),
   roles = character(),
   operations = character(),
-  labels = character()
+  labels = character(),
+  ...
 )
 
-\method{term}{formula}(x, roles = list(), labels = list())
+\method{term}{formula}(x, roles = list(), labels = list(), ...)
 
 \method{term}{default}(x, ...)
 
@@ -32,7 +33,16 @@ is_term(x)
 \item For \code{term()} or \code{tx()}: A character vector
 \item For \code{is_term()}: An object to test
 }}
+
+\item{sides}{Left or right hand side of the equation}
+
+\item{roles}{Specific role the variable plays within the formula}
+
+\item{operations}{Modification of the term to be applied when combining with
+data}
+
+\item{labels}{Display-quality label describing the variable}
 }
 \description{
-\code{term} vector
+Vectorized terms using a \code{term_vctr}
 }

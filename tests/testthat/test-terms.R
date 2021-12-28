@@ -18,6 +18,7 @@ test_that("term() makes term object or errors", {
 })
 
 test_that("formula can be broken into terms", {
+
 	# Complex formula with term and data operations
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
 	t1 <- term(f)
@@ -31,8 +32,8 @@ test_that("formula can be broken into terms", {
 # Output ----
 test_that("formatting is correct", {
 
-	t1 <- term("y", sides = "lhs", roles = "outcome", labels = "Dependent Variable")
-	t2 <- term("x", sides = "rhs", roles = "exposure", labels = "Independent Variable")
+	t1 <- term("y", sides = "left", roles = "outcome", labels = "Dependent Variable")
+	t2 <- term("x", sides = "right", roles = "exposure", labels = "Independent Variable")
 	vt <- c(t1, t2)
 	expect_output(print(t1), "y")
 	expect_output(print(new_term()), "[0]")
@@ -40,15 +41,15 @@ test_that("formatting is correct", {
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(vt) |>
 			print() |>
-			expect_output("<tm>")
+			expect_output("<trms>")
 	}
 
 })
 
 # Coercion ----
 test_that("coercion and casting works", {
-	x1 <- term("x1", sides = "rhs", roles = "exposure", labels = "Independent Variable")
-	x2 <- term("x2", sides = "rhs", roles = "covariate", labels = "Independent Variable")
+	x1 <- term("x1", sides = "right", roles = "exposure", labels = "Independent Variable")
+	x2 <- term("x2", sides = "right", roles = "covariate", labels = "Independent Variable")
 	y <- "y"
 	expect_type(c(x1, y), "character")
 	expect_s3_class(c(x1, x2), "term_vctr")
