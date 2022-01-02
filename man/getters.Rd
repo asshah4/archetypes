@@ -3,12 +3,12 @@
 \name{getters}
 \alias{getters}
 \alias{get_terms}
-\alias{get_terms.term_vctr}
+\alias{get_roles}
 \title{Get terms from prescribed formulas}
 \usage{
-get_terms(x, ...)
+get_terms(x, side = "both", ...)
 
-\method{get_terms}{term_vctr}(x, side = "both", ...)
+get_roles(x, role = "all", ...)
 }
 \description{
 Get terms from prescribed formulas

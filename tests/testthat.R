@@ -1,4 +1,4 @@
 library(testthat)
-library(rx)
+library(forks)
 
-test_check("rx")
+test_check("forks")

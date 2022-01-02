@@ -19,7 +19,7 @@ RoxygenNote: 7.1.2
 Imports: 
     lifecycle,
     methods,
-    tidyr,
+    vctrs
 Suggests: 
     covr,
     testthat (>= 3.0.0),

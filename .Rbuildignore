@@ -1,4 +1,4 @@
-^rx\.Rproj$
+^forks\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^_pkgdown\.yml$
@@ -10,3 +10,4 @@
 ^cran-comments\.md$
 ^sandbox\.R$
 ^R/dev\.R$
+^vignettes/articles$

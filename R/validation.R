@@ -1,40 +1,5 @@
-#' Validate the roles argument
-#' @noRd
-validate_roles <- function(f, roles) {
-
-	# Requires named list
-	if (!is.list(roles) || !is.named(roles)) {
-		stop(
-			"The object passed to the `roles` argument needs to be a named list pair.",
-			call. = FALSE
-		)
-	}
-
-	# Variables from both formula and what is specified in the roles
-	original_vars <- all.vars(f)
-	role_vars <-
-		roles %>%
-		unlist() %>%
-		unname() %>%
-		unique() %>%
-		paste(., collapse = " + ") %>%
-		paste("~", .) %>%
-		stats::formula() %>%
-		all.vars()
-
-	# Requires roles to have appropriate terms
-	if (!all(role_vars %in% original_vars)) {
-		stop(
-			"The variables in the `roles` argument are not terms within the formula.",
-			call. = FALSE
-		)
-	}
-
-	invisible(TRUE)
-
-}
-
 #' Validate class of objects
+#' @keywords internal
 #' @noRd
 validate_class <- function(x, what) {
 
@@ -53,4 +18,35 @@ validate_class <- function(x, what) {
 
 	invisible(TRUE)
 
+}
+
+#' Identification of objects in the `forks` package
+#'
+#' @param x Confirmation of an object being of the following classes:
+#'
+#'   * `term_rcrd`
+#'   * `formula_frame`
+#'
+#' @name checkers
+#' @export
+is_term <- function(x) {
+	inherits(x, "term_rcrd")
+}
+
+#' @rdname checkers
+#' @export
+is_tx <- function(x) {
+	inherits(x, "term_rcrd")
+}
+
+#' @rdname checkers
+#' @export
+is_formula_frame <- function(x) {
+	inherits(x, "formula_frame")
+}
+
+#' @rdname checkers
+#' @export
+is_rx <- function(x) {
+	inherits(x, "formula_frame")
 }

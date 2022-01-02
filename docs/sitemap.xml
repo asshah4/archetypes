@@ -1,39 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://asshah4.github.io/rx//index.html</loc>
+    <loc>https://asshah4.github.io/forks/404.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/Ops.rx.html</loc>
+    <loc>https://asshah4.github.io/forks/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/deparse_formula.html</loc>
+    <loc>https://asshah4.github.io/forks/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/is.named.html</loc>
+    <loc>https://asshah4.github.io/forks/articles/development.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/labels.rx.html</loc>
+    <loc>https://asshah4.github.io/forks/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/list_to_table.html</loc>
+    <loc>https://asshah4.github.io/forks/authors.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/merge.rx.html</loc>
+    <loc>https://asshah4.github.io/forks/index.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/options.html</loc>
+    <loc>https://asshah4.github.io/forks/reference/Ops.rx.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/pipe.html</loc>
+    <loc>https://asshah4.github.io/forks/reference/checkers.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/rx-package.html</loc>
+    <loc>https://asshah4.github.io/forks/reference/deparse_formula.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/rx.html</loc>
+    <loc>https://asshah4.github.io/forks/reference/forks-package.html</loc>
   </url>
   <url>
-    <loc>https://asshah4.github.io/rx//reference/table_to_list.html</loc>
+    <loc>https://asshah4.github.io/forks/reference/forks-vctrs.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/formula.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/formula_record.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/getters.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/is.named.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/labels.rx.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/list_of_formulas.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/list_to_table.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/lists_tbls.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/merge.rx.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/options.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/rx-package.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/rx.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/table_to_list.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/term.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/term_vector.html</loc>
   </url>
 </urlset>

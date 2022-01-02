@@ -1,9 +1,10 @@
-pandoc: 2.11.2
-pkgdown: 1.6.1
+pandoc: 2.14.0.3
+pkgdown: 2.0.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2021-09-24T23:42Z
+articles:
+  development: development.html
+last_built: 2021-12-31T02:16Z
 urls:
-  reference: https://asshah4.github.io/rx//reference
-  article: https://asshah4.github.io/rx//articles
+  reference: https://asshah4.github.io/forks/reference
+  article: https://asshah4.github.io/forks/articles
 

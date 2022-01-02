@@ -1,0 +1,258 @@
+---
+title: "development"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, setup, warning=FALSE, echo = FALSE}
+library(forks)
+library(nomnoml)
+```
+
+# Statement of Need
+
+The _raison d'étre_ of the `{forks}` package, pronounced __/fɔrks/__ ...
+
+# Development
+
+The `{forks}` package was developed as an extension of the `formula` class in base R. The `{vctrs}` package was used to extend the approach to formula handling.
+
+## Considerations
+
+These are some of the thoughts that led to the development of this package.
+
+- The base `formula` class, as it applies to modeling and relationship descriptions
+- Expansion of formulas into groups/lists of related formulas
+- Fixed or protected roles of individual terms (e.g. outcomes, exposures, predictors, mediators, confounders)
+- Customized or unprotected roles for individual terms (specific for individual packages)
+- Operations that applies to individual terms and their distribution at the level of the data itself
+- Operations that apply to an overall formula itself, affecting the relationships between terms
+- Labels for individual terms (e.g. `mtcars$cyl ~ "Number of Cylinders"`)
+
+## Vectors
+
+As `{vctrs}` forms the base for this, a key concept is the idea of vector types and __coercion hierarchy__.
+
+<center>
+
+```{r, echo=FALSE, fig.align='center'}
+DiagrammeR::grViz("digraph {
+
+graph [layout = dot, rankdir = BT]
+node [shape = rectangle, fontname = arial]
+c [label = character, color = white]
+t [label = <<b>TERMS</b>>, color = white, fontcolor = crimson]
+f [label = <<b>FORMULA</b>>, color = white, fontcolor = crimson]
+m [label = model, color = white]
+fl [label = 'formula list', color = white]
+ml [label = 'model list', color = white]
+
+c -> t [color = rosybrown]
+t -> f [color = rosybrown]
+f -> fl [color = rosybrown]
+f -> m [color = rosybrown]
+fl -> ml [color = rosybrown]
+m -> ml [color = rosybrown]
+
+}")
+```
+
+</center>
+
+In theory, the `character` class is considered enriched as a `term` class. In turn, a `term` class is considered enriched as a `formula` class. These enriched classes of <span style = "color:crimson">term</span> and <span style = "color:crimson">formula</span> could be implemented as vectors under this type of hierarchy, with emergent properties that develop as we ascend.
+
+# Structure
+
+The structure of the package is somewhat hierarchical, in that specific classes have been generated to allow specific functionality at a higher level.
+
+<center>
+
+```{nomnoml, echo=FALSE, width=600, height=1000}
+#direction: down
+#edges: rounded
+#background: transparent
+#font: Arial
+#fontSize: 16
+#lineWidth: 3
+
+[<class> term_vector |
++terms
+-roles
+-labels
+-operations |
++term()
+]
+
+[<class> formula_record |
++complex formula
+-term vectors
+-operations |
++formula_record()
+]
+
+
+[<class> formula_list |
++list
++formulas |
+-expand_formula_records()
++as_formula_list()
++as_formula()
+-as_formula_rcrd()
+]
+
+[<class> model_list |
++model types |
++fit_list()
+]
+
+[<input> character]
+[<input> formula]
+[<class> model]
+[<database> data]
+
+[term_vector] +-> [formula_record]
+[formula_record] +-> [formula_list]
+
+[character] -:> [term_vector]
+[formula] -:> [formula_record]
+[formula] -:> [formula_list]
+[model_list] <-- [formula_list]
+[model] <-- [formula]
+[model_list] <-- [model]
+[data] - [formula]
+[data] - [formula_list]
+[data] --> [model]
+[data] --> [model_list]
+```
+
+</center>
+
+# Functions
+
+In the setting of a more complex program, functions, arguments, inputs, outputs may all be easier to visualize via a class or UML diagram.
+
+<center>
+
+```{nomnoml, echo=FALSE, width=800, height=1200}
+#direction: down
+#font: Arial
+#fontSize: 16
+#lineWidth: 3
+#.fn: visual=ellipse title=underline
+#.arg: visual=input title=italic fill=rosybrown
+#.generic: visual=class title=bold
+#.class: visual=class title=bold stroke=maroon
+#.output: visual=input title=italic fill=indianred
+
+[<generic> term_vctr() |
+ 	
+  [<fn> term_vctr.character()]
+	[<fn> term_vctr.formula()]
+	[<arg> character]
+	[<arg> sides] 
+	[<arg> roles] 
+  [<arg> operations] 
+	[<arg> labels] 
+	[<arg> formula] 
+    
+	[character] o-> [term_vctr.character()]
+	[sides] o-> [term_vctr.character()]
+	[roles] o-> [term_vctr.character()]
+	[operations] o-> [term_vctr.character()]
+  [labels] o-> [term_vctr.character()]
+	[labels] o-> [term_vctr.formula()]
+	[formula] o-> [term_vctr.formula()]
+    
+  [<output> term]
+  [<output> side]
+  [<output> role]
+  [<output> operation]
+  [<output> label]
+  
+  [term_vctr.character()] -> [term]
+  [term_vctr.character()] -> [side]
+  [term_vctr.character()] -> [role]
+  [term_vctr.character()] -> [operation]
+  [term_vctr.character()] -> [label]
+	[term_vctr.formula()] -> [term]
+  [term_vctr.formula()] -> [side]
+  [term_vctr.formula()] -> [role]
+  [term_vctr.formula()] -> [operation]
+  [term_vctr.formula()] -> [label]
+  
+  [<fn> new_term()]
+  [term] o-> [new_term()]
+  [side] o-> [new_term()]
+  [role] o-> [new_term()]
+  [label] o-> [new_term()]
+  [operation] o-> [new_term()]    
+  
+]
+
+[term_vctr()] --:> [<class> term_vctr]
+
+[term_vctr] --:> [formula_rcrd()]
+
+[<generic> formula_rcrd() |
+	
+  [<fn> formula_rcrd.term_vctr()]
+  [<arg> pattern]
+  [pattern] o-> [formula_rcrd.term_vctr()]
+  [<arg> term_vctr] o-> [formula_rcrd.term_vctr()]
+  
+  [<output> formulas]
+  [<output> operations]
+  [<output> term_list]
+  
+  [formula_rcrd.term_vctr()] -> [formulas]
+  [formula_rcrd.term_vctr()] -> [operations]
+  [formula_rcrd.term_vctr()] -> [term_list]
+  
+  [<fn> new_formula_rcrd()]
+  
+  [formulas] o-> [new_formula_rcrd()]
+  [operations] o-> [new_formula_rcrd()]
+  [term_list] o-> [new_formula_rcrd()]
+
+]
+
+[formula_rcrd()] --:> [<class> formulas]
+
+[formulas] --:> [list_of_formulas()] 
+
+[<generic> list_of_formulas() |
+
+	[<fn> list_of_formulas.formulas()]
+	[<arg> formulas]
+	[formulas] o-> [list_of_formulas.formulas()]
+	
+	[<output> formula]
+	[<output> terms]
+	[<output> roles]
+	[<output> labels]
+	
+	[list_of_formulas.formulas()] -> [formula]
+	[list_of_formulas.formulas()] -> [terms]
+	[list_of_formulas.formulas()] -> [roles]
+	[list_of_formulas.formulas()] -> [labels]
+	
+	[<fn> new_list_of_formulas()]
+	[formula] o-> [new_list_of_formulas()]
+	[terms] o-> [new_list_of_formulas()]
+	[roles] o-> [new_list_of_formulas()]
+	[labels] o-> [new_list_of_formulas()]
+
+]
+
+[list_of_formulas()] --:> [<class> list_of_formulas]
+
+
+```
+
+
+</center>

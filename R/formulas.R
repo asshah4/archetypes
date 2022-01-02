@@ -1,60 +1,35 @@
-### Vectors ----
+# Formula vector ----
 
-#' Formula frame
-#' @keywords internal
-#' @noRd
-new_formula_frame <- function(formulas = character(),
-															operations = list(),
-															pattern = character(),
-															term_list = list()) {
-
-	# Validity
-	vec_assert(formulas, ptype = character(), size = 1)
-	vec_assert(operations, ptype = list(), size = 1)
-	vec_assert(pattern, ptype = character(), size = 1)
-	vec_assert(term_list, ptype = list(), size = 1)
-
-	# Record type
-	new_rcrd(
-		list(
-			"formulas" = formulas, # Simplified formulas
-			"operations" = operations, # Formula level emergent transformations
-			"pattern" = pattern, # Pattern
-			"term_list" = term_list # List of term data
-		),
-		class = "formula_frame"
-	)
+#' Formula vector
+#'
+#' @description
+#'
+#' `r lifecycle::badge('experimental')`
+#'
+#' This function defines a new modified `formula` class that has been
+#' vectorized. It expands upon the functionality of formulas.
+#'
+#' @param x Objects of the following types can be used as inputs
+#'
+#'   * `term_rcrd`
+#'
+#' @param ... Arguments to be passed to or from other methods
+#'
+#' @name formula_vector
+formula_vctr <- function(x = term_rcrd(), ...) {
+	UseMethod("formula_vctr", object = x)
 }
 
-#' @keywords internal
-#' @noRd
-methods::setOldClass(c("formula_frame", "vctrs_vctr"))
-
-#' Vectorized formulas using a `formula_frame`
-#'
-#' @param x
-
-#' * For `formula_frame()` or `rx()`: A `term_vctr` object
-#'
-#' @param pattern User-dependent methods to apply at the level of the formula at large
-#'
-#' @name formula
+#' @rdname formula_vector
 #' @export
-rx <- function(x = term(), ...) {
-	UseMethod("formula_frame", object = x)
-}
-
-#' @rdname formula
-#' @export
-formula_frame <- function(x = term(), ...) {
-	UseMethod("formula_frame", object = x)
-}
-
-#' @rdname formula
-#' @export
-formula_frame.term_vctr <- function(x = term(),
-																		pattern = character(),
+formula_vctr.term_rcrd <- function(x = term_rcrd(),
+																	 pattern = NA,
 																		...) {
+
+	# Early break if not viable method dispatch
+	if (length(x) == 0) {
+		return(new_formula_vctr())
+	}
 
 	# Create simplified formula
 	t <- vec_data(x)
@@ -65,43 +40,81 @@ formula_frame.term_vctr <- function(x = term(),
 										sep = " ~ ")
 	formulas <- vec_cast(formulas, character())
 
-	# Pattern
-	if (length(pattern) == 0) pattern <- "default"
-	pattern <- vec_cast(pattern, character())
+	# Check pattern
+	if (is.na(pattern)) {
+		pattern <- "default"
+	}
+	if (!pattern %in% c("default", "sequential", "parallel")) {
+		stop(
+			"The pattern ", deparse(pattern), " is not yet supported.",
+			call. = FALSE
+		)
+	}
 
-	# Formula level operations
-	ops <- list(data.frame(
-		outcomes = length(get_terms(x, "left")),
-		exposures = length(t$roles[t$roles == "exposure" & !is.na(t$roles)])
-	))
+	# Formula level operations, should return a list
+	ops <- identify_ops(x, pattern)
 
 	# Term list (nested for field length equivalence)
-	term_list <- list(t)
+	terms <- x
+
+	# If ready to be transformed into a normal formula
+	state <- if (length(ops$dependent_variables) > 1) {
+		FALSE
+	} else {
+		TRUE
+	}
 
 	# Return
-	new_formula_frame(
+	new_formula_vctr(
 			formulas = formulas,
 			operations = ops,
-			pattern = pattern,
-			term_list = term_list
+			terms = terms,
+			state = state
 	)
 }
 
-#' @rdname formula
+#' @rdname formula_vector
 #' @export
-formula_frame.default <- function(x, ...) {
+formula_vctr.default <- function(x, ...) {
 	stop(
-		"`formula_frame()` is not defined for a `", class(x)[1], "` object.",
+		"`formula_vctr()` is not defined for a `", class(x)[1], "` object.",
 		call. = FALSE
 	)
 }
 
-### Formating and printing ----
+# Vectors ----
+
+#' Formula vector
+#' @keywords internal
+#' @noRd
+new_formula_vctr <- function(formulas = character(),
+												 operations = list(),
+												 terms = term_rcrd(),
+												 state = logical()) {
+
+	vec_assert(formulas, ptype = character())
+	vec_assert(operations, ptype = list())
+	vec_assert(terms, ptype = term_rcrd())
+	vec_assert(state, ptype = logical())
+
+	new_vctr(
+		formulas,
+		operations = operations,
+		terms = terms,
+		state = state,
+		class = "formula_vctr"
+	)
+
+}
+
+#' @keywords internal
+#' @noRd
+methods::setOldClass(c("formula_vctr", "vctrs_vctr"))
 
 #' @export
-format.formula_frame <- function(x, ...) {
+format.formula_vctr <- function(x, ...) {
 
-	f <- field(x, "formulas")
+	f <- vec_data(x)
 	info <- f
 
 	# Pasting
@@ -114,7 +127,7 @@ format.formula_frame <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.formula_frame <- function(x, ...) {
+obj_print_data.formula_vctr <- function(x, ...) {
 	if (vec_size(x) > 0) {
 		cat(format(x), sep = "\n")
 	} else {
@@ -123,40 +136,39 @@ obj_print_data.formula_frame <- function(x, ...) {
 }
 
 #' @export
-obj_print_footer.formula_frame <- function(x, ...) {
-	# Terms
-	t <-
-		field(x, "term_list")[[1]] |>
-		vec_restore(to = term()) |>
-		vec_size()
-
-	# Operations
-	ops <-
-		field(x, "operations")[[1]] |>
-		rowSums()
-
-	# Footer
-	cat("# Terms:", t)
-	cat("\n")
-	cat("# Combinations:", ops)
+vec_ptype_abbr.formula_vctr <- function(x, ...) {
+	"f_vctr"
 }
 
-#' @export
-vec_ptype_abbr.formula_frame <- function(x, ...) {
-	"frmls"
-}
-
-### Casting and coercion ---
+# Casting and coercion ----
 
 ### self
 
 #' @export
-vec_ptype2.formula_frame.formula_frame <- function(x, y, ...) {
+vec_ptype2.formula_vctr.formula_vctr <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.formula_frame.formula_frame <- function(x, to, ...) {
+vec_cast.formula_vctr.formula_vctr <- function(x, to, ...) {
 	x
+}
+
+### characters
+
+#' @export
+vec_ptype2.formula_vctr.character <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_ptype2.character.formula_vctr <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_cast.character.formula_vctr <- function(x, to, ...) {
+	attributes(x) <- NULL
+	as.character(x)
 }
 

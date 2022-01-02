@@ -1,45 +1,12 @@
-#' Identify if an Object has been Named
+#' Convert between lists and tables
 #'
-#' A simple function to help identify if an object has names. If it is a `list`
-#' or `vector`, then each element should be named.
+#' @return A `data.frame` or `list` object
 #'
-#' @return Returns `TRUE` or `FALSE` depending on if the object has been named
+#' @param x
 #'
-#' @param x An object to be tested
+#' * For `list_to_table()`: A named `list` object
 #'
-#' @param ... Further arguments passed to or from other methods
-#'
-#' @export
-is.named <- function(x, ...) {
-
-	classes <- class(x)
-	n <- length(x)
-	nms <- names(x)
-
-	# Exclude NULL first
-	if (is.null(nms)) {
-		return(FALSE)
-	}
-
-	nms[nms == ""] <- NA
-	nms <- stats::na.omit(nms)
-
-	# By length
-	if (length(nms) == n) {
-		return(TRUE)
-	} else {
-		return(FALSE)
-	}
-
-}
-
-#' Convert a List into a Table
-#'
-#' Expands a list of character vectors into a tidy, logic table.
-#'
-#' @return A `data.frame` object
-#'
-#' @param x A named `list` object
+#' * For `table_to_list()`: A `data.frame` object
 #'
 #' @param id Name of column that contains terms
 #'
@@ -47,6 +14,16 @@ is.named <- function(x, ...) {
 #'
 #' @param ... Further arguments passed to or from other methods
 #'
+#' @details
+#'
+#' For `table_to_list()`:
+#'
+#' Takes a `data.frame` and uses the columns to generate a named list. This
+#' removes the original column names, as it assumes that the data is contained
+#' within the frame itself. It defaults to using the first column as the names
+#' of the list.
+#'
+#' @name lists_tbls
 #' @export
 list_to_table <- function(x, id = "terms", val = "ops", ...) {
 
@@ -56,19 +33,12 @@ list_to_table <- function(x, id = "terms", val = "ops", ...) {
 
 }
 
-#' Convert a Logical Table into a List
-#'
-#' Takes a `data.frame` and uses the columns to generate a named list. This removes the original column names, as it assumes that the data is contained within the frame itself. It defaults to using the first column as the names of the list.
-#'
-#' @param x A `data.frame` object with values for each term
-
-#' @param id Name of column that contains terms
-#'
-#' @param ... Further arguments passed to or from other methods
-#'
+#' @rdname lists_tbls
 #' @export
 table_to_list <- function(x, id = "terms", ...) {
 
+	validate_class(x, "data.frame")
+	tbl <- x
 	nms <- tbl[[id]]
 	val <- tbl[[which(!colnames(tbl) %in% id)]]
 	names(val) <- nms
@@ -76,9 +46,11 @@ table_to_list <- function(x, id = "terms", ...) {
 
 }
 
+# Formulas ----
 
 #' Add parent environment back to formula
 #' @keywords internal
+#' @noRd
 give_env <- function(x, env = parent.frame()) {
 	environment(x) <- env
 	x
@@ -86,6 +58,7 @@ give_env <- function(x, env = parent.frame()) {
 
 #' Obtain environment of original formula
 #' @keywords internal
+#' @noRd
 get_env <- function(x) {
 	env <- environment(x)
 	env
@@ -96,54 +69,42 @@ get_env <- function(x) {
 #' Get terms from prescribed formulas
 #' @name getters
 #' @export
-get_terms <- function(x, ...) {
-	UseMethod("get_terms", object = x)
+get_terms <- function(x, side = "both", ...) {
+	if ("term_rcrd" %in% class(x)) {
+		switch(side,
+					 left = {
+					 	tm <- vec_data(x)
+					 	t <- tm$terms[tm$sides == "left"]
+					 	t
+					 },
+					 right = {
+					 	tm <- vec_data(x)
+					 	t <- tm$terms[tm$sides == "right"]
+					 	t
+					 },
+					 both = {
+					 	tm <- vec_data(x)
+					 	t <- tm$terms[!is.na(tm$sides)]
+					 	t
+					 })
+
+		return(t)
+	}
 }
+
 
 #' @rdname getters
 #' @export
-get_terms.term_vctr <- function(x, side = "both", ...) {
-	switch(
-		side,
-		left = {
-			tm <- vec_data(x)
-			t <- tm$terms[tm$sides == "left"]
-			t
-		},
-		right = {
-			tm <- vec_data(x)
-			t <- tm$terms[tm$sides == "right"]
-			t
-		},
-		both = {
-			tm <- vec_data(x)
-			t <- tm$terms[!is.na(tm$sides)]
-			t
-		}
-	)
-}
+get_roles <- function(x, role = "all", ...) {
+	if ("term_rcrd" %in% class(x)) {
+		switch(role,
+					 all = {
+					 	tm <- vec_data(x)
+					 	rls <-
+					 		tm[!is.na(tm$roles), c("terms", "roles")] |>
+					 		table_to_list()
+					 })
 
-# {vctrs} general casting and coercion ----
-
-#' @export
-vec_ptype2.vctrs_list_of.character <- function(x, y, ...) {
-	x
-}
-
-#' @export
-vec_ptype2.character.vctrs_list_of <- function(x, y, ...) {
-	y
-}
-
-#' @export
-vec_cast.vctrs_list_of.character <- function(x, to, ...) {
-	cl <- as.list(x) # Make list of characters
-	loc <- new_list_of(cl, ptype = character()) # Turn into list_of class
-	loc # Return list of characters
-}
-
-#' @export
-vec_cast.character.vctrs_list_of <- function(x, to, ...) {
-	cv <- unlist(x) # Flatten list of characters
-	cv # Return character vector (named)
+		return(rls)
+	}
 }

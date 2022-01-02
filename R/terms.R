@@ -1,42 +1,16 @@
-# Vectors ----
+# Terms ----
 
-#' Vector of formula terms
-#' @keywords internal
-#' @noRd
-new_term <- function(terms = character(),
-										 sides = character(),
-										 roles = character(),
-										 operations = character(),
-										 labels = character()) {
-
-	vec_assert(terms, ptype = character())
-	vec_assert(sides, ptype = character())
-	vec_assert(roles, ptype = character())
-	vec_assert(operations, ptype = character())
-	vec_assert(labels, ptype = character())
-
-	new_rcrd(list(
-		"terms" = terms,
-		"sides" = sides,
-		"roles" = roles,
-		"operations" = operations,
-		"labels" = labels
-	),
-	class = "term_vctr")
-
-}
-
-#' @keywords internal
-#' @noRd
-methods::setOldClass(c("term_vctr", "vctrs_vctr"))
-
-#' Vectorized terms using a `term_vctr`
+#' Term records
 #'
-#' @param x
+#' @description
 #'
-#' * For `term()` or `tx()`: A character vector
+#' `r lifecycle::badge('experimental')`
 #'
-#' * For `is_term()`: An object to test
+#' @param x An object of the following types that can be coerced to a `term_rcrd` object
+#'
+#'   * `character`
+#'
+#'   * `formula`
 #'
 #' @param sides Left or right hand side of the equation
 #'
@@ -47,26 +21,20 @@ methods::setOldClass(c("term_vctr", "vctrs_vctr"))
 #'
 #' @param labels Display-quality label describing the variable
 #'
-#' @name term
+#' @name term_record
 #' @export
-tx <- function(x = character(), ...) {
-	UseMethod("term", object = x)
+term_rcrd <- function(x = character(), ...) {
+	UseMethod("term_rcrd", object = x)
 }
 
-#' @rdname term
+#' @rdname term_record
 #' @export
-term <- function(x = character(), ...) {
-	UseMethod("term", object = x)
-}
-
-#' @rdname term
-#' @export
-term.character <- function(x = character(),
-													 sides = character(),
-													 roles = character(),
-													 operations = character(),
-													 labels = character(),
-													 ...) {
+term_rcrd.character <- function(x = character(),
+																sides = character(),
+																roles = character(),
+																operations = character(),
+																labels = character(),
+																...) {
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
@@ -96,14 +64,14 @@ term.character <- function(x = character(),
 
 }
 
-#' @rdname term
+#' @rdname term_record
 #' @export
-term.formula <- function(x,
+term_rcrd.formula <- function(x,
 												 roles = list(),
 												 labels = list(),
 												 ...) {
 
-	# All terms are needed to build term vector
+	# All terms are needed to build term record
 	n <- length(all.vars(x))
 	all <- all.vars(x, functions = TRUE, unique = FALSE)
 	all_terms <- all.vars(x, functions = FALSE)
@@ -119,20 +87,35 @@ term.formula <- function(x,
 	right_n <- length(right_terms)
 
 	# The roles and operations need to be identified (upon which term they apply)
-	ops <-
+	all_ops <-
 		all |>
-		{\(x) grep("~", x, value = TRUE, invert = TRUE)}() |>
-		{\(x) grep("\\+", x, value = TRUE, invert = TRUE)}() |>
-		{\(x) setdiff(x, left_terms)}() |>
-		{\(x) {
-			y <- as.list(x[!(x %in% right_terms)])
-			names(y) <- x[which(!x %in% right_terms) + 1]
-			y
+		{\(.x) grep("~", .x, value = TRUE, invert = TRUE)}() |>
+		{\(.x) grep("\\+", .x, value = TRUE, invert = TRUE)}() |>
+		{\(.x) .x[!(.x %in% left_terms)]}() |>
+		{\(.x) {
+			.y <- as.list(.x[!(.x %in% right_terms)])
+			names(.y) <- .x[which(!.x %in% right_terms) + 1]
+			.y
 		}}()
 
-	# Confirm identity of labels and roles
-	validate_class(labels, "list")
+	# Check to see if it is a "role" or a data transformation
+	which_ops <- vapply(all_ops, FUN.VALUE = TRUE, FUN = function(.x) {
+		.y <- try(getFromNamespace(.x, c("base", "stats", "utils", "methods")), silent = TRUE)
+		if (class(.y) == "try-error") {
+			.y <- FALSE
+		} else if (class(.y) == "function") {
+			.y <- TRUE
+		}
+	})
+	data_ops <- all_ops[which_ops]
+	role_ops <- all_ops[!which_ops]
+
+	# Create and confirm roles
 	validate_class(roles, "list")
+	role_ops <- c(roles, role_ops)
+
+	# Confirm list
+	validate_class(labels, "list")
 
 	# Create terms
 	term_list <- list()
@@ -144,11 +127,22 @@ term.formula <- function(x,
 		} else if (t %in% right_terms) {
 			"right"
 		}
-		op <- if (t %in% names(ops)) {
-			ops[[t]]
+
+		# Data transforms
+		op <- if (t %in% names(data_ops)) {
+			data_ops[[t]]
 		} else {
 			NA
 		}
+
+		# Roles
+		role <- if (t %in% names(role_ops)) {
+			role_ops[[t]]
+		} else {
+			NA
+		}
+
+		# Labels
 		lab <- if (t %in% names(labels)) {
 			labels[[t]]
 		} else {
@@ -159,8 +153,7 @@ term.formula <- function(x,
 		# Casting
 		x <- vec_cast(t, character())
 		side <- vec_cast(side, character())
-		if (length(roles) == 0) roles <- NA
-		role <- vec_cast(roles, character())
+		role <- vec_cast(role, character())
 		op <- vec_cast(op, character())
 		lab <- vec_cast(lab, character())
 
@@ -175,15 +168,15 @@ term.formula <- function(x,
 
 	}
 
-	# Return as a vector of terms
+	# Return as a record of terms
 	term_list |>
-		vec_list_cast(to = term())
+		vec_list_cast(to = term_rcrd())
 
 }
 
-#' @rdname term
+#' @rdname term_record
 #' @export
-term.default <- function(x, ...) {
+term_rcrd.default <- function(x, ...) {
 	stop(
 		"`term()` is not defined for a `", class(x)[1], "` object.",
 		call. = FALSE
@@ -191,16 +184,110 @@ term.default <- function(x, ...) {
 }
 
 
+
+# records ----
+
+#' record of formula terms
+#' @keywords internal
+#' @noRd
+new_term <- function(terms = character(),
+										 sides = character(),
+										 roles = character(),
+										 operations = character(),
+										 labels = character()) {
+
+	vec_assert(terms, ptype = character())
+	vec_assert(sides, ptype = character())
+	vec_assert(roles, ptype = character())
+	vec_assert(operations, ptype = character())
+	vec_assert(labels, ptype = character())
+
+	new_rcrd(list(
+		"terms" = terms,
+		"sides" = sides,
+		"roles" = roles,
+		"operations" = operations,
+		"labels" = labels
+	),
+	class = "term_rcrd")
+
+}
+
+#' @keywords internal
+#' @noRd
+methods::setOldClass(c("term_rcrd", "rcrds_rcrd"))
+
+### term() ###
+
 #' @export
-#' @rdname term
-is_term <- function(x) {
-	inherits(x, "term_vctr")
+vec_ptype2.term_rcrd.term_rcrd <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_cast.term_rcrd.term_rcrd <- function(x, to, ...) {
+	x
+}
+
+### character() ###
+
+#' @export
+vec_ptype2.term_rcrd.character <- function(x, y, ...) {
+	# `x` is term
+	# `y` is character
+	y
+}
+
+#' @export
+vec_ptype2.character.term_rcrd <- function(x, y, ...) {
+	# `x` is character
+	# `y` is term
+	x
+}
+
+#' @export
+vec_cast.term_rcrd.character <- function(x, to, ...) {
+	# Order is flipped, such that `x` is character
+	attributes(x) <- NULL
+	x[[1]]
+}
+
+#' @export
+vec_cast.character.term_rcrd <- function(x, to, ...) {
+	# Order is flipped, such that `x` is term
+	attributes(x) <- NULL
+	x[[1]]
+}
+
+### list_of() ###
+
+#' @export
+vec_ptype2.rcrds_list_of.term_rcrd <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_ptype2.term_rcrd.rcrds_list_of <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_cast.rcrds_list_of.term_rcrd <- function(x, to, ...) {
+	tl <- as.list(x) # Convert to list
+	lot <- new_list_of(tl, ptype = term_rcrd()) # make new list of
+	lot # return list of terms
+}
+
+#' @export
+vec_cast.term_rcrd.rcrds_list_of <- function(x, to, ...) {
+	t <- vec_list_cast(x, term_rcrd()) # Convert to a flattened record
+	t # Return record of terms
 }
 
 # Formating and printing ----
 
 #' @export
-format.term_vctr <- function(x, ...) {
+format.term_rcrd <- function(x, ...) {
 
 	# Formatting
 	t <- field(x, "terms")
@@ -216,7 +303,7 @@ format.term_vctr <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.term_vctr <- function(x) {
+obj_print_data.term_rcrd <- function(x) {
 	if (vec_size(x) > 0) {
 		cat(format(x), sep = "\n")
 	} else {
@@ -225,75 +312,6 @@ obj_print_data.term_vctr <- function(x) {
 }
 
 #' @export
-vec_ptype_abbr.term_vctr <- function(x, ...) {
-	"trms"
-}
-
-# Casting and Coercion ----
-
-### self ###
-
-#' @export
-vec_ptype2.term_vctr.term_vctr <- function(x, y, ...) {
-	x
-}
-
-#' @export
-vec_cast.term_vctr.term_vctr <- function(x, to, ...) {
-	x
-}
-
-### Character coercion ###
-
-#' @export
-vec_ptype2.term_vctr.character <- function(x, y, ...) {
-	# `x` is term
-	# `y` is character
-	y
-}
-
-#' @export
-vec_ptype2.character.term_vctr <- function(x, y, ...) {
-	# `x` is character
-	# `y` is term
-	x
-}
-
-#' @export
-vec_cast.term_vctr.character <- function(x, to, ...) {
-	# Order is flipped, such that `x` is character
-	attributes(x) <- NULL
-	x[[1]]
-}
-
-#' @export
-vec_cast.character.term_vctr <- function(x, to, ...) {
-	# Order is flipped, such that `x` is term
-	attributes(x) <- NULL
-	x[[1]]
-}
-
-### list_of() ###
-
-#' @export
-vec_ptype2.vctrs_list_of.term_vctr <- function(x, y, ...) {
-	x
-}
-
-#' @export
-vec_ptype2.term_vctr.vctrs_list_of <- function(x, y, ...) {
-	y
-}
-
-#' @export
-vec_cast.vctrs_list_of.term_vctr <- function(x, to, ...) {
-	tl <- as.list(x) # Convert to list
-	lot <- new_list_of(tl, ptype = term()) # make new list of
-	lot # return list of terms
-}
-
-#' @export
-vec_cast.term_vctr.vctrs_list_of <- function(x, to, ...) {
-	t <- vec_list_cast(x, term()) # Convert to a flattened vector
-	t # Return vector of terms
+vec_ptype_abbr.term_rcrd <- function(x, ...) {
+	"t_rcrd"
 }

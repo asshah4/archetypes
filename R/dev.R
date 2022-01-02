@@ -1,5 +1,6 @@
 # nocov start
 
+
 #' Deprecated deparser
 old_deparser <- function(...) {
 	# Initial deparsing of variables
@@ -111,6 +112,48 @@ divide <- function(x, side, ...) {
 	# Return
 	flist
 
+}
+
+
+has_color <- function() {
+	isTRUE(requireNamespace("crayon", quietly = TRUE) && crayon::has_color())
+}
+
+forks_style <- function(x) {
+
+	# Number of roles
+	n <- length(x)
+
+	# Solarized Colors
+	yellow <- crayon::make_style("#b58900")
+	orange <- crayon::make_style("#cb4b16")
+	red <- crayon::make_style("#dc322f")
+	magenta <- crayon::make_style("#d33682")
+	violet <- crayon::make_style("#6c71c4")
+	blue <- crayon::make_style("#268bd2")
+	cyan <- crayon::make_style("#2aa198")
+	green <- crayon::make_style("#859900")
+
+	# Colors for forks
+	role_colors <- list()
+
+	# Based on number of roles
+	if (n == 2) {
+		role_colors[role_names[1]] <- list(yellow)
+		role_colors[role_names[2]] <- list(red)
+	} else if (n == 3) {
+		role_colors[role_names[1]] <- list(yellow)
+		role_colors[role_names[2]] <- list(red)
+		role_colors[role_names[3]] <- list(blue)
+	} else if (n == 4) {
+		role_colors[role_names[1]] <- list(yellow)
+		role_colors[role_names[2]] <- list(red)
+		role_colors[role_names[3]] <- list(blue)
+		role_colors[role_names[4]] <- list(orange)
+	}
+
+	# Return
+	role_colors
 }
 
 # nocov end
