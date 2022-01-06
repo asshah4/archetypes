@@ -6,9 +6,9 @@
 \alias{table_to_list}
 \title{Convert between lists and tables}
 \usage{
-list_to_table(x, id = "terms", val = "ops", ...)
+list_to_table(x, id = "term", val = "ops", ...)
 
-table_to_list(x, id = "terms", ...)
+table_to_list(x, id = "term", ...)
 }
 \arguments{
 \item{x}{\itemize{

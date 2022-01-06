@@ -9,7 +9,7 @@
 \usage{
 formula_vctr(x = term_rcrd(), ...)
 
-\method{formula_vctr}{term_rcrd}(x = term_rcrd(), pattern = NA, ...)
+\method{formula_vctr}{term_rcrd}(x = term_rcrd(), groups = list(), pattern = character(), ...)
 
 \method{formula_vctr}{default}(x, ...)
 }
@@ -20,6 +20,10 @@ formula_vctr(x = term_rcrd(), ...)
 }}
 
 \item{...}{Arguments to be passed to or from other methods}
+
+\item{groups}{List of formulas that have the term (or terms) on the LHS and
+the group name on the RHS (quotations to indicate character value not
+necessary). E.g. \code{list(c(x1, x2) ~ grp)}}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

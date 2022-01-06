@@ -3,11 +3,14 @@
 \name{list_of_formulas}
 \alias{list_of_formulas}
 \alias{list_of_formulas.formula_rcrd}
+\alias{list_of_formulas.default}
 \title{Prescribed Formula Lists}
 \usage{
 list_of_formulas(x, ...)
 
-\method{list_of_formulas}{formula_rcrd}(x = formula_rcrd(), ...)
+\method{list_of_formulas}{formula_rcrd}(x = formula_vctr(), pattern = character(), ...)
+
+\method{list_of_formulas}{default}(x, ...)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

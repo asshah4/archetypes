@@ -2,13 +2,31 @@
 % Please edit documentation in R/utils.R
 \name{getters}
 \alias{getters}
-\alias{get_terms}
-\alias{get_roles}
+\alias{lhs}
+\alias{rhs}
+\alias{rhs.term_rcrd}
+\alias{lhs.term_rcrd}
+\alias{rhs.formula}
+\alias{lhs.formula}
+\alias{getComponent}
+\alias{getComponent.term_rcrd}
 \title{Get terms from prescribed formulas}
 \usage{
-get_terms(x, side = "both", ...)
+lhs(x, ...)
 
-get_roles(x, role = "all", ...)
+rhs(x, ...)
+
+\method{rhs}{term_rcrd}(x, ...)
+
+\method{lhs}{term_rcrd}(x, ...)
+
+\method{rhs}{formula}(x, tidy = FALSE, ...)
+
+\method{lhs}{formula}(x, ...)
+
+getComponent(x, ...)
+
+\method{getComponent}{term_rcrd}(x, part, filter_id = NULL, filter_val = NULL, ...)
 }
 \description{
 Get terms from prescribed formulas

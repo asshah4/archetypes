@@ -1,9 +1,13 @@
 test_that("simple list of formulas can be generated", {
 
-	t1 <- term_rcrd(mpg ~ wt)
-	t2 <- term_rcrd(mpg ~ hp)
-	f1 <- formula_vctr(t1, pattern = "default")
-	f2 <- formula_vctr(t2, pattern = "default")
-	f <- c(f1, f2)
+	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
+	labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
+	groups <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
+
+	t <- term_rcrd(f, labels = labels, groups = groups)
+	x <- formula_vctr(t)
+
+
+
 
 })

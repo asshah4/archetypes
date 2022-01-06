@@ -7,10 +7,18 @@ test_that("basic formula vector can be made and displayed", {
 
 	expect_s3_class(f1, "formula_vctr")
 	expect_equal(f1, formula_vctr(x = term_rcrd(f), pattern = "default"))
-	expect_error(formula_vctr(f)) # Until formual implementation is made
+	expect_error(formula_vctr(f)) # Until formal implementation is made
+
+	# Vectorization
+	t1 <- term_rcrd(mpg ~ wt)
+	t2 <- term_rcrd(mpg ~ hp)
+	f1 <- formula_vctr(t1)
+	f2 <- formula_vctr(t2)
+	f <- c(f1, f2)
+	expect_length(f, 2)
 
 	# Printing
-	expect_output(print(f1), "mpg \\+ wt")
+	expect_output(print(f1), "[1]")
 	expect_output(print(new_formula_vctr()), "[0]")
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(f1) |>
@@ -19,6 +27,25 @@ test_that("basic formula vector can be made and displayed", {
 	}
 
 })
+
+test_that("formula_vctr() inputs are acceptable", {
+
+	# Groups
+	t1 <- term_rcrd(mpg ~ wt + hp + drat + qsec)
+	t2 <- term_rcrd("gear", side = "right", group = "hardware")
+	t3 <- term_rcrd("cyl", side = "right", group = "hardware")
+	t4 <- c(t1, t2, t3)
+	expect_length(t4, 7)
+	f1 <- formula_vctr(t4)
+	groups <- list(hardware ~ c(wt), speed ~ c(drat, qsec))
+	f2 <- formula_vctr(t4, groups = groups)
+
+	# Patterns
+	t <- term_rcrd(mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec))
+	expect_error(formula_vctr(x = t, pattern = "error"))
+
+})
+
 
 test_that("vctrs casting and coercion work appropriately", {
 
@@ -38,11 +65,3 @@ test_that("vctrs casting and coercion work appropriately", {
 	expect_type(vec_ptype2(character(), formula_vctr()), "character")
 
 })
-
-test_that("formula_vctr() inputs are acceptable", {
-
-	t <- term_rcrd(mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec))
-	expect_error(formula_vctr(x = t, pattern = "error"))
-
-})
-

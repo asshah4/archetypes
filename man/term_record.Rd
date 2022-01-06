@@ -12,14 +12,23 @@ term_rcrd(x = character(), ...)
 
 \method{term_rcrd}{character}(
   x = character(),
-  sides = character(),
-  roles = character(),
-  operations = character(),
-  labels = character(),
+  side = character(),
+  role = character(),
+  group = character(),
+  type = character(),
+  operation = character(),
+  label = character(),
   ...
 )
 
-\method{term_rcrd}{formula}(x, roles = list(), labels = list(), ...)
+\method{term_rcrd}{formula}(
+  x = formula(),
+  roles = list(),
+  groups = list(),
+  types = list(),
+  labels = list(),
+  ...
+)
 
 \method{term_rcrd}{default}(x, ...)
 }
@@ -30,14 +39,14 @@ term_rcrd(x = character(), ...)
 \item \code{formula}
 }}
 
-\item{sides}{Left or right hand side of the equation}
-
 \item{roles}{Specific role the variable plays within the formula}
+
+\item{labels}{Display-quality label describing the variable}
+
+\item{sides}{Left or right hand side of the equation}
 
 \item{operations}{Modification of the term to be applied when combining with
 data}
-
-\item{labels}{Display-quality label describing the variable}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

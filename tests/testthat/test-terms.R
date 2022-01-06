@@ -1,7 +1,7 @@
-test_that("term() makes term object or errors", {
+test_that("term_rcrd() makes term object or errors", {
 
-	t1 <- term_rcrd("y", sides = "lhs", roles = "outcome", labels = "Dependent Variable")
-	t2 <- term_rcrd("x", sides = "rhs", roles = "exposure", labels = "Independent Variable")
+	t1 <- term_rcrd("y", side = "lhs", role = "outcome", label = "Dependent Variable")
+	t2 <- term_rcrd("x", side = "rhs", role = "exposure", label = "Independent Variable")
 	expect_s3_class(t1, "term_rcrd")
 	expect_true(is_term(t1))
 	expect_error(new_term("x"))
@@ -27,16 +27,16 @@ test_that("formula can be broken into terms", {
 	# Adding roles and labels works
 	t3 <- term_rcrd(f, roles = list(gear = "M"), labels = list(gear = "Gears")) |>
 		vec_data()
-	expect_equal(t3$roles[t3$terms == "gear"], "M")
-	expect_equal(t3$labels[t3$terms == "gear"], "Gears")
+	expect_equal(t3$role[t3$term == "gear"], "M")
+	expect_equal(t3$label[t3$term == "gear"], "Gears")
 
 })
 
 
 test_that("formatting is correct", {
 
-	t1 <- term_rcrd("y", sides = "left", roles = "outcome", labels = "Dependent Variable")
-	t2 <- term_rcrd("x", sides = "right", roles = "exposure", labels = "Independent Variable")
+	t1 <- term_rcrd("y", side = "left", role = "outcome", label = "Dependent Variable")
+	t2 <- term_rcrd("x", side = "right", role = "exposure", label = "Independent Variable")
 	vt <- c(t1, t2)
 	expect_output(print(t1), "y")
 	expect_output(print(new_term()), "[0]")
@@ -50,8 +50,8 @@ test_that("formatting is correct", {
 })
 
 test_that("coercion and casting works", {
-	x1 <- term_rcrd("x1", sides = "right", roles = "exposure", labels = "Independent Variable")
-	x2 <- term_rcrd("x2", sides = "right", roles = "covariate", labels = "Independent Variable")
+	x1 <- term_rcrd("x1", side = "right", role = "exposure", label = "Independent Variable")
+	x2 <- term_rcrd("x2", side = "right", role = "covariate", label = "Independent Variable")
 	y <- "y"
 	expect_type(c(x1, y), "character")
 	expect_s3_class(c(x1, x2), "term_rcrd")

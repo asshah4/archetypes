@@ -16,17 +16,45 @@ list_of_formulas <- function(x, ...) {
 
 #' @rdname list_of_formulas
 #' @export
-list_of_formulas.formula_rcrd <- function(x = formula_rcrd(),
+list_of_formulas.formula_rcrd <- function(x = formula_vctr(),
+																					pattern = character(),
 																					...) {
 
-	# Identify which ones are ready to be created as a formula list
-	which_ones <- field(x, "state")
-	f <-
-		x[which_ones] |>
-		as.character() |>
-		as.list()
+	# Early break if not viable method dispatch
+	if (length(x) == 0) {
+		return(new_formula_vctr())
+	}
 
-	new_list_of_formulas(formula_list = f)
+	# Get components from formula
+	cl <- as.character(x)
+	ops <- attr(x, "operations")
+	t <- attr(x, "terms")
+	tm <- vec_data(t)
+
+	# Get labels
+	labs <- getComponent(t, "label")
+
+	# Get roles
+	rls <- getComponent(t, "role")
+
+	# Expansion of formulas
+	fl <- perform_ops(t, ops)
+
+
+	new_list_of_formulas(
+		formula_list = fl,
+		labels = labs,
+		roles = rls
+	)
+}
+
+#' @rdname list_of_formulas
+#' @export
+list_of_formulas.default <- function(x, ...) {
+	stop(
+		"`list_of_formulas()` is not defined for a `", class(x)[1], "` object.",
+		call. = FALSE
+	)
 }
 
 # Vectors ----
@@ -34,12 +62,16 @@ list_of_formulas.formula_rcrd <- function(x = formula_rcrd(),
 #' Formula list
 #' @keywords internal
 #' @noRd
-new_list_of_formulas <- function(formula_list = list()) {
+new_list_of_formulas <- function(formula_list = list(),
+																 labels = list(),
+																 roles = list()) {
 
 	new_list_of(
 		x = formula_list,
 		ptype = character(),
-		class = "list_of_formulas"
+		class = "list_of_formulas",
+		labels = list(),
+		roles = list()
 	)
 
 }

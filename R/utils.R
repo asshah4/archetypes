@@ -25,7 +25,7 @@
 #'
 #' @name lists_tbls
 #' @export
-list_to_table <- function(x, id = "terms", val = "ops", ...) {
+list_to_table <- function(x, id = "term", val = "ops", ...) {
 
 	tbl <- as.data.frame(cbind(names(x), unlist(unname(x))))
 	colnames(tbl) <- c(id, val)
@@ -35,23 +35,70 @@ list_to_table <- function(x, id = "terms", val = "ops", ...) {
 
 #' @rdname lists_tbls
 #' @export
-table_to_list <- function(x, id = "terms", ...) {
+table_to_list <- function(x, id = "term", ...) {
 
 	validate_class(x, "data.frame")
-	tbl <- x
-	nms <- tbl[[id]]
-	val <- tbl[[which(!colnames(tbl) %in% id)]]
-	names(val) <- nms
-	as.list(val)
+
+	if (ncol(x) == 2) {
+		tbl <- x
+		nms <- tbl[[id]]
+		val <- tbl[[which(!colnames(tbl) %in% id)]]
+		names(val) <- nms
+		return(as.list(val))
+	} else if (ncol(x) == 1) {
+		tbl <- x
+		return(as.list(tbl))
+	} else {
+		stop("table_to_list() requires there to be a data.frame of either 1 or 2 columns.",
+				 call. = FALSE)
+	}
 
 }
 
-# Formulas ----
+#' Handling of list-formula arguments
+#' Stylistic choice to make arguments entered in the form of a list, with each
+#' entry being a formula. The LHS will always be the terms, and the RHS will
+#' always be the non-term item (e.g. group, label, role, etc).
+#' @keywords internal
+#' @noRd
+formula_args_to_list <- function(x, ...) {
+
+	validate_class(x, "list")
+
+	pl <- list()
+
+	for (i in seq_along(x)) {
+
+		# Terms (left)
+		f <- x[[i]]
+
+		if (class(f[[2]]) == "character" | class(f[[2]]) == "name") {
+			t <- as.character(f[[2]])
+		} else if (class(f[[2]]) == "call") {
+			t <- as.character(f[[2]])[-1]
+		}
+
+		# Descriptor (right)
+		if (class(f[[3]]) == "character" | class(f[[3]]) == "name") {
+			d <- as.character(f[[3]])
+		} else if (class(f[[3]]) == "call") {
+			d <- as.character(f[[3]])[-1]
+		}
+
+		y <- rep(d, length(t))
+		names(y) <- t
+		pl <- append(pl, y)
+
+	}
+
+	# Return paired/named list
+	pl
+}
 
 #' Add parent environment back to formula
 #' @keywords internal
 #' @noRd
-give_env <- function(x, env = parent.frame()) {
+setEnv <- function(x, env = parent.frame()) {
 	environment(x) <- env
 	x
 }
@@ -59,52 +106,125 @@ give_env <- function(x, env = parent.frame()) {
 #' Obtain environment of original formula
 #' @keywords internal
 #' @noRd
-get_env <- function(x) {
+getEnv <- function(x) {
 	env <- environment(x)
 	env
 }
 
-# Terms ----
+# Getters ----
 
 #' Get terms from prescribed formulas
 #' @name getters
 #' @export
-get_terms <- function(x, side = "both", ...) {
-	if ("term_rcrd" %in% class(x)) {
-		switch(side,
-					 left = {
-					 	tm <- vec_data(x)
-					 	t <- tm$terms[tm$sides == "left"]
-					 	t
-					 },
-					 right = {
-					 	tm <- vec_data(x)
-					 	t <- tm$terms[tm$sides == "right"]
-					 	t
-					 },
-					 both = {
-					 	tm <- vec_data(x)
-					 	t <- tm$terms[!is.na(tm$sides)]
-					 	t
-					 })
+lhs <- function(x, ...) {
+	UseMethod("lhs", object = x)
+}
 
-		return(t)
+#' @rdname getters
+#' @export
+rhs <- function(x, ...) {
+	UseMethod("rhs", object = x)
+}
+
+#' @rdname getters
+#' @export
+rhs.term_rcrd <- function(x, ...) {
+	tm <- vec_data(x)
+	tm$term[tm$side == "right"]
+}
+
+#' @rdname getters
+#' @export
+lhs.term_rcrd <- function(x, ...) {
+	tm <- vec_data(x)
+	tm$term[tm$side == "left"]
+}
+
+#' @rdname getters
+#' @export
+rhs.formula <- function(x, tidy = FALSE, ...) {
+	if (tidy) {
+		all <- all.vars(x, functions = FALSE)
+		left <- x[[2]] |>
+			deparse() |>
+			strsplit("\ \\+\ ") |>
+			unlist()
+
+		setdiff(all, left)
+	} else {
+		labels(stats::terms(x))
 	}
+}
+
+#' @rdname getters
+#' @export
+lhs.formula <- function(x, ...) {
+	x[[2]] |>
+		deparse() |>
+		strsplit("\ \\+\ ") |>
+		unlist()
+}
+
+#' @rdname getters
+#' @export
+getComponent <- function(x, ...) {
+	UseMethod("getComponent", object = x)
 }
 
 
 #' @rdname getters
 #' @export
-get_roles <- function(x, role = "all", ...) {
-	if ("term_rcrd" %in% class(x)) {
-		switch(role,
-					 all = {
-					 	tm <- vec_data(x)
-					 	rls <-
-					 		tm[!is.na(tm$roles), c("terms", "roles")] |>
-					 		table_to_list()
-					 })
+getComponent.term_rcrd <- function(x,
+																		part,
+																		filter_id = NULL,
+																		filter_val = NULL,
+																		...) {
+	tm <- vec_data(x)
 
-		return(rls)
+	if (is.null(filter_id)) {
+		y <-
+			tm[!is.na(tm[part]), unique(c("term", part)), drop = FALSE] |>
+			table_to_list()
+
+		return(y)
+	} else if (!is.null(filter_id) & !is.null(filter_val)) {
+		y <-
+			tm[!is.na(tm[part]) & tm[filter_id] == filter_val, part] |>
+			table_to_list()
+
+		return(y)
+	} else {
+		stop("Filtering inputs have been set incorrectly.")
 	}
+}
+
+# Setters ----
+
+#' Set components of terms and formulas
+#' @return A modified
+#' @name setters
+#' @export
+setGroups <- function(x, ...) {
+	UseMethod("setGroups", object = x)
+}
+
+#' @rdname setters
+#' @export
+setGroups.term_rcrd <- function(x, groups, ...) {
+
+	validate_class(groups, "list")
+
+	# Append groups
+	grps <-
+		getComponent(x, "group") |>
+		append(groups)
+
+	tm <- vec_data(x)
+
+	for (i in seq_along(grps)) {
+		tm$group[tm$term == names(grps[i])] <- grps[[i]]
+	}
+
+	vec_restore(tm, to = term_rcrd())
+
 }

@@ -30,71 +30,85 @@ term_rcrd <- function(x = character(), ...) {
 #' @rdname term_record
 #' @export
 term_rcrd.character <- function(x = character(),
-																sides = character(),
-																roles = character(),
-																operations = character(),
-																labels = character(),
+																side = character(),
+																role = character(),
+																group = character(),
+																type = character(),
+																operation = character(),
+																label = character(),
 																...) {
 
-	# Early break if not viable method dispatch
+	# Break early if need be
 	if (length(x) == 0) {
 		return(new_term())
 	}
 
-	# Finding missing value
-	if (length(sides) == 0) sides <- NA
-	if (length(roles) == 0) roles <- NA
-	if (length(operations) == 0) operations <- NA
-	if (length(labels) == 0) labels <- NA
+	# Missing values
+	if (length(x) == 0) x <- NA
+	if (length(side) == 0) side <- NA
+	if (length(role) == 0) role <- NA
+	if (length(group) == 0) group <- NA
+	if (length(type) == 0) type <- NA
+	if (length(operation) == 0) operation <- NA
+	if (length(label) == 0) label <- NA
 
 	# Casting
 	x <- vec_cast(x, character())
-	sides <- vec_cast(sides, character())
-	roles <- vec_cast(roles, character())
-	operations <- vec_cast(operations, character())
-	labels <- vec_cast(labels, character())
+	side <- vec_cast(side, character())
+	role <- vec_cast(role, character())
+	group <- vec_cast(group, character())
+	type <- vec_cast(type, character())
+	operation <- vec_cast(operation, character())
+	label <- vec_cast(label, character())
 
 	new_term(
 		term = x,
-		sides = sides,
-		roles = roles,
-		operations = operations,
-		labels = labels
+		side = side,
+		role = role,
+		group = group,
+		type = type,
+		operation = operation,
+		label = label
 	)
 
 }
 
 #' @rdname term_record
 #' @export
-term_rcrd.formula <- function(x,
-												 roles = list(),
-												 labels = list(),
-												 ...) {
+term_rcrd.formula <- function(x = formula(),
+															roles = list(),
+															groups = list(),
+															types = list(),
+															labels = list(),
+															...) {
+
+	# Break early if need be
+	if (length(x) == 0) {
+		return(new_term())
+	}
+
+	# Validate
+	validate_class(roles, "list")
+	validate_class(groups, "list")
+	validate_class(types, "list")
+	validate_class(labels, "list")
 
 	# All terms are needed to build term record
 	n <- length(all.vars(x))
 	all <- all.vars(x, functions = TRUE, unique = FALSE)
 	all_terms <- all.vars(x, functions = FALSE)
-	left_terms <-
-		x[[2]] |>
-		deparse() |>
-		strsplit("\ \\+\ ") |>
-		unlist()
-	left_n <- length(left_terms)
-	right_terms <-
-		all.vars(x) |>
-		setdiff(left_terms)
-	right_n <- length(right_terms)
+	left <- lhs(x)
+	right <- rhs(x, tidy = TRUE)
 
 	# The roles and operations need to be identified (upon which term they apply)
 	all_ops <-
 		all |>
 		{\(.x) grep("~", .x, value = TRUE, invert = TRUE)}() |>
 		{\(.x) grep("\\+", .x, value = TRUE, invert = TRUE)}() |>
-		{\(.x) .x[!(.x %in% left_terms)]}() |>
+		{\(.x) .x[!(.x %in% left)]}() |>
 		{\(.x) {
-			.y <- as.list(.x[!(.x %in% right_terms)])
-			names(.y) <- .x[which(!.x %in% right_terms) + 1]
+			.y <- as.list(.x[!(.x %in% right)])
+			names(.y) <- .x[which(!.x %in% right) + 1]
 			.y
 		}}()
 
@@ -109,22 +123,27 @@ term_rcrd.formula <- function(x,
 	})
 	data_ops <- all_ops[which_ops]
 	role_ops <- all_ops[!which_ops]
-
-	# Create and confirm roles
-	validate_class(roles, "list")
 	role_ops <- c(roles, role_ops)
 
-	# Confirm list
-	validate_class(labels, "list")
+	# Clean up groups
+	grps <- list()
+	for (i in seq_along(groups)) {
+		g <- as.character(groups[[i]][[2]])
+		t <- as.character(groups[[i]][[3]])[-1]
+
+		grps <- rep(g, length(t))
+		names(grps) <- t
+	}
 
 	# Create terms
 	term_list <- list()
+
 	for (i in 1:n) {
 		# Make parameters
 		t <- all_terms[i]
-		side <- if (t %in% left_terms) {
+		side <- if (t %in% left) {
 			"left"
-		} else if (t %in% right_terms) {
+		} else if (t %in% right) {
 			"right"
 		}
 
@@ -142,6 +161,20 @@ term_rcrd.formula <- function(x,
 			NA
 		}
 
+		# Groups
+		grp <- if (t %in% names(groups)) {
+			groups[[t]]
+		} else {
+			NA
+		}
+
+		# Groups
+		typ <- if (t %in% names(types)) {
+			groups[[t]]
+		} else {
+			NA
+		}
+
 		# Labels
 		lab <- if (t %in% names(labels)) {
 			labels[[t]]
@@ -149,21 +182,25 @@ term_rcrd.formula <- function(x,
 			NA
 		}
 
-
 		# Casting
 		x <- vec_cast(t, character())
 		side <- vec_cast(side, character())
 		role <- vec_cast(role, character())
+		grp <- vec_cast(grp, character())
+		typ <- vec_cast(typ, character())
 		op <- vec_cast(op, character())
 		lab <- vec_cast(lab, character())
 
+
 		# Place into term list
-		term_list[[i]] <- new_term(
-			term = x,
-			sides = side,
-			roles = role,
-			operations = op,
-			labels = lab
+		term_list[[i]] <- term_rcrd.character(
+			x = x,
+			side = side,
+			role = role,
+			group = grp,
+			type = typ,
+			operation = op,
+			label = lab
 		)
 
 	}
@@ -177,12 +214,10 @@ term_rcrd.formula <- function(x,
 #' @rdname term_record
 #' @export
 term_rcrd.default <- function(x, ...) {
-	stop(
-		"`term()` is not defined for a `", class(x)[1], "` object.",
-		call. = FALSE
-	)
-}
 
+	stop("`term()` is not defined for a `", class(x)[1], "` object.",
+			 call. = FALSE)
+}
 
 
 # records ----
@@ -190,24 +225,30 @@ term_rcrd.default <- function(x, ...) {
 #' record of formula terms
 #' @keywords internal
 #' @noRd
-new_term <- function(terms = character(),
-										 sides = character(),
-										 roles = character(),
-										 operations = character(),
-										 labels = character()) {
+new_term <- function(term = character(),
+										 side = character(),
+										 role = character(),
+										 group = character(),
+										 type = character(),
+										 operation = character(),
+										 label = character()) {
 
-	vec_assert(terms, ptype = character())
-	vec_assert(sides, ptype = character())
-	vec_assert(roles, ptype = character())
-	vec_assert(operations, ptype = character())
-	vec_assert(labels, ptype = character())
+	vec_assert(term, ptype = character())
+	vec_assert(side, ptype = character())
+	vec_assert(role, ptype = character())
+	vec_assert(group, ptype = character())
+	vec_assert(type, ptype = character())
+	vec_assert(operation, ptype = character())
+	vec_assert(label, ptype = character())
 
 	new_rcrd(list(
-		"terms" = terms,
-		"sides" = sides,
-		"roles" = roles,
-		"operations" = operations,
-		"labels" = labels
+		"term" = term,
+		"side" = side,
+		"role" = role,
+		"group" = group,
+		"type" = type,
+		"operation" = operation,
+		"label" = label
 	),
 	class = "term_rcrd")
 
@@ -290,7 +331,7 @@ vec_cast.term_rcrd.rcrds_list_of <- function(x, to, ...) {
 format.term_rcrd <- function(x, ...) {
 
 	# Formatting
-	t <- field(x, "terms")
+	t <- field(x, "term")
 	info <- t
 
 	# Pasting

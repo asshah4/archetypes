@@ -21,27 +21,22 @@ formula_vctr <- function(x = term_rcrd(), ...) {
 }
 
 #' @rdname formula_vector
+#' @param groups List of formulas that have the term (or terms) on the LHS and
+#'   the group name on the RHS (quotations to indicate character value not
+#'   necessary). E.g. `list(c(x1, x2) ~ grp)`
 #' @export
 formula_vctr.term_rcrd <- function(x = term_rcrd(),
-																	 pattern = NA,
-																		...) {
+																	 groups = list(),
+																	 pattern = character(),
+																	 ...) {
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula_vctr())
 	}
 
-	# Create simplified formula
-	t <- vec_data(x)
-	left <- get_terms(x, "left")
-	right <- get_terms(x, "right")
-	formulas <- paste(paste(left, collapse = " + "),
-										paste(right, collapse = " + "),
-										sep = " ~ ")
-	formulas <- vec_cast(formulas, character())
-
 	# Check pattern
-	if (is.na(pattern)) {
+	if (length(pattern) == 0) {
 		pattern <- "default"
 	}
 	if (!pattern %in% c("default", "sequential", "parallel")) {
@@ -50,6 +45,19 @@ formula_vctr.term_rcrd <- function(x = term_rcrd(),
 			call. = FALSE
 		)
 	}
+
+	# Create simplified formula
+	t <- vec_data(x)
+	left <- lhs(x)
+	right <- rhs(x)
+	formulas <- paste(paste(left, collapse = " + "),
+										paste(right, collapse = " + "),
+										sep = " ~ ")
+	formulas <- vec_cast(formulas, character())
+
+	# Update groups
+	grps <- formula_args_to_list(groups)
+	x <- setGroups(x, groups = grps)
 
 	# Formula level operations, should return a list
 	ops <- identify_ops(x, pattern)
@@ -88,9 +96,9 @@ formula_vctr.default <- function(x, ...) {
 #' @keywords internal
 #' @noRd
 new_formula_vctr <- function(formulas = character(),
-												 operations = list(),
-												 terms = term_rcrd(),
-												 state = logical()) {
+														 operations = list(),
+														 terms = term_rcrd(),
+														 state = logical()) {
 
 	vec_assert(formulas, ptype = character())
 	vec_assert(operations, ptype = list())

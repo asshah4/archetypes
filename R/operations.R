@@ -2,19 +2,54 @@
 #' @return A list object of operations
 #' @keywords internal
 #' @noRd
-identify_ops <- function(x = term_rcrd(), pattern) {
+identify_ops <- function(x = term_rcrd(), pattern, ...) {
 
 	# Potential operations
-		# Number of dependent variables
-		# Number of independent variables
-		# Roles for each variable
+		# Split by dependent variables
+		# Split by special independent variables
+		# Add covariates in sequence
+		# Add covariates in parallel
 
-	# List of operations to return
+	tm <- vec_data(x)
+	dv <- lhs(x)
+	iv <- rhs(x)
+	rls <- getComponent(x, "role")
+
+	# Groups
+	grp <- getComponent(x, "group")
+	grp_tbl <- list_to_table(grp, id = "term", val = "group")
+	grp_ct <- table(grp_tbl) |> colSums()
+	grp_lst <- unstack(grp_tbl)
+
+	# Instruction list
 	list(
-		dependent_variables = get_terms(x, "left"),
-		independent_variables = get_terms(x, "right"),
-		roles = get_roles(x, role = "all")
+		expand_by_pattern = pattern,
+		split_by_outcomes = dv,
+		number_of_groups = length(grp_ct),
+		group_list = grp_lst
 	)
+
+}
+
+#' Perform the formula level operations
+#' @return List of formulas to be converted to the appropriate class
+#' @keywords internal
+#' @noRd
+perform_ops <- function(x = term_rcrd(), ops, ...) {
+
+	# For formula expansion:
+		# outcomes
+		# expansion pattern
+		# grouping (if available)
+
+	out <- ops$split_by_outcomes
+	ptrn <- ops$expand_by_pattern
+
+	# Right hand side first
+	right_lst <- list()
+
+	#
+
 
 }
 
