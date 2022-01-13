@@ -8,6 +8,19 @@ test_that("adding of groups works for operations", {
 	expect_length(tm$group[!is.na(tm$group)], 3)
 
 	f1 <- formula_vctr(t2)
+	ops <- attr(f1, "operations")
+
+
+})
+
+test_that("operations work for exposures and outcomes", {
+
+	# Exposure expansion
+	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
+	t1 <- term_rcrd(f)
+	f1 <- formula_vctr(t1, pattern = "sequential")
+	ops <- attr(f1, "operations")
+	expect_equal(ops$expand_by_pattern, "sequential")
 
 
 })

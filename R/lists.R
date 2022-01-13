@@ -6,7 +6,7 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' This function introduces a super class that combines both the `list` class (and its derivative `list_of`) and the `formula` class.
+#' This function introduces a super  that combines both the `list` class (and its derivative `list_of`) and the `formula` class.
 #'
 #' @name list_of_formulas
 #' @export
@@ -16,7 +16,7 @@ list_of_formulas <- function(x, ...) {
 
 #' @rdname list_of_formulas
 #' @export
-list_of_formulas.formula_rcrd <- function(x = formula_vctr(),
+list_of_formulas.formula_vctr <- function(x = formula_vctr(),
 																					pattern = character(),
 																					...) {
 

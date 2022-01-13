@@ -21,11 +21,24 @@ formula_vctr <- function(x = term_rcrd(), ...) {
 }
 
 #' @rdname formula_vector
+#'
+#' @param roles Specific roles the variable plays within the formula. These are
+#'   of particular importance, as they serve as special terms that can effect
+#'   how a formula is interpreted. The options for roles are as below:
+#'
+#'   * __exposure__ or `X(...)`: a predictor variable that serves as a primary
+#'   or key variable in the \eqn{Exposure ~ Outcome} relationship
+#'
+#'   Formulas can be condensed by applying their specific role to individual
+#'   terms as a function/wrapper. For example, `y ~ X(x1) + x2 + x3`. This would
+#'   signify that `x1` has the specific role of an exposure.
+#'
 #' @param groups List of formulas that have the term (or terms) on the LHS and
 #'   the group name on the RHS (quotations to indicate character value not
 #'   necessary). E.g. `list(c(x1, x2) ~ grp)`
 #' @export
 formula_vctr.term_rcrd <- function(x = term_rcrd(),
+																	 roles = list(),
 																	 groups = list(),
 																	 pattern = character(),
 																	 ...) {

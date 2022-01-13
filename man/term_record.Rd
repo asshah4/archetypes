@@ -39,14 +39,23 @@ term_rcrd(x = character(), ...)
 \item \code{formula}
 }}
 
-\item{roles}{Specific role the variable plays within the formula}
+\item{side}{Left or right hand side of the equation}
 
-\item{labels}{Display-quality label describing the variable}
+\item{role}{Specific roles the variable plays within the formula. These are
+of particular importance, as they serve as special terms that can effect
+how a formula is interpreted. The options for roles are as below:
+\itemize{
+\item \strong{exposure}: a predictor variable that serves as a primary or key
+variable in the \eqn{Exposure ~ Outcome} relationship
+}}
 
-\item{sides}{Left or right hand side of the equation}
+\item{group}{Grouping variable name for independent variables for modeling
+terms together}
 
-\item{operations}{Modification of the term to be applied when combining with
+\item{operation}{Modification of the term to be applied when combining with
 data}
+
+\item{label}{Display-quality label describing the variable}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

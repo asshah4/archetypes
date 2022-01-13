@@ -18,20 +18,20 @@ test_that("term_rcrd() makes term object or errors", {
 test_that("formula can be broken into terms", {
 
 	# Complex formula with term and data operations
-	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
+	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + log(qsec)
 	t1 <- term_rcrd(f)
-	t2 <- term_rcrd(f, labels = list(mpg = "Mileage"))
+	t2 <- term_rcrd(f, labels = list(mpg ~ "Mileage"))
 	expect_equal(vec_size(t1), 7)
 	expect_equal(vec_size(t1), length(t1))
 
 	# Adding roles and labels works
-	t3 <- term_rcrd(f, roles = list(gear = "M"), labels = list(gear = "Gears")) |>
+	tm <-
+		term_rcrd(f, labels = list(gear ~ "Gears")) |>
 		vec_data()
-	expect_equal(t3$role[t3$term == "gear"], "M")
-	expect_equal(t3$label[t3$term == "gear"], "Gears")
+	expect_equal(tm$role[tm$term == "cyl"], "mediator")
+	expect_equal(tm$label[tm$term == "gear"], "Gears")
 
 })
-
 
 test_that("formatting is correct", {
 

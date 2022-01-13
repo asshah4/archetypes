@@ -9,7 +9,13 @@
 \usage{
 formula_vctr(x = term_rcrd(), ...)
 
-\method{formula_vctr}{term_rcrd}(x = term_rcrd(), groups = list(), pattern = character(), ...)
+\method{formula_vctr}{term_rcrd}(
+  x = term_rcrd(),
+  roles = list(),
+  groups = list(),
+  pattern = character(),
+  ...
+)
 
 \method{formula_vctr}{default}(x, ...)
 }
@@ -20,6 +26,18 @@ formula_vctr(x = term_rcrd(), ...)
 }}
 
 \item{...}{Arguments to be passed to or from other methods}
+
+\item{roles}{Specific roles the variable plays within the formula. These are
+of particular importance, as they serve as special terms that can effect
+how a formula is interpreted. The options for roles are as below:
+\itemize{
+\item \strong{exposure} or \code{X(...)}: a predictor variable that serves as a primary
+or key variable in the \eqn{Exposure ~ Outcome} relationship
+}
+
+Formulas can be condensed by applying their specific role to individual
+terms as a function/wrapper. For example, \code{y ~ X(x1) + x2 + x3}. This would
+signify that \code{x1} has the specific role of an exposure.}
 
 \item{groups}{List of formulas that have the term (or terms) on the LHS and
 the group name on the RHS (quotations to indicate character value not

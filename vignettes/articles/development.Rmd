@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
 ```{r, setup, warning=FALSE, echo = FALSE}
 library(forks)
 library(nomnoml)
+library(DiagrammeR)
 ```
 
 # Statement of Need
@@ -255,4 +256,39 @@ In the setting of a more complex program, functions, arguments, inputs, outputs 
 ```
 
 </center>
+
+# Structure
+
+```{r}
+DiagrammeR::grViz("
+digraph {
+
+# Graph
+graph [layout = dot, rankdir = BT]
+
+# Nodes of object classes
+node [shape = egg, fontname = arial, style = filled, fillcolor = lightcoral, fontcolor = black]
+
+# Nodes of input/argument types
+node [shape = square, fontname = arial, style = filled, fillcolor = linen, fontcolor = black]
+fl [label = 'formula list']
+rx [label = 'rx']
+tm [label = 'term']
+ch [label = 'character']
+fx [label = 'formula']
+rl [label = 'role']
+
+
+# Edges for terms
+fx -> tm
+ch -> tm
+rl -> ch
+fx -> ops
+ops -> tm
+tm -> rx
+rx -> fl
+
+}
+")
+```
 

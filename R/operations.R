@@ -4,29 +4,50 @@
 #' @noRd
 identify_ops <- function(x = term_rcrd(), pattern, ...) {
 
-	# Potential operations
-		# Split by dependent variables
-		# Split by special independent variables
-		# Add covariates in sequence
-		# Add covariates in parallel
-
+	# Retrieve all basic term information
 	tm <- vec_data(x)
-	dv <- lhs(x)
-	iv <- rhs(x)
-	rls <- getComponent(x, "role")
+	dep_vars <- lhs(x)
+	ind_vars <- co_vars <- rhs(x)
 
-	# Groups
+	# Special roles
+	rls <- getComponent(x, "role")
+	exp_vars <- character()
+	for (i in seq_along(rls)) {
+		if (rls[[i]] == "exposure") {
+			exp_vars <- append(exp_vars, names(rls[i]))
+		}
+	}
+
+	# Groups (grouped variables are not part of traditional covariates)
 	grp <- getComponent(x, "group")
-	grp_tbl <- list_to_table(grp, id = "term", val = "group")
-	grp_ct <- table(grp_tbl) |> colSums()
-	grp_lst <- unstack(grp_tbl)
+	grp_vars <- names(grp)
+	grp_vars <- grp_vars[!(grp_vars %in% dep_vars)]
+	grp <- grp[grp_vars]
+	if (length(grp) > 0) {
+		grps <- grp |>
+			list_to_table() |>
+			unstack() |>
+			as.list()
+	} else {
+		grps <- NA
+	}
+
+	# Covariates
+	co_vars <- co_vars[!(co_vars %in% exp_vars) & !(co_vars %in% grp_vars)]
 
 	# Instruction list
 	list(
 		expand_by_pattern = pattern,
-		split_by_outcomes = dv,
-		number_of_groups = length(grp_ct),
-		group_list = grp_lst
+		outcomes = dep_vars,
+		number_of_outcomes = length(dep_vars),
+		predictors = ind_vars,
+		number_of_predictors = length(ind_vars),
+		exposures = exp_vars,
+		number_of_exposures = length(exp_vars),
+		covariates = co_vars,
+		number_of_covariates = length(co_vars),
+		groups = grps,
+		number_of_groups = length(unique(grp))
 	)
 
 }
@@ -42,14 +63,73 @@ perform_ops <- function(x = term_rcrd(), ops, ...) {
 		# expansion pattern
 		# grouping (if available)
 
-	out <- ops$split_by_outcomes
-	ptrn <- ops$expand_by_pattern
+	pattern <- ops$expand_by_pattern
 
-	# Right hand side first
-	right_lst <- list()
+	if (ops$number_of_outcomes >= 1) {
+		out <- ops$outcomes
+	} else {
+		out <- NULL
+	}
 
-	#
+	if (ops$number_of_predictors >= 1) {
+		prd <- ops$predictors
+	} else {
+		prd <- NULL
+	}
 
+	if (ops$number_of_exposures >= 1) {
+		exp <- ops$exposures
+	} else {
+		exp <- character()
+	}
+
+	if (ops$number_of_covariates >= 1) {
+		cov <- ops$covariates
+	} else {
+		cov <- NULL
+	}
+
+	# TODO need to remove group members that are exposures or outcomes
+	if (ops$number_of_groups >= 1) {
+		grp_lst <- ops$groups
+		grp <- character()
+		for (i in seq_along(grp_lst)) {
+			g <- paste(grp_lst[[i]], collapse = " + ")
+			grp <- append(grp, g)
+		}
+	} else {
+		grp <- NULL
+	}
+
+	# Make the right-sided vector of covariates (excluding exposures)
+	others <- c(grp, cov)
+
+	switch(
+		pattern,
+		sequential = {
+			f <- list()
+
+			for (i in seq_along(out)) {
+				x <- out[i]
+				for (j in seq_along(exp)) {
+					y <- exp[j]
+					for (k in 0:length(others)) {
+						z <-
+							c(y, others[0:k]) |>
+							paste0(collapse = " + ") |>
+							{\(.x) paste(x, .x, sep = " ~ ")}() |>
+							as.formula()
+
+						f <- append(f, z)
+					}
+				}
+			}
+
+		}
+	)
+
+	# Return list of formulas
+	f
 
 }
 

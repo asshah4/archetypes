@@ -12,14 +12,22 @@
 #'
 #'   * `formula`
 #'
-#' @param sides Left or right hand side of the equation
+#' @param side Left or right hand side of the equation
 #'
-#' @param roles Specific role the variable plays within the formula
+#' @param role Specific roles the variable plays within the formula. These are
+#'   of particular importance, as they serve as special terms that can effect
+#'   how a formula is interpreted. The options for roles are as below:
 #'
-#' @param operations Modification of the term to be applied when combining with
+#'   * __exposure__: a predictor variable that serves as a primary or key
+#'   variable in the \eqn{Exposure ~ Outcome} relationship
+#'
+#' @param group Grouping variable name for independent variables for modeling
+#'   terms together
+#'
+#' @param operation Modification of the term to be applied when combining with
 #'   data
 #'
-#' @param labels Display-quality label describing the variable
+#' @param label Display-quality label describing the variable
 #'
 #' @name term_record
 #' @export
@@ -88,6 +96,9 @@ term_rcrd.formula <- function(x = formula(),
 	}
 
 	# Validate
+	groups <- formula_args_to_list(groups)
+	labels <- formula_args_to_list(labels)
+	roles <- formula_args_to_list(roles)
 	validate_class(roles, "list")
 	validate_class(groups, "list")
 	validate_class(types, "list")
@@ -122,18 +133,21 @@ term_rcrd.formula <- function(x = formula(),
 		}
 	})
 	data_ops <- all_ops[which_ops]
+
+	# Roles
 	role_ops <- all_ops[!which_ops]
 	role_ops <- c(roles, role_ops)
+	for (i in seq_along(role_ops)) {
 
-	# Clean up groups
-	grps <- list()
-	for (i in seq_along(groups)) {
-		g <- as.character(groups[[i]][[2]])
-		t <- as.character(groups[[i]][[3]])[-1]
+		if (role_ops[[i]] == "X") {
+			role_ops[[i]] <- "exposure"
+		}
 
-		grps <- rep(g, length(t))
-		names(grps) <- t
+		if (role_ops[[i]] == "M") {
+			role_ops[[i]] <- "mediator"
+		}
 	}
+
 
 	# Create terms
 	term_list <- list()
