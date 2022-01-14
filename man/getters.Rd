@@ -4,21 +4,21 @@
 \alias{getters}
 \alias{lhs}
 \alias{rhs}
-\alias{rhs.term_rcrd}
-\alias{lhs.term_rcrd}
+\alias{rhs.term_rx}
+\alias{lhs.term_rx}
 \alias{rhs.formula}
 \alias{lhs.formula}
 \alias{getComponent}
-\alias{getComponent.term_rcrd}
+\alias{getComponent.term_rx}
 \title{Get terms from prescribed formulas}
 \usage{
 lhs(x, ...)
 
 rhs(x, ...)
 
-\method{rhs}{term_rcrd}(x, ...)
+\method{rhs}{term_rx}(x, ...)
 
-\method{lhs}{term_rcrd}(x, ...)
+\method{lhs}{term_rx}(x, ...)
 
 \method{rhs}{formula}(x, tidy = FALSE, ...)
 
@@ -26,7 +26,7 @@ rhs(x, ...)
 
 getComponent(x, ...)
 
-\method{getComponent}{term_rcrd}(x, part, filter_id = NULL, filter_val = NULL, ...)
+\method{getComponent}{term_rx}(x, part, filter_id = NULL, filter_val = NULL, ...)
 }
 \description{
 Get terms from prescribed formulas

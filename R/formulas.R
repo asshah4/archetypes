@@ -11,16 +11,17 @@
 #'
 #' @param x Objects of the following types can be used as inputs
 #'
-#'   * `term_rcrd`
+#'   * `term_rx`
 #'
 #' @param ... Arguments to be passed to or from other methods
 #'
-#' @name formula_vector
-formula_vctr <- function(x = term_rcrd(), ...) {
-	UseMethod("formula_vctr", object = x)
+#' @name prescriptions
+#' @export
+formula_rx <- function(x = term_rx(), ...) {
+	UseMethod("formula_rx", object = x)
 }
 
-#' @rdname formula_vector
+#' @rdname prescriptions
 #'
 #' @param roles Specific roles the variable plays within the formula. These are
 #'   of particular importance, as they serve as special terms that can effect
@@ -37,7 +38,7 @@ formula_vctr <- function(x = term_rcrd(), ...) {
 #'   the group name on the RHS (quotations to indicate character value not
 #'   necessary). E.g. `list(c(x1, x2) ~ grp)`
 #' @export
-formula_vctr.term_rcrd <- function(x = term_rcrd(),
+formula_rx.term_rx <- function(x = term_rx(),
 																	 roles = list(),
 																	 groups = list(),
 																	 pattern = character(),
@@ -45,14 +46,14 @@ formula_vctr.term_rcrd <- function(x = term_rcrd(),
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
-		return(new_formula_vctr())
+		return(new_formula_rx())
 	}
 
 	# Check pattern
 	if (length(pattern) == 0) {
-		pattern <- "default"
+		pattern <- "direct"
 	}
-	if (!pattern %in% c("default", "sequential", "parallel")) {
+	if (!pattern %in% c("direct", "sequential", "parallel")) {
 		stop(
 			"The pattern ", deparse(pattern), " is not yet supported.",
 			call. = FALSE
@@ -86,7 +87,7 @@ formula_vctr.term_rcrd <- function(x = term_rcrd(),
 	}
 
 	# Return
-	new_formula_vctr(
+	new_formula_rx(
 			formulas = formulas,
 			operations = ops,
 			terms = terms,
@@ -94,28 +95,32 @@ formula_vctr.term_rcrd <- function(x = term_rcrd(),
 	)
 }
 
-#' @rdname formula_vector
+#' @rdname prescriptions
 #' @export
-formula_vctr.default <- function(x, ...) {
+formula_rx.default <- function(x, ...) {
 	stop(
-		"`formula_vctr()` is not defined for a `", class(x)[1], "` object.",
+		"`formula_rx()` is not defined for a `", class(x)[1], "` object.",
 		call. = FALSE
 	)
 }
+
+#' @rdname prescriptions
+#' @export
+frx = formula_rx
 
 # Vectors ----
 
 #' Formula vector
 #' @keywords internal
 #' @noRd
-new_formula_vctr <- function(formulas = character(),
+new_formula_rx <- function(formulas = character(),
 														 operations = list(),
-														 terms = term_rcrd(),
+														 terms = term_rx(),
 														 state = logical()) {
 
 	vec_assert(formulas, ptype = character())
 	vec_assert(operations, ptype = list())
-	vec_assert(terms, ptype = term_rcrd())
+	vec_assert(terms, ptype = term_rx())
 	vec_assert(state, ptype = logical())
 
 	new_vctr(
@@ -123,17 +128,17 @@ new_formula_vctr <- function(formulas = character(),
 		operations = operations,
 		terms = terms,
 		state = state,
-		class = "formula_vctr"
+		class = "formula_rx"
 	)
 
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("formula_vctr", "vctrs_vctr"))
+methods::setOldClass(c("formula_rx", "vctrs_vctr"))
 
 #' @export
-format.formula_vctr <- function(x, ...) {
+format.formula_rx <- function(x, ...) {
 
 	f <- vec_data(x)
 	info <- f
@@ -148,7 +153,7 @@ format.formula_vctr <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.formula_vctr <- function(x, ...) {
+obj_print_data.formula_rx <- function(x, ...) {
 	if (vec_size(x) > 0) {
 		cat(format(x), sep = "\n")
 	} else {
@@ -157,8 +162,8 @@ obj_print_data.formula_vctr <- function(x, ...) {
 }
 
 #' @export
-vec_ptype_abbr.formula_vctr <- function(x, ...) {
-	"f_vctr"
+vec_ptype_abbr.formula_rx <- function(x, ...) {
+	"fx"
 }
 
 # Casting and coercion ----
@@ -166,29 +171,29 @@ vec_ptype_abbr.formula_vctr <- function(x, ...) {
 ### self
 
 #' @export
-vec_ptype2.formula_vctr.formula_vctr <- function(x, y, ...) {
+vec_ptype2.formula_rx.formula_rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.formula_vctr.formula_vctr <- function(x, to, ...) {
+vec_cast.formula_rx.formula_rx <- function(x, to, ...) {
 	x
 }
 
 ### characters
 
 #' @export
-vec_ptype2.formula_vctr.character <- function(x, y, ...) {
+vec_ptype2.formula_rx.character <- function(x, y, ...) {
 	y
 }
 
 #' @export
-vec_ptype2.character.formula_vctr <- function(x, y, ...) {
+vec_ptype2.character.formula_rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.character.formula_vctr <- function(x, to, ...) {
+vec_cast.character.formula_rx <- function(x, to, ...) {
 	attributes(x) <- NULL
 	as.character(x)
 }

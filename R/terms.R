@@ -6,7 +6,7 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param x An object of the following types that can be coerced to a `term_rcrd` object
+#' @param x An object of the following types that can be coerced to a `term_rx` object
 #'
 #'   * `character`
 #'
@@ -29,15 +29,15 @@
 #'
 #' @param label Display-quality label describing the variable
 #'
-#' @name term_record
+#' @name terms
 #' @export
-term_rcrd <- function(x = character(), ...) {
-	UseMethod("term_rcrd", object = x)
+term_rx <- function(x = character(), ...) {
+	UseMethod("term_rx", object = x)
 }
 
-#' @rdname term_record
+#' @rdname terms
 #' @export
-term_rcrd.character <- function(x = character(),
+term_rx.character <- function(x = character(),
 																side = character(),
 																role = character(),
 																group = character(),
@@ -81,9 +81,9 @@ term_rcrd.character <- function(x = character(),
 
 }
 
-#' @rdname term_record
+#' @rdname terms
 #' @export
-term_rcrd.formula <- function(x = formula(),
+term_rx.formula <- function(x = formula(),
 															roles = list(),
 															groups = list(),
 															types = list(),
@@ -207,7 +207,7 @@ term_rcrd.formula <- function(x = formula(),
 
 
 		# Place into term list
-		term_list[[i]] <- term_rcrd.character(
+		term_list[[i]] <- term_rx.character(
 			x = x,
 			side = side,
 			role = role,
@@ -221,17 +221,21 @@ term_rcrd.formula <- function(x = formula(),
 
 	# Return as a record of terms
 	term_list |>
-		vec_list_cast(to = term_rcrd())
+		vec_list_cast(to = term_rx())
 
 }
 
-#' @rdname term_record
+#' @rdname terms
 #' @export
-term_rcrd.default <- function(x, ...) {
+term_rx.default <- function(x, ...) {
 
 	stop("`term()` is not defined for a `", class(x)[1], "` object.",
 			 call. = FALSE)
 }
+
+#' @rdname terms
+#' @export
+trx = term_rx
 
 
 # records ----
@@ -264,51 +268,51 @@ new_term <- function(term = character(),
 		"operation" = operation,
 		"label" = label
 	),
-	class = "term_rcrd")
+	class = "term_rx")
 
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("term_rcrd", "rcrds_rcrd"))
+methods::setOldClass(c("term_rx", "rcrds_rcrd"))
 
 ### term() ###
 
 #' @export
-vec_ptype2.term_rcrd.term_rcrd <- function(x, y, ...) {
+vec_ptype2.term_rx.term_rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.term_rcrd.term_rcrd <- function(x, to, ...) {
+vec_cast.term_rx.term_rx <- function(x, to, ...) {
 	x
 }
 
 ### character() ###
 
 #' @export
-vec_ptype2.term_rcrd.character <- function(x, y, ...) {
+vec_ptype2.term_rx.character <- function(x, y, ...) {
 	# `x` is term
 	# `y` is character
 	y
 }
 
 #' @export
-vec_ptype2.character.term_rcrd <- function(x, y, ...) {
+vec_ptype2.character.term_rx <- function(x, y, ...) {
 	# `x` is character
 	# `y` is term
 	x
 }
 
 #' @export
-vec_cast.term_rcrd.character <- function(x, to, ...) {
+vec_cast.term_rx.character <- function(x, to, ...) {
 	# Order is flipped, such that `x` is character
 	attributes(x) <- NULL
 	x[[1]]
 }
 
 #' @export
-vec_cast.character.term_rcrd <- function(x, to, ...) {
+vec_cast.character.term_rx <- function(x, to, ...) {
 	# Order is flipped, such that `x` is term
 	attributes(x) <- NULL
 	x[[1]]
@@ -317,32 +321,32 @@ vec_cast.character.term_rcrd <- function(x, to, ...) {
 ### list_of() ###
 
 #' @export
-vec_ptype2.rcrds_list_of.term_rcrd <- function(x, y, ...) {
+vec_ptype2.rcrds_list_of.term_rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_ptype2.term_rcrd.rcrds_list_of <- function(x, y, ...) {
+vec_ptype2.term_rx.rcrds_list_of <- function(x, y, ...) {
 	y
 }
 
 #' @export
-vec_cast.rcrds_list_of.term_rcrd <- function(x, to, ...) {
+vec_cast.rcrds_list_of.term_rx <- function(x, to, ...) {
 	tl <- as.list(x) # Convert to list
-	lot <- new_list_of(tl, ptype = term_rcrd()) # make new list of
+	lot <- new_list_of(tl, ptype = term_rx()) # make new list of
 	lot # return list of terms
 }
 
 #' @export
-vec_cast.term_rcrd.rcrds_list_of <- function(x, to, ...) {
-	t <- vec_list_cast(x, term_rcrd()) # Convert to a flattened record
+vec_cast.term_rx.rcrds_list_of <- function(x, to, ...) {
+	t <- vec_list_cast(x, term_rx()) # Convert to a flattened record
 	t # Return record of terms
 }
 
 # Formating and printing ----
 
 #' @export
-format.term_rcrd <- function(x, ...) {
+format.term_rx <- function(x, ...) {
 
 	# Formatting
 	t <- field(x, "term")
@@ -358,7 +362,7 @@ format.term_rcrd <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.term_rcrd <- function(x) {
+obj_print_data.term_rx <- function(x) {
 	if (vec_size(x) > 0) {
 		cat(format(x), sep = "\n")
 	} else {
@@ -367,6 +371,6 @@ obj_print_data.term_rcrd <- function(x) {
 }
 
 #' @export
-vec_ptype_abbr.term_rcrd <- function(x, ...) {
-	"t_rcrd"
+vec_ptype_abbr.term_rx <- function(x, ...) {
+	"tx"
 }

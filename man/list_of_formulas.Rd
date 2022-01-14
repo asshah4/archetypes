@@ -2,13 +2,13 @@
 % Please edit documentation in R/lists.R
 \name{list_of_formulas}
 \alias{list_of_formulas}
-\alias{list_of_formulas.formula_vctr}
+\alias{list_of_formulas.formula_rx}
 \alias{list_of_formulas.default}
 \title{Prescribed Formula Lists}
 \usage{
 list_of_formulas(x, ...)
 
-\method{list_of_formulas}{formula_vctr}(x = formula_vctr(), pattern = character(), ...)
+\method{list_of_formulas}{formula_rx}(x = formula_rx(), pattern = character(), ...)
 
 \method{list_of_formulas}{default}(x, ...)
 }

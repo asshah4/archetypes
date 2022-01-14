@@ -128,14 +128,14 @@ rhs <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-rhs.term_rcrd <- function(x, ...) {
+rhs.term_rx <- function(x, ...) {
 	tm <- vec_data(x)
 	tm$term[tm$side == "right"]
 }
 
 #' @rdname getters
 #' @export
-lhs.term_rcrd <- function(x, ...) {
+lhs.term_rx <- function(x, ...) {
 	tm <- vec_data(x)
 	tm$term[tm$side == "left"]
 }
@@ -174,7 +174,7 @@ getComponent <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-getComponent.term_rcrd <- function(x,
+getComponent.term_rx <- function(x,
 																		part,
 																		filter_id = NULL,
 																		filter_val = NULL,
@@ -210,7 +210,7 @@ setGroups <- function(x, ...) {
 
 #' @rdname setters
 #' @export
-setGroups.term_rcrd <- function(x, groups, ...) {
+setGroups.term_rx <- function(x, groups, ...) {
 
 	validate_class(groups, "list")
 
@@ -225,6 +225,6 @@ setGroups.term_rcrd <- function(x, groups, ...) {
 		tm$group[tm$term == names(grps[i])] <- grps[[i]]
 	}
 
-	vec_restore(tm, to = term_rcrd())
+	vec_restore(tm, to = term_rx())
 
 }

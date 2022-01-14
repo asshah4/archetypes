@@ -24,29 +24,18 @@ validate_class <- function(x, what) {
 #'
 #' @param x Confirmation of an object being of the following classes:
 #'
-#'   * `term_rcrd`
-#'   * `formula_frame`
+#'   * `term_rx`
+#'   * `formula_rx`
 #'
 #' @name checkers
 #' @export
 is_term <- function(x) {
-	inherits(x, "term_rcrd")
+	inherits(x, "term_rx")
 }
 
 #' @rdname checkers
 #' @export
 is_tx <- function(x) {
-	inherits(x, "term_rcrd")
+	inherits(x, "term_rx")
 }
 
-#' @rdname checkers
-#' @export
-is_formula_frame <- function(x) {
-	inherits(x, "formula_frame")
-}
-
-#' @rdname checkers
-#' @export
-is_rx <- function(x) {
-	inherits(x, "formula_frame")
-}

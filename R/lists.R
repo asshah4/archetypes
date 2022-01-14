@@ -16,13 +16,13 @@ list_of_formulas <- function(x, ...) {
 
 #' @rdname list_of_formulas
 #' @export
-list_of_formulas.formula_vctr <- function(x = formula_vctr(),
+list_of_formulas.formula_rx <- function(x = formula_rx(),
 																					pattern = character(),
 																					...) {
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
-		return(new_formula_vctr())
+		return(new_formula_rx())
 	}
 
 	# Get components from formula

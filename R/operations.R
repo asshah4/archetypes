@@ -2,7 +2,7 @@
 #' @return A list object of operations
 #' @keywords internal
 #' @noRd
-identify_ops <- function(x = term_rcrd(), pattern, ...) {
+identify_ops <- function(x = term_rx(), pattern, ...) {
 
 	# Retrieve all basic term information
 	tm <- vec_data(x)
@@ -56,7 +56,7 @@ identify_ops <- function(x = term_rcrd(), pattern, ...) {
 #' @return List of formulas to be converted to the appropriate class
 #' @keywords internal
 #' @noRd
-perform_ops <- function(x = term_rcrd(), ops, ...) {
+perform_ops <- function(x = term_rx(), ops, ...) {
 
 	# For formula expansion:
 		# outcomes
@@ -89,7 +89,7 @@ perform_ops <- function(x = term_rcrd(), ops, ...) {
 		cov <- NULL
 	}
 
-	# TODO need to remove group members that are exposures or outcomes
+	# Group members are removed from "covariates" in the operation identification
 	if (ops$number_of_groups >= 1) {
 		grp_lst <- ops$groups
 		grp <- character()
@@ -125,12 +125,48 @@ perform_ops <- function(x = term_rcrd(), ops, ...) {
 				}
 			}
 
+		},
+		parallel = {
+			f <- list()
+
+			for (i in seq_along(out)) {
+				x <- out[i]
+				for (j in seq_along(exp)) {
+					y <- exp[j]
+					for (k in 0:length(others)) {
+						z <-
+							c(y, others[k]) |>
+							paste0(collapse = " + ") |>
+							{\(.x) paste(x, .x, sep = " ~ ")}() |>
+							as.formula()
+
+						f <- append(f, z)
+					}
+				}
+			}
+		},
+		direct = {
+			f <- list()
+
+			for (i in seq_along(out)) {
+				x <- out[i]
+				for (j in seq_along(exp)) {
+					y <- exp[j]
+
+					z <-
+						c(y, others) |>
+						paste0(collapse = " + ") |>
+						{\(.x) paste(x, .x, sep = " ~ ")}() |>
+						as.formula()
+
+					f <- append(f, z)
+				}
+			}
 		}
 	)
 
 	# Return list of formulas
 	f
-
 }
 
 expand_formula <- function(formula,

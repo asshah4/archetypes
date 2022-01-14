@@ -4,23 +4,17 @@
 \alias{checkers}
 \alias{is_term}
 \alias{is_tx}
-\alias{is_formula_frame}
-\alias{is_rx}
 \title{Identification of objects in the \code{forks} package}
 \usage{
 is_term(x)
 
 is_tx(x)
-
-is_formula_frame(x)
-
-is_rx(x)
 }
 \arguments{
 \item{x}{Confirmation of an object being of the following classes:
 \itemize{
-\item \code{term_rcrd}
-\item \code{formula_frame}
+\item \code{term_rx}
+\item \code{formula_rx}
 }}
 }
 \description{

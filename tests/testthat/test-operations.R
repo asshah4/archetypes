@@ -1,13 +1,13 @@
 test_that("adding of groups works for operations", {
 
-	t1 <- term_rcrd(mpg + wt ~ hp + drat + qsec + gear + cyl)
+	t1 <- term_rx(mpg + wt ~ hp + drat + qsec + gear + cyl)
 	groups <- list(gear ~ c(hardware), c(qsec, drat) ~ speed)
 	grps <- formula_args_to_list(groups)
 	t2 <- setGroups(t1, groups = grps)
 	tm <- vec_data(t2)
 	expect_length(tm$group[!is.na(tm$group)], 3)
 
-	f1 <- formula_vctr(t2)
+	f1 <- formula_rx(t2)
 	ops <- attr(f1, "operations")
 
 
@@ -17,8 +17,8 @@ test_that("operations work for exposures and outcomes", {
 
 	# Exposure expansion
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
-	t1 <- term_rcrd(f)
-	f1 <- formula_vctr(t1, pattern = "sequential")
+	t1 <- term_rx(f)
+	f1 <- formula_rx(t1, pattern = "sequential")
 	ops <- attr(f1, "operations")
 	expect_equal(ops$expand_by_pattern, "sequential")
 
