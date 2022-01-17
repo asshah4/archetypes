@@ -1,3 +1,5 @@
+# Conversion ----
+
 #' Convert between lists and tables
 #'
 #' @return A `data.frame` or `list` object
@@ -95,6 +97,12 @@ formula_args_to_list <- function(x, ...) {
 	pl
 }
 
+#' @export
+as_term_rx <- function(x, ...) {
+	validate_class(x, "formula_rx")
+	getComponent(x, "terms")
+}
+
 #' Add parent environment back to formula
 #' @keywords internal
 #' @noRd
@@ -175,10 +183,14 @@ getComponent <- function(x, ...) {
 #' @rdname getters
 #' @export
 getComponent.term_rx <- function(x,
-																		part,
-																		filter_id = NULL,
-																		filter_val = NULL,
-																		...) {
+																 part,
+																 filter_id = NULL,
+																 filter_val = NULL,
+																 ...) {
+
+	# Clean up "part"
+	part <- sub("(.*)s$", '\\1', part)
+
 	tm <- vec_data(x)
 
 	if (is.null(filter_id)) {
@@ -196,6 +208,27 @@ getComponent.term_rx <- function(x,
 	} else {
 		stop("Filtering inputs have been set incorrectly.")
 	}
+}
+
+#' @rdname getters
+#' @export
+getComponent.formula_rx <- function(x,
+																		part,
+																		...) {
+
+	# Clean up "part" by removing last S if exists, and appending if need be
+	part <-
+		sub("(.*)s$", '\\1', part) |>
+		paste0("s")
+
+	a <- names(attributes(x))
+	if (part %in% a) {
+		y <- attr(x, part)
+	} else {
+		t <- attr(x, "term")
+		getComponent.term_rx(t, part)
+	}
+
 }
 
 # Setters ----
@@ -228,3 +261,4 @@ setGroups.term_rx <- function(x, groups, ...) {
 	vec_restore(tm, to = term_rx())
 
 }
+

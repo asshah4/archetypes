@@ -7,7 +7,7 @@ test_that("basic formula vector can be made and displayed", {
 
 	expect_s3_class(f1, "formula_rx")
 	expect_equal(f1, formula_rx(x = term_rx(f), pattern = "direct"))
-	expect_error(formula_rx(f)) # Until formal implementation is made
+	expect_s3_class(frx(f), "formula_rx") # Until formal implementation is made
 
 	# Vectorization
 	t1 <- term_rx(mpg ~ wt)
@@ -44,6 +44,12 @@ test_that("formula_rx() inputs are acceptable", {
 	t <- term_rx(mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec))
 	expect_error(formula_rx(x = t, pattern = "error"))
 
+	# Using a formula directly
+	expect_length(formula_rx(formula()), 0)
+	x <- mpg + qsec ~ X(wt) + M(hp)
+	f <- formula_rx(x)
+	expect_error(formula_rx(x, pattern = "error"))
+
 })
 
 
@@ -63,5 +69,14 @@ test_that("vctrs casting and coercion work appropriately", {
 	expect_type(as.character(f1), "character")
 	expect_type(vec_ptype2(formula_rx(), character()), "character")
 	expect_type(vec_ptype2(character(), formula_rx()), "character")
+
+	# Between terms and formulas
+	x <- mpg + qsec ~ X(wt) + M(hp)
+	f0 <- formula_rx(x)
+	t1 <- term_rx(x)
+	t2 <- as_term_rx(f0)
+	expect_equal(t1, t2)
+	f1 <- formula_rx(t1)
+	expect_equal(f0, f1)
 
 })

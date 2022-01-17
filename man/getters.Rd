@@ -10,6 +10,7 @@
 \alias{lhs.formula}
 \alias{getComponent}
 \alias{getComponent.term_rx}
+\alias{getComponent.formula_rx}
 \title{Get terms from prescribed formulas}
 \usage{
 lhs(x, ...)
@@ -27,6 +28,8 @@ rhs(x, ...)
 getComponent(x, ...)
 
 \method{getComponent}{term_rx}(x, part, filter_id = NULL, filter_val = NULL, ...)
+
+\method{getComponent}{formula_rx}(x, part, ...)
 }
 \description{
 Get terms from prescribed formulas

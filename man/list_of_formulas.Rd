@@ -8,7 +8,12 @@
 \usage{
 list_of_formulas(x, ...)
 
-\method{list_of_formulas}{formula_rx}(x = formula_rx(), pattern = character(), ...)
+\method{list_of_formulas}{formula_rx}(
+  x = formula_rx(),
+  pattern = character(),
+  name = deparse(substitute(x)),
+  ...
+)
 
 \method{list_of_formulas}{default}(x, ...)
 }

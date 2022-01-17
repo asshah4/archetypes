@@ -5,6 +5,7 @@
 \alias{term_rx}
 \alias{term_rx.character}
 \alias{term_rx.formula}
+\alias{terms_rx.formula_rx}
 \alias{term_rx.default}
 \alias{trx}
 \title{Term records}
@@ -30,6 +31,8 @@ term_rx(x = character(), ...)
   labels = list(),
   ...
 )
+
+terms_rx.formula_rx(x, ...)
 
 \method{term_rx}{default}(x, ...)
 
@@ -59,6 +62,9 @@ terms together}
 data}
 
 \item{label}{Display-quality label describing the variable}
+}
+\value{
+An object of class \code{formula_rx}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

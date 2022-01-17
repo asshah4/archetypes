@@ -12,9 +12,13 @@ identify_ops <- function(x = term_rx(), pattern, ...) {
 	# Special roles
 	rls <- getComponent(x, "role")
 	exp_vars <- character()
+	med_vars <- character()
 	for (i in seq_along(rls)) {
 		if (rls[[i]] == "exposure") {
 			exp_vars <- append(exp_vars, names(rls[i]))
+		}
+		if (rls[[i]] == "mediator") {
+			med_vars <- append(med_vars, names(rls[i]))
 		}
 	}
 
@@ -33,7 +37,8 @@ identify_ops <- function(x = term_rx(), pattern, ...) {
 	}
 
 	# Covariates
-	co_vars <- co_vars[!(co_vars %in% exp_vars) & !(co_vars %in% grp_vars)]
+	spec_vars <- c(exp_vars, med_vars, grp_vars)
+	co_vars <- co_vars[!(co_vars %in% spec_vars)]
 
 	# Instruction list
 	list(
@@ -44,6 +49,8 @@ identify_ops <- function(x = term_rx(), pattern, ...) {
 		number_of_predictors = length(ind_vars),
 		exposures = exp_vars,
 		number_of_exposures = length(exp_vars),
+		mediators = med_vars,
+		number_of_mediators = length(med_vars),
 		covariates = co_vars,
 		number_of_covariates = length(co_vars),
 		groups = grps,
@@ -56,7 +63,7 @@ identify_ops <- function(x = term_rx(), pattern, ...) {
 #' @return List of formulas to be converted to the appropriate class
 #' @keywords internal
 #' @noRd
-perform_ops <- function(x = term_rx(), ops, ...) {
+perform_ops <- function(ops, ...) {
 
 	# For formula expansion:
 		# outcomes
@@ -83,6 +90,12 @@ perform_ops <- function(x = term_rx(), ops, ...) {
 		exp <- character()
 	}
 
+	if (ops$number_of_mediators >= 1) {
+		med <- ops$mediators
+	} else {
+		med <- character()
+	}
+
 	if (ops$number_of_covariates >= 1) {
 		cov <- ops$covariates
 	} else {
@@ -102,168 +115,256 @@ perform_ops <- function(x = term_rx(), ops, ...) {
 	}
 
 	# Make the right-sided vector of covariates (excluding exposures)
+	# These variables are affected by the expansion pattern
 	others <- c(grp, cov)
 
-	switch(
-		pattern,
-		sequential = {
-			f <- list()
+	# Mediation
+	if (length(med) > 0) {
 
-			for (i in seq_along(out)) {
-				x <- out[i]
-				for (j in seq_along(exp)) {
-					y <- exp[j]
-					for (k in 0:length(others)) {
-						z <-
-							c(y, others[0:k]) |>
-							paste0(collapse = " + ") |>
-							{\(.x) paste(x, .x, sep = " ~ ")}() |>
+		lof <- list()
+
+		# Outcome ~ Exposure
+		for (o in seq_along(out)) {
+			outcomes <- out[o]
+			for (x in seq_along(exp)) {
+				exposures <- exp[x]
+				switch(
+					pattern,
+					direct = {
+						f <-
+							c(exposures, others) |>
+							paste(collapse = " + ") |>
+							{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
 							as.formula()
 
-						f <- append(f, z)
-					}
-				}
-			}
+						lof <- append(lof, f)
+						names(lof)[length(lof)] <-
+							paste0("y",
+										 o,
+										 "x",
+										 x,
+										 "c",
+										 0,
+										 "_",
+										 substr(pattern, 1, 3))
+					},
+					sequential = {
+						for (n in 0:length(others)) {
+							f <-
+								c(exposures, others[0:n]) |>
+								paste0(collapse = " + ") |>
+								{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
+								as.formula()
 
-		},
-		parallel = {
-			f <- list()
+							lof <- append(lof, f)
+							names(lof)[length(lof)] <-
+								paste0("y",
+											 o,
+											 "x",
+											 x,
+											 "c",
+											 n,
+											 "_",
+											 substr(pattern, 1, 3))
+						}
+					},
+					parallel = {
+						for (n in 0:length(others)) {
+							f <-
+								c(exposures, others[n]) |>
+								paste0(collapse = " + ") |>
+								{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
+								as.formula()
 
-			for (i in seq_along(out)) {
-				x <- out[i]
-				for (j in seq_along(exp)) {
-					y <- exp[j]
-					for (k in 0:length(others)) {
-						z <-
-							c(y, others[k]) |>
-							paste0(collapse = " + ") |>
-							{\(.x) paste(x, .x, sep = " ~ ")}() |>
-							as.formula()
-
-						f <- append(f, z)
-					}
-				}
-			}
-		},
-		direct = {
-			f <- list()
-
-			for (i in seq_along(out)) {
-				x <- out[i]
-				for (j in seq_along(exp)) {
-					y <- exp[j]
-
-					z <-
-						c(y, others) |>
-						paste0(collapse = " + ") |>
-						{\(.x) paste(x, .x, sep = " ~ ")}() |>
-						as.formula()
-
-					f <- append(f, z)
-				}
+							lof <- append(lof, f)
+							names(lof)[length(lof)] <-
+								paste0("y",
+											 o,
+											 "x",
+											 x,
+											 "c",
+											 n,
+											 "_",
+											 substr(pattern, 1, 3))
+						}
+					},
+				)
 			}
 		}
-	)
+
+		# Outcome ~ Mediator
+		for (o in seq_along(out)) {
+			outcomes <- out[o]
+			for (m in seq_along(med)) {
+				mediators <- med[m]
+				f <-
+					mediators |>
+					{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
+					as.formula()
+				lof <- append(lof, f)
+				names(lof)[length(lof)] <-
+					paste0("y",
+								 o,
+								 "m",
+								 m,
+								 "c",
+								 0,
+								 "_",
+								 substr(pattern, 1, 3))
+			}
+		}
+
+		# Mediator ~ Exposure
+		for (m in seq_along(med)) {
+			mediators <- med[m]
+			for (x in seq_along(exp)) {
+				exposures <- exp[x]
+				switch(
+					pattern,
+					direct = {
+						f <-
+							c(exposures, others) |>
+							paste(collapse = " + ") |>
+							{\(.x) paste(mediators, .x, sep = " ~ ")}() |>
+							as.formula()
+
+						lof <- append(lof, f)
+						names(lof)[length(lof)] <-
+							paste0("m",
+										 m,
+										 "x",
+										 x,
+										 "c",
+										 0,
+										 "_",
+										 substr(pattern, 1, 3))
+					},
+					sequential = {
+						for (n in 0:length(others)) {
+							f <-
+								c(exposures, others[0:n]) |>
+								paste0(collapse = " + ") |>
+								{\(.x) paste(mediators, .x, sep = " ~ ")}() |>
+								as.formula()
+
+							lof <- append(lof, f)
+							names(lof)[length(lof)] <-
+								paste0("m",
+											 m,
+											 "x",
+											 x,
+											 "c",
+											 n,
+											 "_",
+											 substr(pattern, 1, 3))
+						}
+					},
+					parallel = {
+						for (n in 0:length(others)) {
+							f <-
+								c(exposures, others[n]) |>
+								paste0(collapse = " + ") |>
+								{\(.x) paste(mediators, .x, sep = " ~ ")}() |>
+								as.formula()
+
+							lof <- append(lof, f)
+							names(lof)[length(lof)] <-
+								paste0("m",
+											 m,
+											 "x",
+											 x,
+											 "c",
+											 n,
+											 "_",
+											 substr(pattern, 1, 3))
+						}
+					},
+				)
+
+			}
+		}
+
+		# Return
+		return(lof)
+
+	} else if (length(med) == 0) {
+
+		lof <- list()
+
+		# Outcome ~ Exposure
+		for (o in seq_along(out)) {
+			outcomes <- out[o]
+			for (x in seq_along(exp)) {
+				exposures <- exp[x]
+				switch(
+					pattern,
+					direct = {
+						f <-
+							c(exposures, others) |>
+							paste(collapse = " + ") |>
+							{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
+							as.formula()
+
+						lof <- append(lof, f)
+						names(lof)[length(lof)] <-
+							paste0("y",
+										 o,
+										 "x",
+										 x,
+										 "c",
+										 0,
+										 "_",
+										 substr(pattern, 1, 3))
+					},
+					sequential = {
+						for (n in 0:length(others)) {
+							f <-
+								c(exposures, others[0:n]) |>
+								paste(collapse = " + ") |>
+								{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
+								as.formula()
+
+							lof <- append(lof, f)
+							names(lof)[length(lof)] <-
+								paste0("y",
+											 o,
+											 "x",
+											 x,
+											 "c",
+											 n,
+											 "_",
+											 substr(pattern, 1, 3))
+						}
+					},
+					parallel = {
+						for (n in 0:length(others)) {
+							exposures <- exp[x]
+							f <-
+								c(exposures, others[n]) |>
+								paste(collapse = " + ") |>
+								{\(.x) paste(outcomes, .x, sep = " ~ ")}() |>
+								as.formula()
+
+							lof <- append(lof, f)
+							names(lof)[length(lof)] <-
+								paste0("y",
+											 o,
+											 "x",
+											 x,
+											 "c",
+											 n,
+											 "_",
+											 substr(pattern, 1, 3))
+						}
+					},
+				)
+			}
+		}
 
 	# Return list of formulas
-	f
+	return(lof)
+
+	}
+
 }
 
-expand_formula <- function(formula,
-													 labels = NULL,
-													 combination,
-													 table = FALSE,
-													 ...) {
-	# Initial deparsing of variables
-	outcomes <-
-		gsub(" ", "", unlist(strsplit(deparse(formula[[2]]), "\ \\+\ ")))
-	predictors <- labels(stats::terms(formula))
-	exposures <- labels[["exposures"]]
-	fixed <- labels[["fixed"]]
-	confounders <- labels[["confounders"]]
-
-	# Covariates should not contain any additional labels
-	covariates <- setdiff(labels(stats::terms(formula)), c(fixed, exposures))
-	covariates <- gsub("\\)", "", gsub("C\\(", "", covariates))
-
-	if (length(exposures) == 0) {
-		exposures <- NA
-	}
-
-	if (length(fixed) == 0) {
-		fixed <- NULL
-	}
-
-	# Reset the covariates and ensure fixed variables are primary/upfront
-	covariates <- setdiff(covariates, c(fixed, exposures))
-	predictors <- c(fixed, covariates)
-
-	# Based on approach
-	switch(
-		combination,
-		direct = {
-			num <- sum(any(!is.null(covariates), !is.null(fixed)))
-
-			tbl <-
-				tibble::tibble(number = 1:num) %>%
-				mutate(., vars = list(predictors)) %>%
-				tidyr::expand_grid(exposures = exposures, .) %>%
-				mutate(vars = purrr::map2(vars, exposures, ~ c(.y, .x))) %>%
-				mutate(vars = purrr::map(vars, ~ na.omit(.x))) %>%
-				tidyr::expand_grid(outcomes = outcomes, .)
-		},
-		sequential = {
-			# Number of covariates to sequence through
-			mod <- unique(!is.na(exposures))
-			num <- sum(mod + length(covariates))
-
-			tbl <-
-				tibble::tibble(number = 1:num) %>%
-				mutate(vars = purrr::map(
-					number,
-					~ c(fixed, covariates[(1 - mod):(.x - mod)])
-				)) %>%
-				tidyr::expand_grid(exposures = exposures, .) %>%
-				mutate(vars = purrr::map2(vars, exposures, ~ c(.y, .x))) %>%
-				mutate(vars = purrr::map(vars, ~ na.omit(.x))) %>%
-				tidyr::expand_grid(outcomes = outcomes, .)
-		},
-		parallel = {
-			# If no exp or fixed, than based on num. of covariates
-			# If no covariates, than based on num. of fixed and exposures
-			if (length(covariates) == 0) {
-				num <- sum(any(c(!is.null(fixed), !is.na(exposures))))
-			}
-
-			if (length(covariates) > 0) {
-				num <- length(covariates)
-			}
-
-			tbl <-
-				tibble::tibble(number = 1:num) %>%
-				mutate(
-					vars = purrr::map(number, ~ c(fixed, covariates[.x]))
-				) %>%
-				tidyr::expand_grid(exposures = exposures, .) %>%
-				mutate(vars = purrr::map2(vars, exposures, ~ c(.y, .x))) %>%
-				mutate(vars = purrr::map(vars, ~ na.omit(.x))) %>%
-				tidyr::expand_grid(outcomes = outcomes, .)
-		}
-	)
-
-	# Return expanded formulae
-	tbl <- tbl %>%
-		mutate(exposures = sapply(exposures, paste, collapse = ", ")) %>%
-		mutate(formulae = {
-			purrr::map_chr(vars, ~ paste(unlist(.x), collapse = " + ")) %>%
-				paste(outcomes, ., sep = " ~ ") %>%
-				lapply(., formula)
-		})
-
-	# Return either list or table
-	if (table) {
-		tbl
-	} else {
-		tbl$formulae
-	}
-}

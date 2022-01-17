@@ -1,4 +1,4 @@
-# List of Formulas ----
+# list of formulas ----
 
 #' Prescribed Formula Lists
 #'
@@ -17,8 +17,10 @@ list_of_formulas <- function(x, ...) {
 #' @rdname list_of_formulas
 #' @export
 list_of_formulas.formula_rx <- function(x = formula_rx(),
-																					pattern = character(),
-																					...) {
+																				pattern = character(),
+																				name = deparse(substitute(x)),
+																				...) {
+
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
@@ -38,11 +40,16 @@ list_of_formulas.formula_rx <- function(x = formula_rx(),
 	rls <- getComponent(t, "role")
 
 	# Expansion of formulas
-	fl <- perform_ops(t, ops)
-
+	lof <- perform_ops(ops)
+	names(lof) <-
+		sapply(names(lof),
+					 function(x) {
+					 	paste(name, sep = "_", x)
+					 },
+					 USE.NAMES = FALSE)
 
 	new_list_of_formulas(
-		formula_list = fl,
+		formula_list = lof,
 		labels = labs,
 		roles = rls
 	)
@@ -57,7 +64,7 @@ list_of_formulas.default <- function(x, ...) {
 	)
 }
 
-# Vectors ----
+# list_of vctr ----
 
 #' Formula list
 #' @keywords internal
@@ -68,10 +75,10 @@ new_list_of_formulas <- function(formula_list = list(),
 
 	new_list_of(
 		x = formula_list,
-		ptype = character(),
+		ptype = list(),
 		class = "list_of_formulas",
-		labels = list(),
-		roles = list()
+		labels = labels,
+		roles = roles
 	)
 
 }
@@ -80,17 +87,6 @@ new_list_of_formulas <- function(formula_list = list(),
 #' @noRd
 methods::setOldClass(c("list_of_formulas", "vctrs_vctr"))
 
-#' @export
-vec_ptype_full.list_of_formulas <- function(x, ...) {
-	"list_of_formulas"
-}
-
-#' @export
-vec_ptype_abbr.list_of_formulas <- function(x, ...) {
-	"frmls"
-}
-
-# Casting and coercion ----
 
 #' @export
 vec_ptype2.vctrs_list_of.character <- function(x, y, ...) {
@@ -113,4 +109,41 @@ vec_cast.vctrs_list_of.character <- function(x, to, ...) {
 vec_cast.character.vctrs_list_of <- function(x, to, ...) {
 	cv <- unlist(x) # Flatten list of characters
 	cv # Return character vector (named)
+}
+
+
+# formating and printing ----
+
+#' @export
+vec_ptype_full.list_of_formulas <- function(x, ...) {
+	"list_of_formulas"
+}
+
+#' @export
+vec_ptype_abbr.list_of_formulas <- function(x, ...) {
+	"fmls"
+}
+
+# fitting ----
+
+#' Fitting a list of formulas
+#'
+#' @return A list of model fits
+#'
+#' @param object A `list_of_formulas` that can be fit by a modeling function,
+#'   such as [stats::lm()]
+#'
+#' @rdname fit
+#' @export
+fit.list_of_formulas <- function(object, .f, ..., data) {
+	validate_class(data, c("tbl_df", "data.frame"))
+	args <- list(...)
+	args$data <- quote(data)
+
+	y <- lapply(object, function(.x) {
+		f <- .x
+		do.call(".f", args = c(formula = f, args))
+	})
+
+	y
 }

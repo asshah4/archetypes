@@ -13,7 +13,7 @@ test_that("adding of groups works for operations", {
 
 })
 
-test_that("operations work for exposures and outcomes", {
+test_that("operations work for special roles", {
 
 	# Exposure expansion
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
@@ -21,6 +21,14 @@ test_that("operations work for exposures and outcomes", {
 	f1 <- formula_rx(t1, pattern = "sequential")
 	ops <- attr(f1, "operations")
 	expect_equal(ops$expand_by_pattern, "sequential")
+
+	# Simple mediation
+	f1 <- frx(mpg ~ X(wt) + M(hp) + gear, pattern = "direct")
+	ops <- getComponent(f1, "operations")
+	expect_equal(ops$number_of_mediators, 1)
+	lof <- list_of_formulas(f1)
+	expect_length(lof, 3)
+	expect_match(names(lof), "_dir")
 
 
 })

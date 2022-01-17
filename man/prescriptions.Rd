@@ -4,6 +4,7 @@
 \alias{prescriptions}
 \alias{formula_rx}
 \alias{formula_rx.term_rx}
+\alias{formula_rx.formula}
 \alias{formula_rx.default}
 \alias{frx}
 \title{Formula vector}
@@ -12,6 +13,14 @@ formula_rx(x = term_rx(), ...)
 
 \method{formula_rx}{term_rx}(
   x = term_rx(),
+  roles = list(),
+  groups = list(),
+  pattern = character(),
+  ...
+)
+
+\method{formula_rx}{formula}(
+  x = formula(),
   roles = list(),
   groups = list(),
   pattern = character(),
@@ -45,6 +54,21 @@ signify that \code{x1} has the specific role of an exposure.}
 \item{groups}{List of formulas that have the term (or terms) on the LHS and
 the group name on the RHS (quotations to indicate character value not
 necessary). E.g. \code{list(c(x1, x2) ~ grp)}}
+
+\item{pattern}{This is the expansion pattern used to decide how the
+covariates will incorporated into the formulas. The options are
+\code{c("direct", "sequential", "parallel")}. See the details for further
+explanation.
+\itemize{
+\item \strong{direct}: the covariates will all be included in each formula
+\item \strong{sequential}: the covariates will be added sequentially, one by one, or
+by groups, as indicated
+\item \strong{parallel}: the covariates or groups of covariates will be placed in
+parallel
+}}
+}
+\value{
+An object of class \code{formula_rx}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -52,3 +76,32 @@ necessary). E.g. \code{list(c(x1, x2) ~ grp)}}
 This function defines a new modified \code{formula} class that has been
 vectorized. It expands upon the functionality of formulas.
 }
+\details{
+
+}
+\section{Patterns}{
+
+
+The expansion pattern allows for instructions on how the covariates should be
+included in different formulas. Below, assuming that \emph{x1}, \emph{x2}, and \emph{x3} are
+covariates...
+
+\deqn{y ~ x1 + x2 + x3}
+
+\strong{Direct}:
+
+\deqn{y ~ x1 + x2 + x3}
+
+\strong{Seqential}:
+
+\deqn{y ~ x1}
+\deqn{y ~ x1 + x2}
+\deqn{y ~ x1 + x2 + x3}
+
+\strong{Parallel}:
+
+\deqn{y ~ x1}
+\deqn{y ~ x2}
+\deqn{y ~ x3}
+}
+

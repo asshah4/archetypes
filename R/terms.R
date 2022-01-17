@@ -1,4 +1,4 @@
-# Terms ----
+# terms ----
 
 #' Term records
 #'
@@ -29,6 +29,7 @@
 #'
 #' @param label Display-quality label describing the variable
 #'
+#' @return An object of class `formula_rx`
 #' @name terms
 #' @export
 term_rx <- function(x = character(), ...) {
@@ -148,7 +149,6 @@ term_rx.formula <- function(x = formula(),
 		}
 	}
 
-
 	# Create terms
 	term_list <- list()
 
@@ -227,6 +227,12 @@ term_rx.formula <- function(x = formula(),
 
 #' @rdname terms
 #' @export
+terms_rx.formula_rx <- function(x, ...) {
+	getComponent(x, "terms")
+}
+
+#' @rdname terms
+#' @export
 term_rx.default <- function(x, ...) {
 
 	stop("`term()` is not defined for a `", class(x)[1], "` object.",
@@ -238,7 +244,7 @@ term_rx.default <- function(x, ...) {
 trx = term_rx
 
 
-# records ----
+# vctrs and rcrds ----
 
 #' record of formula terms
 #' @keywords internal
@@ -275,6 +281,16 @@ new_term <- function(term = character(),
 #' @keywords internal
 #' @noRd
 methods::setOldClass(c("term_rx", "rcrds_rcrd"))
+
+# Arithmetic
+vec_arith.term_rx <- function(op, x, y, ...) {
+	UseMethod("vec_arith.term_rx", y)
+}
+
+vec_arith.term_rx.default <- function(op, x, y, ...) {
+	stop_incompatible_op(op, x, y)
+}
+
 
 ### term() ###
 
@@ -343,7 +359,7 @@ vec_cast.term_rx.rcrds_list_of <- function(x, to, ...) {
 	t # Return record of terms
 }
 
-# Formating and printing ----
+# formating and printing ----
 
 #' @export
 format.term_rx <- function(x, ...) {
