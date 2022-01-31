@@ -2,13 +2,13 @@
 % Please edit documentation in R/validation.R
 \name{checkers}
 \alias{checkers}
-\alias{is_term}
-\alias{is_tx}
+\alias{is_term_rx}
+\alias{is_formula_rx}
 \title{Identification of objects in the \code{forks} package}
 \usage{
-is_term(x)
+is_term_rx(x)
 
-is_tx(x)
+is_formula_rx(x)
 }
 \arguments{
 \item{x}{Confirmation of an object being of the following classes:

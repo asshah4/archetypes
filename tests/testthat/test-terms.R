@@ -1,9 +1,9 @@
 test_that("term_rx() makes term object or errors", {
 
-	t1 <- term_rx("y", side = "lhs", role = "outcome", label = "Dependent Variable")
-	t2 <- trx("x", side = "rhs", role = "exposure", label = "Independent Variable")
+	t1 <- term_rx("y", side = "left", role = "outcome", label = "Dependent Variable")
+	t2 <- trx("x", side = "right", role = "exposure", label = "Independent Variable")
 	expect_s3_class(t1, "term_rx")
-	expect_true(is_term(t1))
+	expect_true(is_term_rx(t1))
 	expect_error(new_term("x"))
 	expect_equal(length(t2), vec_size(t1))
 	expect_length(term_rx(formula()), 0)
@@ -51,13 +51,17 @@ test_that("formatting is correct", {
 
 })
 
-test_that("coercion and casting works", {
+test_that("vctr based operations work", {
+
+	# Basic casting
 	x1 <- term_rx("x1", side = "right", role = "exposure", label = "Independent Variable")
 	x2 <- term_rx("x2", side = "right", role = "covariate", label = "Independent Variable")
 	y <- "y"
 	expect_type(c(x1, y), "character")
 	expect_s3_class(c(x1, x2), "term_rx")
 	expect_type(vec_c(x1, y), "character")
+
+
 
 })
 

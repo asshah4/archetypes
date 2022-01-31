@@ -70,13 +70,13 @@
 #' \deqn{y ~ x3}
 #'
 #' @return An object of class `formula_rx`
-#' @name prescriptions
+#' @name frx
 #' @export
 formula_rx <- function(x = term_rx(), ...) {
 	UseMethod("formula_rx", object = x)
 }
 
-#' @rdname prescriptions
+#' @rdname frx
 #' @export
 formula_rx.term_rx <- function(x = term_rx(),
 															 roles = list(),
@@ -136,7 +136,7 @@ formula_rx.term_rx <- function(x = term_rx(),
 	)
 }
 
-#' @rdname prescriptions
+#' @rdname frx
 #' @export
 formula_rx.formula <- function(x = formula(),
 															 roles = list(),
@@ -190,7 +190,7 @@ formula_rx.formula <- function(x = formula(),
 	)
 }
 
-#' @rdname prescriptions
+#' @rdname frx
 #' @export
 formula_rx.default <- function(x, ...) {
 	stop(
@@ -199,9 +199,10 @@ formula_rx.default <- function(x, ...) {
 	)
 }
 
-#' @rdname prescriptions
+#' @rdname frx
 #' @export
 frx = formula_rx
+
 
 # vctrs ----
 
@@ -209,8 +210,8 @@ frx = formula_rx
 #' @keywords internal
 #' @noRd
 new_formula_rx <- function(formulas = character(),
-														 operations = list(),
-														 terms = term_rx()) {
+													 operations = list(),
+													 terms = term_rx()) {
 
 	vec_assert(formulas, ptype = character())
 	vec_assert(operations, ptype = list())
@@ -271,34 +272,25 @@ vec_cast.character.formula_rx <- function(x, to, ...) {
 	as.character(x)
 }
 
-
-# formating and printing ----
+### term_rx
 
 #' @export
-format.formula_rx <- function(x, ...) {
-
-	f <- vec_data(x)
-	info <- f
-
-	# Pasting
-	if (length(f) > 0) {
-		paste(info, sep = "\n")
-	} else {
-		paste(info)
-	}
-
+vec_ptype2.formula_rx.term_rx <- function(x, y, ...) {
+	y
 }
 
 #' @export
-obj_print_data.formula_rx <- function(x, ...) {
-	if (vec_size(x) > 0) {
-		cat(format(x), sep = "\n")
-	} else {
-		cat(format(x))
-	}
+vec_ptype2.term_rx.formula_rx <- function(x, y, ...) {
+	x
 }
 
 #' @export
-vec_ptype_abbr.formula_rx <- function(x, ...) {
-	"fx"
+vec_cast.term_rx.formula_rx <- function(x, to, ...) {
+
+	attr(x, "terms")
+
 }
+
+
+
+

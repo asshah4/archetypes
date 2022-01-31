@@ -4,21 +4,20 @@
 \alias{list_of_formulas}
 \alias{list_of_formulas.formula_rx}
 \alias{list_of_formulas.default}
+\alias{fmls}
 \title{Prescribed Formula Lists}
 \usage{
 list_of_formulas(x, ...)
 
-\method{list_of_formulas}{formula_rx}(
-  x = formula_rx(),
-  pattern = character(),
-  name = deparse(substitute(x)),
-  ...
-)
+\method{list_of_formulas}{formula_rx}(x, pattern = character(), name = deparse1(substitute(x)), ...)
 
 \method{list_of_formulas}{default}(x, ...)
+
+fmls(x, ...)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function introduces a super  that combines both the \code{list} class (and its derivative \code{list_of}) and the \code{formula} class.
+This function introduces a super  that combines both the \code{list} class (and
+its derivative \code{list_of}) and the \code{formula} class.
 }
