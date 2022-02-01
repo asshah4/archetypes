@@ -18,7 +18,6 @@ list_of_formulas <- function(x, ...) {
 #' @rdname list_of_formulas
 #' @export
 list_of_formulas.formula_rx <- function(x,
-																				pattern = character(),
 																				name = deparse1(substitute(x)),
 																				...) {
 
@@ -38,6 +37,9 @@ list_of_formulas.formula_rx <- function(x,
 	# Get roles
 	rls <- getComponent(t, "role")
 
+	# Get groups
+	grps <- getComponent(t, "group")
+
 	# Expansion of formulas
 	lof <- perform_ops(ops)
 	names(lof) <-
@@ -50,7 +52,8 @@ list_of_formulas.formula_rx <- function(x,
 	new_list_of_formulas(
 		formula_list = lof,
 		labels = labs,
-		roles = rls
+		roles = rls,
+		groups = grps
 	)
 }
 
@@ -80,14 +83,16 @@ fmls = list_of_formulas
 #' @noRd
 new_list_of_formulas <- function(formula_list = list(),
 																 labels = list(),
-																 roles = list()) {
+																 roles = list(),
+																 groups = list()) {
 
 	new_list_of(
 		x = formula_list,
 		ptype = list(),
 		class = "list_of_formulas",
 		labels = labels,
-		roles = roles
+		roles = roles,
+		groups = groups
 	)
 
 }

@@ -127,7 +127,7 @@ perform_ops <- function(ops, ...) {
 		for (o in seq_along(out)) {
 			outcomes <- out[o]
 
-			if (length(x) == 0) {
+			if (length(exp) == 0) {
 				out_exp <-
 					pattern_expander(
 						formula_list = out_exp,
@@ -235,7 +235,7 @@ perform_ops <- function(ops, ...) {
 		for (m in seq_along(med)) {
 			mediators <- med[m]
 
-			if (length(x) == 0) {
+			if (length(exp) == 0) {
 
 				med_exp <-
 					pattern_expander(

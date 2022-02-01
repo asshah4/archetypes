@@ -26,7 +26,7 @@ test_that("operations work for special roles", {
 	f1 <- frx(mpg ~ X(wt) + M(hp) + gear, pattern = "direct")
 	ops <- getComponent(f1, "operations")
 	expect_equal(ops$number_of_mediators, 1)
-	lof <- list_of_formulas(f1, name = "f1")
+	lof <- list_of_formulas(f1)
 	expect_length(lof, 3)
 	expect_match(names(lof), "_dir")
 

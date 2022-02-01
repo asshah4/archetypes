@@ -115,6 +115,7 @@ test_that("lists can be decomposed into tables", {
 	tbl <- explode(lof)
 	expect_length(tbl, 7)
 	expect_equal(nrow(tbl), 14)
+	expect_equal(tbl$covariate[1], NA)
 
 
 })
