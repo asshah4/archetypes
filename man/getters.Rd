@@ -2,35 +2,38 @@
 % Please edit documentation in R/utils.R
 \name{getters}
 \alias{getters}
-\alias{lhs}
-\alias{rhs}
-\alias{rhs.term_rx}
-\alias{lhs.term_rx}
-\alias{rhs.formula}
-\alias{lhs.formula}
 \alias{getComponent}
 \alias{getComponent.term_rx}
 \alias{getComponent.formula_rx}
-\title{Get terms from prescribed formulas}
+\alias{roles}
+\alias{roles.term_rx}
+\alias{roles.formula_rx}
+\alias{roles.list_of_formulas}
+\alias{roles.list_of_models}
+\alias{labels.list_of_formulas}
+\alias{labels.list_of_models}
+\title{Retrieval functions for \code{forks} classes}
 \usage{
-lhs(x, ...)
-
-rhs(x, ...)
-
-\method{rhs}{term_rx}(x, ...)
-
-\method{lhs}{term_rx}(x, ...)
-
-\method{rhs}{formula}(x, tidy = FALSE, ...)
-
-\method{lhs}{formula}(x, ...)
-
 getComponent(x, ...)
 
 \method{getComponent}{term_rx}(x, part, filter_id = NULL, filter_val = NULL, ...)
 
 \method{getComponent}{formula_rx}(x, part, ...)
+
+roles(x, ...)
+
+\method{roles}{term_rx}(x, ...)
+
+\method{roles}{formula_rx}(x, ...)
+
+\method{roles}{list_of_formulas}(x, ...)
+
+\method{roles}{list_of_models}(x, ...)
+
+\method{labels}{list_of_formulas}(x, ...)
+
+\method{labels}{list_of_models}(x, ...)
 }
 \description{
-Get terms from prescribed formulas
+Retrieval functions for \code{forks} classes
 }

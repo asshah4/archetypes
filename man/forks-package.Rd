@@ -6,7 +6,7 @@
 \alias{_PACKAGE}
 \title{forks package}
 \description{
-This package provides a simple interface for expanding upon the `formula` class by adding the capacity for labeling terms. This allows for a flexible interface with other packages that are driven by formulas, particularly in the causal modeling space.
+This package provides a simple interface for expanding upon the `formula` class by introducing additional attributes, such as specific roles, labels, and groups to individual terms. This allows for formulas to be expanded and to create families of formulas that are related, using formula lists. This is driven by the need for more clear and intentional relationship descriptions, particularly in the causal modeling space.
 }
 \seealso{
 Useful links:

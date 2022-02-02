@@ -30,22 +30,23 @@
 #' @param label Display-quality label describing the variable
 #'
 #' @return An object of class `formula_rx`
-#' @name terms
+#' @name trx
 #' @export
 term_rx <- function(x = character(), ...) {
 	UseMethod("term_rx", object = x)
 }
 
-#' @rdname terms
+#' @rdname trx
 #' @export
 term_rx.character <- function(x = character(),
-																side = character(),
-																role = character(),
-																group = character(),
-																type = character(),
-																operation = character(),
-																label = character(),
-																...) {
+															side = character(),
+															role = character(),
+															group = character(),
+															type = character(),
+															operation = character(),
+															label = character(),
+															...) {
+
 
 	# Break early if need be
 	if (length(x) == 0) {
@@ -55,7 +56,7 @@ term_rx.character <- function(x = character(),
 	# Missing values
 	if (length(x) == 0) x <- NA
 	if (length(side) == 0) side <- NA
-	if (length(role) == 0) role <- NA
+	if (length(role) == 0) role <- "unknown"
 	if (length(group) == 0) group <- NA
 	if (length(type) == 0) type <- NA
 	if (length(operation) == 0) operation <- NA
@@ -82,14 +83,14 @@ term_rx.character <- function(x = character(),
 
 }
 
-#' @rdname terms
+#' @rdname trx
 #' @export
 term_rx.formula <- function(x = formula(),
-															roles = list(),
-															groups = list(),
-															types = list(),
-															labels = list(),
-															...) {
+														roles = list(),
+														groups = list(),
+														types = list(),
+														labels = list(),
+														...) {
 
 	# Break early if need be
 	if (length(x) == 0) {
@@ -106,18 +107,20 @@ term_rx.formula <- function(x = formula(),
 	validate_class(labels, "list")
 
 	# All terms are needed to build term record
-	n <- length(all.vars(x))
-	all <- all.vars(x, functions = TRUE, unique = FALSE)
-	all_terms <- all.vars(x, functions = FALSE)
 	left <- lhs(x)
 	right <- rhs(x, tidy = TRUE)
+	all <- c(left, right)
+	n <- length(all)
 
 	# The roles and operations need to be identified (upon which term they apply)
-	all_ops <-
-		all |>
+	right_ops <-
+		rhs(x, tidy = FALSE) |>
+		paste(collapse = " + ") |>
+		{\(.x) paste("~", .x)}() |>
+		stats::as.formula() |>
+		all.vars(functions = TRUE, unique = FALSE) |>
 		{\(.x) grep("~", .x, value = TRUE, invert = TRUE)}() |>
 		{\(.x) grep("\\+", .x, value = TRUE, invert = TRUE)}() |>
-		{\(.x) .x[!(.x %in% left)]}() |>
 		{\(.x) {
 			.y <- as.list(.x[!(.x %in% right)])
 			names(.y) <- .x[which(!.x %in% right) + 1]
@@ -125,19 +128,35 @@ term_rx.formula <- function(x = formula(),
 		}}()
 
 	# Check to see if it is a "role" or a data transformation
-	which_ops <- vapply(all_ops, FUN.VALUE = TRUE, FUN = function(.x) {
-		.y <- try(getFromNamespace(.x, c("base", "stats", "utils", "methods")), silent = TRUE)
-		if (class(.y) == "try-error") {
-			.y <- FALSE
-		} else if (class(.y) == "function") {
-			.y <- TRUE
+	which_ops <- vapply(
+		right_ops,
+		FUN.VALUE = TRUE,
+		function(.x) {
+			.y <-
+				try(getFromNamespace(.x, c("base", "stats", "utils", "methods")), silent = TRUE)
+			if (class(.y) == "try-error") {
+				.y <- FALSE
+			} else if (class(.y) == "function") {
+				.y <- TRUE
+			}
 		}
-	})
-	data_ops <- all_ops[which_ops]
+	)
+	data_ops <- right_ops[which_ops]
 
-	# Roles
-	role_ops <- all_ops[!which_ops]
-	role_ops <- c(roles, role_ops)
+	# Roles, with default of LHS as `outcome` and RHS as `covariate`
+	role_ops <- right_ops[!which_ops]
+
+	other <- right[!(right %in% names(role_ops))]
+	other_ops <- rep("covariate", length(other))
+	names(other_ops) <- other
+	other_ops <- as.list(other_ops)
+
+	left_ops <- rep("outcome", length(left))
+	names(left_ops) <- left
+	left_ops <- as.list(left_ops)
+
+	role_ops <- c(roles, role_ops, left_ops, other_ops)
+
 	for (i in seq_along(role_ops)) {
 
 		if (role_ops[[i]] == "X") {
@@ -154,7 +173,7 @@ term_rx.formula <- function(x = formula(),
 
 	for (i in 1:n) {
 		# Make parameters
-		t <- all_terms[i]
+		t <- all[i]
 		side <- if (t %in% left) {
 			"left"
 		} else if (t %in% right) {
@@ -225,13 +244,13 @@ term_rx.formula <- function(x = formula(),
 
 }
 
-#' @rdname terms
+#' @rdname trx
 #' @export
-terms_rx.formula_rx <- function(x, ...) {
-	getComponent(x, "terms")
+term_rx.formula_rx <- function(x, ...) {
+	attr(x, "terms")
 }
 
-#' @rdname terms
+#' @rdname trx
 #' @export
 term_rx.default <- function(x, ...) {
 
@@ -239,12 +258,12 @@ term_rx.default <- function(x, ...) {
 			 call. = FALSE)
 }
 
-#' @rdname terms
+#' @rdname trx
 #' @export
 trx = term_rx
 
 
-# vctrs and rcrds ----
+# rcrd ----
 
 #' record of formula terms
 #' @keywords internal
@@ -282,15 +301,8 @@ new_term <- function(term = character(),
 #' @noRd
 methods::setOldClass(c("term_rx", "rcrds_rcrd"))
 
-# Arithmetic
-vec_arith.term_rx <- function(op, x, y, ...) {
-	UseMethod("vec_arith.term_rx", y)
-}
 
-vec_arith.term_rx.default <- function(op, x, y, ...) {
-	stop_incompatible_op(op, x, y)
-}
-
+# casting and coercion ----
 
 ### term() ###
 
@@ -359,34 +371,28 @@ vec_cast.term_rx.rcrds_list_of <- function(x, to, ...) {
 	t # Return record of terms
 }
 
-# formating and printing ----
+
+
+# operations ----
 
 #' @export
-format.term_rx <- function(x, ...) {
-
-	# Formatting
-	t <- field(x, "term")
-	info <- t
-
-	# Pasting
-	if (length(t) > 0) {
-		paste(info, sep = "\n")
-	} else {
-		paste(info)
-	}
-
+vec_arith.term_rx <- function(op, x, y, ...) {
+	UseMethod("vec_arith.term_rx", y)
 }
 
 #' @export
-obj_print_data.term_rx <- function(x) {
-	if (vec_size(x) > 0) {
-		cat(format(x), sep = "\n")
-	} else {
-		cat(format(x))
-	}
+vec_arith.term_rx.default <- function(op, x, y, ...) {
+	stop_incompatible_op(op, x, y)
 }
 
 #' @export
-vec_ptype_abbr.term_rx <- function(x, ...) {
-	"tx"
+vec_arith.term_rx.term_rx <- function(op, x, y, ...) {
+
+	switch(
+		op,
+		"+" = {
+			c(x, y)
+		},
+		stop_incompatible_op(op, x, y)
+	)
 }

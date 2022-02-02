@@ -97,83 +97,116 @@ formula_args_to_list <- function(x, ...) {
 	pl
 }
 
-#' @export
-as_term_rx <- function(x, ...) {
-	validate_class(x, "formula_rx")
-	getComponent(x, "terms")
-}
+# formula tools ----
 
-#' Add parent environment back to formula
-#' @keywords internal
-#' @noRd
-setEnv <- function(x, env = parent.frame()) {
-	environment(x) <- env
-	x
-}
-
-#' Obtain environment of original formula
-#' @keywords internal
-#' @noRd
-getEnv <- function(x) {
-	env <- environment(x)
-	env
-}
-
-# Getters ----
-
-#' Get terms from prescribed formulas
-#' @name getters
+#' Tools for working with formula-like objects
+#' @name sides
 #' @export
 lhs <- function(x, ...) {
 	UseMethod("lhs", object = x)
 }
 
-#' @rdname getters
+#' @rdname sides
 #' @export
 rhs <- function(x, ...) {
 	UseMethod("rhs", object = x)
 }
 
-#' @rdname getters
+#' @rdname sides
 #' @export
 rhs.term_rx <- function(x, ...) {
 	tm <- vec_data(x)
 	tm$term[tm$side == "right"]
 }
 
-#' @rdname getters
+#' @rdname sides
 #' @export
 lhs.term_rx <- function(x, ...) {
 	tm <- vec_data(x)
 	tm$term[tm$side == "left"]
 }
 
-#' @rdname getters
+#' @rdname sides
+#' @param tidy Logical value to decide if operations should be removed from the terms. If `FALSE`, then the operations will remain included.
 #' @export
 rhs.formula <- function(x, tidy = FALSE, ...) {
-	if (tidy) {
-		all <- all.vars(x, functions = FALSE)
-		left <- x[[2]] |>
-			deparse() |>
-			strsplit("\ \\+\ ") |>
-			unlist()
 
-		setdiff(all, left)
+	if (length(x) == 2) {pos <- 2}
+	if (length(x) == 3) {pos <- 3}
+
+	if (tidy) {
+		x[[pos]] |>
+			deparse1() |>
+			{\(.x) paste("~", .x)}() |>
+			stats::as.formula() |>
+			all.vars(functions = FALSE, unique = FALSE)
 	} else {
 		labels(stats::terms(x))
 	}
 }
 
-#' @rdname getters
+#' @rdname sides
 #' @export
-lhs.formula <- function(x, ...) {
-	x[[2]] |>
-		deparse() |>
+lhs.formula <- function(x, tidy = FALSE, ...) {
+
+	if (length(x) == 2) {
+		return(character())
+	}
+
+	# Shift over to simplify evaluation
+	y <-
+		x[[2]] |>
+		deparse1() |>
+		{\(.x) paste("~", .x)}() |>
+		stats::as.formula()
+
+	if (tidy) {
+		left <- all.vars(y, functions = FALSE, unique = FALSE)
+	} else {
+		left <- labels(stats::terms(y))
+	}
+
+	# Return
+	left
+
+}
+
+#' @rdname sides
+#' @export
+rhs.formula_rx <- function(x, tidy = FALSE, ...) {
+
+	if (tidy) {
+		x |>
+			as.formula() |>
+			{\(.x) .x[[3]]}() |>
+			deparse1() |>
+			strsplit("\ \\+\ ") |>
+			unlist()
+	} else {
+		x |>
+			as.formula() |>
+			stats::terms() |>
+			labels()
+	}
+}
+
+#' @rdname sides
+#' @export
+lhs.formula_rx <- function(x, ...) {
+
+	x |>
+		as.formula() |>
+		{\(.x) .x[[2]]}() |>
+		deparse1() |>
 		strsplit("\ \\+\ ") |>
 		unlist()
 }
 
-#' @rdname getters
+# Getters ----
+
+
+#' Retrieval functions for `forks` classes
+#' @name getters
 #' @export
 getComponent <- function(x, ...) {
 	UseMethod("getComponent", object = x)
@@ -198,16 +231,21 @@ getComponent.term_rx <- function(x,
 			tm[!is.na(tm[part]), unique(c("term", part)), drop = FALSE] |>
 			table_to_list()
 
-		return(y)
+		# For consistency
+		if ("term" %in% names(y)) {
+			names(y) <- "terms"
+		}
+
 	} else if (!is.null(filter_id) & !is.null(filter_val)) {
 		y <-
 			tm[!is.na(tm[part]) & tm[filter_id] == filter_val, part] |>
 			table_to_list()
 
-		return(y)
 	} else {
 		stop("Filtering inputs have been set incorrectly.")
 	}
+
+	y
 }
 
 #' @rdname getters
@@ -217,18 +255,73 @@ getComponent.formula_rx <- function(x,
 																		...) {
 
 	# Clean up "part" by removing last S if exists, and appending if need be
-	part <-
+	parts <-
 		sub("(.*)s$", '\\1', part) |>
 		paste0("s")
 
 	a <- names(attributes(x))
-	if (part %in% a) {
-		y <- attr(x, part)
+	if (parts %in% a) {
+
+		if (parts %in% c("operations", "ops", "operation")) {
+			y <- attr(x, "operations")
+		}
+
+		if (parts %in% c("terms", "term")) {
+			y <-
+				attr(x, parts) |>
+				as.character() |>
+				list()
+			names(y) <- parts
+		}
 	} else {
 		t <- attr(x, "term")
-		getComponent.term_rx(t, part)
+		y <- getComponent.term_rx(t, parts)
 	}
 
+	y
+
+}
+
+
+#' @rdname getters
+#' @export
+roles <- function(x, ...) {
+	UseMethod("roles", object = x)
+}
+
+#' @rdname getters
+roles.term_rx <- function(x, ...) {
+	getComponent(x, "role")
+}
+
+#' @rdname getters
+roles.formula_rx <- function(x, ...) {
+	attr(x, "terms") |>
+		roles.term_rx(t)
+}
+
+#' @rdname getters
+#' @export
+roles.list_of_formulas <- function(x, ...) {
+	attr(x, "roles")
+}
+
+#' @rdname getters
+#' @export
+roles.list_of_models <- function(x, ...) {
+	attr(x, "roles")
+}
+
+#' @rdname getters
+#' @export
+labels.list_of_formulas <- function(x, ...) {
+	attr(x, "labels")
+}
+
+#' @rdname getters
+#' @export
+labels.list_of_models <- function(x, ...) {
+	attr(x, "labels")
 }
 
 # Setters ----
@@ -261,4 +354,97 @@ setGroups.term_rx <- function(x, groups, ...) {
 	vec_restore(tm, to = term_rx())
 
 }
+
+# updates ----
+
+#' Updating prescribed formulas
+#' @name updates
+#' @export
+update.formula_rx <- function(object, parameters, ...) {
+
+	t <- term_rx(object)
+
+	if (class(parameters) == "formula") {
+
+		### LHS
+		all_left <- lhs(parameters, tidy = TRUE)
+		plus_left <- lhs(parameters, tidy = FALSE)
+
+		# Add
+		if (length(plus_left) > 0) {
+			for (i in seq_along(plus_left)) {
+				.t <- term_rx(x = plus_left[i], role = "outcome", side = "left")
+				t <- c(t, .t)
+			}
+		}
+
+		# Subtract
+		minus_left <- setdiff(all_left, plus_left)
+
+		tm <- vec_data(t)
+		left <-
+			tm[tm$side == "left" & !(tm$term %in% minus_left), ] |>
+			vec_restore(term_rx())
+
+		### RHS
+		all_right <- rhs(parameters, tidy = TRUE)
+		plus_right <- rhs(parameters, tidy = FALSE)
+
+		# Add
+		if (length(plus_right) > 0) {
+			.t <-
+				paste(plus_right, collapse = " + ") |>
+				{\(.x) paste("~", .x)}() |>
+				stats::as.formula() |>
+				term_rx()
+
+			t <- c(t, .t)
+		}
+
+		# Subtract
+		minus_right <- setdiff(all_right, plus_right)
+
+		tm <- vec_data(t)
+		right <-
+			tm[tm$side == "right" & !(tm$term %in% minus_right),] |>
+			vec_restore(term_rx())
+
+		# Combine both sides
+		t <- c(left, right)
+
+	}
+
+	# Return
+	formula_rx(t)
+}
+
+#' @rdname updates
+#' @return An object of class `formula_rx`
+#' @export
+add <- function(object, parameters, ...) {
+
+	validate_class(object, "formula_rx")
+
+	obj <- term_rx(object)
+
+	switch(
+		class(parameters)[1],
+		term_rx = {
+			f <-
+				obj |>
+				{\(.x) c(.x, parameters)}() |>
+				formula_rx()
+		},
+		formula = {
+			f <-
+				term_rx(parameters) |>
+				{\(.x) c(obj, .x)}() |>
+				formula_rx()
+		}
+	)
+
+	# Return
+	f
+}
+
 

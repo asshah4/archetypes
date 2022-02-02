@@ -29,13 +29,13 @@ validate_class <- function(x, what) {
 #'
 #' @name checkers
 #' @export
-is_term <- function(x) {
+is_term_rx <- function(x) {
 	inherits(x, "term_rx")
 }
 
 #' @rdname checkers
 #' @export
-is_tx <- function(x) {
-	inherits(x, "term_rx")
+is_formula_rx <- function(x) {
+	inherits(x, "formula_rx")
 }
 
