@@ -24,7 +24,7 @@ test_that("operations work for special roles", {
 
 	# Simple mediation
 	f1 <- frx(mpg ~ X(wt) + M(hp) + gear, pattern = "direct")
-	ops <- getComponent(f1, "operations")
+	ops <- attr(f1, "operations")
 	expect_equal(ops$number_of_mediators, 1)
 	lof <- list_of_formulas(f1)
 	expect_length(lof, 3)

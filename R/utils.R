@@ -204,86 +204,8 @@ lhs.formula_rx <- function(x, ...) {
 
 # Getters ----
 
-
 #' Retrieval functions for `forks` classes
 #' @name getters
-#' @export
-getComponent <- function(x, ...) {
-	UseMethod("getComponent", object = x)
-}
-
-
-#' @rdname getters
-#' @export
-getComponent.term_rx <- function(x,
-																 part,
-																 filter_id = NULL,
-																 filter_val = NULL,
-																 ...) {
-
-	# Clean up "part"
-	part <- sub("(.*)s$", '\\1', part)
-
-	tm <- vec_data(x)
-
-	if (is.null(filter_id)) {
-		y <-
-			tm[!is.na(tm[part]), unique(c("term", part)), drop = FALSE] |>
-			table_to_list()
-
-		# For consistency
-		if ("term" %in% names(y)) {
-			names(y) <- "terms"
-		}
-
-	} else if (!is.null(filter_id) & !is.null(filter_val)) {
-		y <-
-			tm[!is.na(tm[part]) & tm[filter_id] == filter_val, part] |>
-			table_to_list()
-
-	} else {
-		stop("Filtering inputs have been set incorrectly.")
-	}
-
-	y
-}
-
-#' @rdname getters
-#' @export
-getComponent.formula_rx <- function(x,
-																		part,
-																		...) {
-
-	# Clean up "part" by removing last S if exists, and appending if need be
-	parts <-
-		sub("(.*)s$", '\\1', part) |>
-		paste0("s")
-
-	a <- names(attributes(x))
-	if (parts %in% a) {
-
-		if (parts %in% c("operations", "ops", "operation")) {
-			y <- attr(x, "operations")
-		}
-
-		if (parts %in% c("terms", "term")) {
-			y <-
-				attr(x, parts) |>
-				as.character() |>
-				list()
-			names(y) <- parts
-		}
-	} else {
-		t <- attr(x, "term")
-		y <- getComponent.term_rx(t, parts)
-	}
-
-	y
-
-}
-
-
-#' @rdname getters
 #' @export
 roles <- function(x, ...) {
 	UseMethod("roles", object = x)
@@ -291,13 +213,21 @@ roles <- function(x, ...) {
 
 #' @rdname getters
 roles.term_rx <- function(x, ...) {
-	getComponent(x, "role")
+	vec_data(x) |>
+		{
+			\(.x) .x[, c("term", "role")]
+		}() |>
+		table_to_list()
 }
 
 #' @rdname getters
 roles.formula_rx <- function(x, ...) {
 	attr(x, "terms") |>
-		roles.term_rx(t)
+		vec_data() |>
+		{
+			\(.x) .x[, c("term", "role")]
+		}() |>
+		table_to_list()
 }
 
 #' @rdname getters
@@ -308,8 +238,29 @@ roles.list_of_formulas <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-roles.list_of_models <- function(x, ...) {
-	attr(x, "roles")
+labels.term_rx <- function(x, ...) {
+	vec_data(x) |>
+		{
+			\(.x) .x[, c("term", "label")]
+		}() |>
+		table_to_list() |>
+		{
+			\(.x) .x[!is.na(.x)]
+		}()
+}
+
+#' @rdname getters
+#' @export
+labels.formula_rx <- function(x, ...) {
+	attr(x, "terms") |>
+		vec_data() |>
+		{
+			\(.x) .x[, c("term", "label")]
+		}() |>
+		table_to_list() |>
+		{
+			\(.x) .x[!is.na(.x)]
+		}()
 }
 
 #' @rdname getters
@@ -320,9 +271,41 @@ labels.list_of_formulas <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.list_of_models <- function(x, ...) {
-	attr(x, "labels")
+groups <- function(x, ...) {
+	UseMethod("groups", object = x)
 }
+
+#' @rdname getters
+groups.term_rx <- function(x, ...) {
+	vec_data(x) |>
+		{
+			\(.x) .x[, c("term", "group")]
+		}() |>
+		table_to_list() |>
+		{
+			\(.x) .x[!is.na(.x)]
+		}()
+}
+
+#' @rdname getters
+groups.formula_rx <- function(x, ...) {
+	attr(x, "terms") |>
+		vec_data() |>
+		{
+			\(.x) .x[, c("term", "group")]
+		}() |>
+		table_to_list() |>
+		{
+			\(.x) .x[!is.na(.x)]
+		}()
+}
+
+#' @rdname getters
+#' @export
+groups.list_of_formulas <- function(x, ...) {
+	attr(x, "groups")
+}
+
 
 # Setters ----
 
@@ -342,7 +325,7 @@ setGroups.term_rx <- function(x, groups, ...) {
 
 	# Append groups
 	grps <-
-		getComponent(x, "group") |>
+		groups.term_rx(x) |>
 		append(groups)
 
 	tm <- vec_data(x)

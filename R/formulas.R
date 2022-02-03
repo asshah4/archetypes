@@ -79,10 +79,11 @@ formula_rx <- function(x = term_rx(), ...) {
 #' @rdname frx
 #' @export
 formula_rx.term_rx <- function(x = term_rx(),
-															 roles = list(),
-															 groups = list(),
-															 pattern = character(),
-															 ...) {
+							   roles = list(),
+							   groups = list(),
+							   pattern = character(),
+							   ...) {
+
 
 
 	# Early break if not viable method dispatch

@@ -24,7 +24,7 @@ test_that("formula can be broken into terms", {
 	t2 <- term_rx(f, labels = list(mpg ~ "Mileage"), groups = list(qsec + drat ~ "speed"))
 	expect_equal(vec_size(t1), 7)
 	expect_equal(vec_size(t1), length(t1))
-	expect_length(getComponent(t2, "group"), 2)
+	expect_length(groups.term_rx(t2), 2)
 
 	# Adding roles and labels works
 	tm <-

@@ -2,24 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{getters}
 \alias{getters}
-\alias{getComponent}
-\alias{getComponent.term_rx}
-\alias{getComponent.formula_rx}
 \alias{roles}
 \alias{roles.term_rx}
 \alias{roles.formula_rx}
 \alias{roles.list_of_formulas}
-\alias{roles.list_of_models}
+\alias{labels.term_rx}
+\alias{labels.formula_rx}
 \alias{labels.list_of_formulas}
-\alias{labels.list_of_models}
+\alias{groups}
+\alias{groups.term_rx}
+\alias{groups.formula_rx}
+\alias{groups.list_of_formulas}
 \title{Retrieval functions for \code{forks} classes}
 \usage{
-getComponent(x, ...)
-
-\method{getComponent}{term_rx}(x, part, filter_id = NULL, filter_val = NULL, ...)
-
-\method{getComponent}{formula_rx}(x, part, ...)
-
 roles(x, ...)
 
 \method{roles}{term_rx}(x, ...)
@@ -28,11 +23,19 @@ roles(x, ...)
 
 \method{roles}{list_of_formulas}(x, ...)
 
-\method{roles}{list_of_models}(x, ...)
+\method{labels}{term_rx}(x, ...)
+
+\method{labels}{formula_rx}(x, ...)
 
 \method{labels}{list_of_formulas}(x, ...)
 
-\method{labels}{list_of_models}(x, ...)
+groups(x, ...)
+
+\method{groups}{term_rx}(x, ...)
+
+\method{groups}{formula_rx}(x, ...)
+
+\method{groups}{list_of_formulas}(x, ...)
 }
 \description{
 Retrieval functions for \code{forks} classes
