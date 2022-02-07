@@ -136,7 +136,7 @@ vec_cast.character.vctrs_list_of <- function(x, to, ...) {
 #'
 #' @rdname fit
 #' @export
-fit.list_of_formulas <- function(object, .f, ..., data) {
+fit_fmls <- function(object, .f, ..., data) {
 
 	cl <- match.call()
 	args <- list(...)

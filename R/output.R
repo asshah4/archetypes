@@ -153,23 +153,3 @@ vec_ptype_abbr.list_of_formulas <- function(x, ...) {
 	"fmls"
 }
 
-# Model Lists ----
-
-#' @export
-format.list_of_models <- function(x, ...) {
-
-	lapply(x, FUN = function(.x) {
-		print(.x)
-	})
-
-}
-
-#' @export
-vec_ptype_full.list_of_models <- function(x, ...) {
-	"list_of_models"
-}
-
-#' @export
-vec_ptype_abbr.list_of_models <- function(x, ...) {
-	"mdls"
-}
