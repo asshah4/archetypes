@@ -54,6 +54,12 @@ test_that("formula_rx() inputs are acceptable", {
 	f <- formula_rx(x)
 	expect_error(formula_rx(x, pattern = "error"))
 
+	# Modifiers such as roles, labels, and groups are incorporated
+	f <- formula_rx(x, labels = list(hp ~ "Horsepower"))
+	expect_length(labels(f), 1) # Currently erroring
+
+
+
 })
 
 test_that("complex formulas can be made", {
