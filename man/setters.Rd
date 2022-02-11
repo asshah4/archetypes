@@ -4,11 +4,17 @@
 \alias{setters}
 \alias{setGroups}
 \alias{setGroups.term_rx}
+\alias{setLabels}
+\alias{setLabels.term_rx}
 \title{Set components of terms and formulas}
 \usage{
 setGroups(x, ...)
 
 \method{setGroups}{term_rx}(x, groups, ...)
+
+setLabels(x, ...)
+
+\method{setLabels}{term_rx}(x, labels, ...)
 }
 \value{
 A modified

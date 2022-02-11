@@ -72,24 +72,18 @@
 #' @return An object of class `formula_rx`
 #' @name frx
 #' @export
-formula_rx <- function(x = term_rx(), ...) {
+formula_rx <- function(x = character(), ...) {
 	UseMethod("formula_rx", object = x)
 }
 
 #' @rdname frx
 #' @export
-formula_rx.term_rx <- function(x = term_rx(),
+formula_rx.term_rx <- function(x,
 							   roles = list(),
 							   groups = list(),
+							   labels = list(),
 							   pattern = character(),
 							   ...) {
-
-
-
-	# Early break if not viable method dispatch
-	if (length(x) == 0) {
-		return(new_formula_rx())
-	}
 
 	# Check pattern
 	if (length(pattern) == 0) {
@@ -105,7 +99,7 @@ formula_rx.term_rx <- function(x = term_rx(),
 	# Create simplified formula
 	t <- vec_data(x)
 
-	# Add roles as needed
+	# Update roles to prepare for color and display of formula
 	t$term[!is.na(t$role) & t$role == "exposure"] <-
 		paste0("X(", t$term[!is.na(t$role) & t$role == "exposure"], ")")
 	t$term[!is.na(t$role) & t$role == "mediator"] <-
@@ -114,17 +108,20 @@ formula_rx.term_rx <- function(x = term_rx(),
 	right <- t$term[t$side == "right"]
 
 
+	# Formula display
 	formulas <- paste(paste(left, collapse = " + "),
 										paste(right, collapse = " + "),
 										sep = " ~ ")
 	formulas <- vec_cast(formulas, character())
 
-	# Update groups
+	# Update attributes of terms
 	grps <- formula_args_to_list(groups)
 	x <- setGroups(x, groups = grps)
 
-	# Formula level operations, should return a list
-	ops <- identify_ops(x, pattern)
+	# Update labels
+	labs <- formula_args_to_list(labels)
+	x <- setLabels(x, labels = labs)
+
 
 	# Term list (nested for field length equivalence)
 	terms <- x
@@ -132,23 +129,19 @@ formula_rx.term_rx <- function(x = term_rx(),
 	# Return
 	new_formula_rx(
 			formulas = formulas,
-			operations = ops,
-			terms = terms
+			terms = terms,
+			pattern = pattern
 	)
 }
 
 #' @rdname frx
 #' @export
-formula_rx.formula <- function(x = formula(),
-															 roles = list(),
-															 groups = list(),
-															 pattern = character(),
-															 ...) {
-
-	# Early break if not viable method dispatch
-	if (length(x) == 0) {
-		return(new_formula_rx())
-	}
+formula_rx.formula <- function(x,
+							   roles = list(),
+							   groups = list(),
+							   labels = list(),
+							   pattern = character(),
+							   ...) {
 
 	# Check pattern
 	if (length(pattern) == 0) {
@@ -177,27 +170,30 @@ formula_rx.formula <- function(x = formula(),
 	grps <- formula_args_to_list(groups)
 	x <- setGroups(x, groups = grps)
 
-	# Formula level operations, should return a list
-	ops <- identify_ops(x, pattern)
-
 	# Term list (nested for field length equivalence)
 	terms <- x
 
 	# Return
 	new_formula_rx(
 			formulas = formulas,
-			operations = ops,
-			terms = terms
+			terms = terms,
+			pattern = pattern
 	)
 }
 
 #' @rdname frx
 #' @export
 formula_rx.default <- function(x, ...) {
-	stop(
-		"`formula_rx()` is not defined for a `", class(x)[1], "` object.",
-		call. = FALSE
-	)
+
+	# Early break if not viable method dispatch
+	if (length(x) == 0) {
+		return(new_formula_rx())
+	} else {
+		stop("`formula_rx()` is not defined for a `",
+			 class(x)[1],
+			 "` object.",
+			 call. = FALSE)
+	}
 }
 
 #' @rdname frx
@@ -211,17 +207,18 @@ frx = formula_rx
 #' @keywords internal
 #' @noRd
 new_formula_rx <- function(formulas = character(),
-													 operations = list(),
-													 terms = term_rx()) {
+						   terms = term_rx(),
+						   pattern = character()) {
+
 
 	vec_assert(formulas, ptype = character())
-	vec_assert(operations, ptype = list())
+	vec_assert(pattern, ptype = character())
 	vec_assert(terms, ptype = term_rx())
 
 	new_vctr(
 		formulas,
-		operations = operations,
 		terms = terms,
+		pattern = pattern,
 		class = "formula_rx"
 	)
 

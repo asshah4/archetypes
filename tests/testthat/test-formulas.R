@@ -4,6 +4,7 @@ test_that("basic formula vector can be made and displayed", {
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
 	t <- term_rx(f)
 	f1 <- formula_rx(t, pattern = "direct")
+	labels <- list(mpg ~ "Mileage", cyl ~ "Cylinders")
 	expect_length(rhs(f1), 5)
 	expect_length(lhs(f1), 2)
 

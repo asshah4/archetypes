@@ -11,7 +11,7 @@
 #'
 #' @name list_of_formulas
 #' @export
-list_of_formulas <- function(x, ...) {
+list_of_formulas <- function(x = list_of(), ...) {
 	UseMethod("list_of_formulas", object = x)
 }
 
@@ -19,11 +19,18 @@ list_of_formulas <- function(x, ...) {
 #' @export
 list_of_formulas.formula_rx <- function(x,
 										name = deparse1(substitute(x)),
+										pattern = character(),
 										...) {
 
-
-	if (length(x) == 0) {
-		return(new_list_of_formulas())
+	# Check pattern
+	if (length(pattern) == 0) {
+		pattern <- "direct"
+	}
+	if (!pattern %in% c("direct", "sequential", "parallel")) {
+		stop(
+			"The pattern ", deparse(pattern), " is not yet supported.",
+			call. = FALSE
+		)
 	}
 
 	# Get components from formula
@@ -59,16 +66,16 @@ list_of_formulas.formula_rx <- function(x,
 
 #' @rdname list_of_formulas
 #' @export
-list_of_formulas.default <- function(x, ...) {
+list_of_formulas.default <- function(x = list_of(), ...) {
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_list_of_formulas())
 	} else {
-		stop(
-			"`list_of_formulas()` is not defined for a `", class(x)[1], "` object.",
-			call. = FALSE
-		)
+		stop("`list_of_formulas()` is not defined for a `",
+			 class(x)[1],
+			 "` object.",
+			 call. = FALSE)
 	}
 }
 

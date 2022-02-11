@@ -338,6 +338,33 @@ setGroups.term_rx <- function(x, groups, ...) {
 
 }
 
+#' @name setters
+#' @export
+setLabels <- function(x, ...) {
+	UseMethod("setLabels", object = x)
+}
+
+#' @name setters
+#' @export
+setLabels.term_rx <- function(x, labels, ...) {
+
+	validate_class(labels, "list")
+
+	# Update and append labels
+	labs <-
+		labels.term_rx(x) |>
+		append(labels)
+
+	# Save the most "recent" updated label and erase prior if duplicate
+	tm <- vec_data(x)
+	for (i in seq_along(labs)) {
+		tm$label[tm$term == names(labs[i])] <- labs[[i]]
+	}
+
+	vec_restore(tm, to = term_rx())
+
+}
+
 # updates ----
 
 #' Updating prescribed formulas

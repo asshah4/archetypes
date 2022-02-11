@@ -7,13 +7,13 @@
 \alias{fmls}
 \title{Prescribed Formula Lists}
 \usage{
-list_of_formulas(x, ...)
+list_of_formulas(x = list_of(), ...)
 
-\method{list_of_formulas}{formula_rx}(x, name = deparse1(substitute(x)), ...)
+\method{list_of_formulas}{formula_rx}(x, name = deparse1(substitute(x)), pattern = character(), ...)
 
-\method{list_of_formulas}{default}(x, ...)
+\method{list_of_formulas}{default}(x = list_of(), ...)
 
-fmls(x, ...)
+fmls(x = list_of(), ...)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
