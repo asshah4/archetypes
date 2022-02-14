@@ -85,6 +85,11 @@ formula_rx.term_rx <- function(x,
 							   pattern = character(),
 							   ...) {
 
+	# Break early if zero length
+	if (length(x) == 0) {
+		return(new_formula_rx())
+	}
+
 	# Check pattern
 	if (length(pattern) == 0) {
 		pattern <- "direct"
@@ -143,6 +148,11 @@ formula_rx.formula <- function(x,
 							   pattern = character(),
 							   ...) {
 
+	# Break early if zero length
+	if (length(x) == 0) {
+		return(new_formula_rx())
+	}
+
 	# Check pattern
 	if (length(pattern) == 0) {
 		pattern <- "direct"
@@ -169,6 +179,10 @@ formula_rx.formula <- function(x,
 	# Update groups
 	grps <- formula_args_to_list(groups)
 	x <- setGroups(x, groups = grps)
+
+	# Update labels
+	labs <- formula_args_to_list(labels)
+	x <- setLabels(x, labels = labs)
 
 	# Term list (nested for field length equivalence)
 	terms <- x

@@ -59,8 +59,6 @@ test_that("formula_rx() inputs are acceptable", {
 	f <- formula_rx(x, labels = list(hp ~ "Horsepower"))
 	expect_length(labels(f), 1) # Currently erroring
 
-
-
 })
 
 test_that("complex formulas can be made", {
@@ -93,8 +91,8 @@ test_that("vctrs casting and coercion work appropriately", {
 	t <- term_rx(f)
 	f1 <- formula_rx(x = t, pattern = "direct")
 
-	# formula_rxs
-	f2 <- vec_cast(f1, formula_rx())
+	# formula_rx
+	f2 <- vec_cast(x = f, to = formula_rx())
 	expect_equal(f1, f2)
 	expect_output(print(vec_ptype2(f1, t)), "term_rx")
 	expect_output(print(vec_ptype2(f1, f2)), "formula_rx")

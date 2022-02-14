@@ -8,6 +8,19 @@
 #'
 #' This function introduces a super  that combines both the `list` class (and
 #' its derivative `list_of`) and the `formula` class.
+
+#' @param pattern This is the expansion pattern used to decide how the
+#'   covariates will incorporated into the formulas. The options are
+#'   `c("direct", "sequential", "parallel")`. See the details for further
+#'   explanation.
+#'
+#'   * __direct__: the covariates will all be included in each formula
+#'
+#'   * __sequential__: the covariates will be added sequentially, one by one, or
+#'   by groups, as indicated
+#'
+#'   * __parallel__: the covariates or groups of covariates will be placed in
+#'   parallel
 #'
 #' @name list_of_formulas
 #' @export
@@ -22,10 +35,21 @@ list_of_formulas.formula_rx <- function(x,
 										pattern = character(),
 										...) {
 
-	# Check pattern
-	if (length(pattern) == 0) {
-		pattern <- "direct"
+
+	# Early break if not viable method dispatch
+	if (length(x) == 0) {
+		return(new_list_of_formulas())
 	}
+
+	# Check pattern
+	ptrn <- attr(x, "pattern")
+
+	if (length(pattern) == 0 | ptrn == "direct") {
+		pattern <- "direct"
+	} else {
+		pattern <- ptrn
+	}
+
 	if (!pattern %in% c("direct", "sequential", "parallel")) {
 		stop(
 			"The pattern ", deparse(pattern), " is not yet supported.",
@@ -35,16 +59,12 @@ list_of_formulas.formula_rx <- function(x,
 
 	# Get components from formula
 	cl <- as.character(x)
-	ops <- attr(x, "operations")
 	t <- attr(x, "terms")
+	ops <- identify_ops(t)
 
-	# Get labels
+	# Get attributes of labels, roles, groups
 	labs <- labels.term_rx(t)
-
-	# Get roles
 	rls <- roles.term_rx(t)
-
-	# Get groups
 	grps <- groups.term_rx(t)
 
 	# Expansion of formulas

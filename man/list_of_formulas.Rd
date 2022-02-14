@@ -15,6 +15,19 @@ list_of_formulas(x = list_of(), ...)
 
 fmls(x = list_of(), ...)
 }
+\arguments{
+\item{pattern}{This is the expansion pattern used to decide how the
+covariates will incorporated into the formulas. The options are
+\code{c("direct", "sequential", "parallel")}. See the details for further
+explanation.
+\itemize{
+\item \strong{direct}: the covariates will all be included in each formula
+\item \strong{sequential}: the covariates will be added sequentially, one by one, or
+by groups, as indicated
+\item \strong{parallel}: the covariates or groups of covariates will be placed in
+parallel
+}}
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
