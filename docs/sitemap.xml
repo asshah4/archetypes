@@ -10,6 +10,9 @@
     <loc>https://asshah4.github.io/forks/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://asshah4.github.io/forks/articles/articles/development.html</loc>
+  </url>
+  <url>
     <loc>https://asshah4.github.io/forks/articles/development.html</loc>
   </url>
   <url>
@@ -31,6 +34,12 @@
     <loc>https://asshah4.github.io/forks/reference/deparse_formula.html</loc>
   </url>
   <url>
+    <loc>https://asshah4.github.io/forks/reference/explode.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/fit.html</loc>
+  </url>
+  <url>
     <loc>https://asshah4.github.io/forks/reference/forks-package.html</loc>
   </url>
   <url>
@@ -41,6 +50,9 @@
   </url>
   <url>
     <loc>https://asshah4.github.io/forks/reference/formula_record.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/frx.html</loc>
   </url>
   <url>
     <loc>https://asshah4.github.io/forks/reference/getters.html</loc>
@@ -79,6 +91,12 @@
     <loc>https://asshah4.github.io/forks/reference/rx.html</loc>
   </url>
   <url>
+    <loc>https://asshah4.github.io/forks/reference/setters.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/sides.html</loc>
+  </url>
+  <url>
     <loc>https://asshah4.github.io/forks/reference/table_to_list.html</loc>
   </url>
   <url>
@@ -86,5 +104,11 @@
   </url>
   <url>
     <loc>https://asshah4.github.io/forks/reference/term_vector.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/trx.html</loc>
+  </url>
+  <url>
+    <loc>https://asshah4.github.io/forks/reference/updates.html</loc>
   </url>
 </urlset>
