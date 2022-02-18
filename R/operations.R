@@ -2,7 +2,7 @@
 #' @return A list object of operations
 #' @keywords internal
 #' @noRd
-identify_ops <- function(x = term_rx(), pattern, ...) {
+identify_ops <- function(x = term_rx(), pattern) {
 
   # Retrieve all basic term information
   tm <- vec_data(x)

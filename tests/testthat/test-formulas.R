@@ -87,20 +87,20 @@ test_that("complex formulas can be made", {
 
 test_that("vctrs casting and coercion work appropriately", {
 
-	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
+	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
 	t <- term_rx(f)
 	f1 <- formula_rx(x = t, pattern = "direct")
 
-	# formula_rx
-	f2 <- vec_cast(x = f, to = formula_rx())
+	# formula_rx()
+	f2 <- formula_rx(x = f)
 	expect_equal(f1, f2)
 	expect_output(print(vec_ptype2(f1, t)), "term_rx")
 	expect_output(print(vec_ptype2(f1, f2)), "formula_rx")
 
-	# Characters
+	# character()
 	expect_type(as.character(f1), "character")
-	expect_type(vec_ptype2(formula_rx(), character()), "character")
-	expect_type(vec_ptype2(character(), formula_rx()), "character")
+	expect_type(vec_ptype2(formula_rx(x = character()), character()), "character")
+	expect_type(vec_ptype2(character(), formula_rx(x = character())), "character")
 
 	# Between terms and formulas
 	x <- mpg + qsec ~ X(wt) + M(hp)
@@ -154,3 +154,4 @@ test_that("formula vectors can be modified in place", {
 
 
 })
+

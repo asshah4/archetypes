@@ -35,7 +35,6 @@ list_of_formulas.formula_rx <- function(x,
 										pattern = character(),
 										...) {
 
-
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_list_of_formulas())
@@ -44,10 +43,11 @@ list_of_formulas.formula_rx <- function(x,
 	# Check pattern
 	ptrn <- attr(x, "pattern")
 
-	if (length(pattern) == 0 | ptrn == "direct") {
-		pattern <- "direct"
-	} else {
+	if (length(pattern) == 0) {
 		pattern <- ptrn
+	} else {
+		# Default option
+		pattern <- "direct"
 	}
 
 	if (!pattern %in% c("direct", "sequential", "parallel")) {
@@ -60,7 +60,7 @@ list_of_formulas.formula_rx <- function(x,
 	# Get components from formula
 	cl <- as.character(x)
 	t <- attr(x, "terms")
-	ops <- identify_ops(t)
+	ops <- identify_ops(t, pattern)
 
 	# Get attributes of labels, roles, groups
 	labs <- labels.term_rx(t)

@@ -8,7 +8,7 @@
 \alias{formula_rx.default}
 \title{Formula vector}
 \usage{
-formula_rx(x = character(), ...)
+formula_rx(x = unspecified(), ...)
 
 \method{formula_rx}{term_rx}(
   x,
@@ -30,7 +30,7 @@ formula_rx(x = character(), ...)
 
 \method{formula_rx}{default}(x, ...)
 
-frx(x = character(), ...)
+frx(x = unspecified(), ...)
 }
 \arguments{
 \item{x}{Objects of the following types can be used as inputs

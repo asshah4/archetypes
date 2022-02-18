@@ -72,7 +72,13 @@
 #' @return An object of class `formula_rx`
 #' @name frx
 #' @export
-formula_rx <- function(x = character(), ...) {
+formula_rx <- function(x = unspecified(), ...) {
+
+	# Early break if not viable method dispatch
+	if (length(x) == 0) {
+		return(new_formula_rx())
+	}
+
 	UseMethod("formula_rx", object = x)
 }
 
@@ -114,10 +120,10 @@ formula_rx.term_rx <- function(x,
 
 
 	# Formula display
-	formulas <- paste(paste(left, collapse = " + "),
+	formula_string <- paste(paste(left, collapse = " + "),
 										paste(right, collapse = " + "),
 										sep = " ~ ")
-	formulas <- vec_cast(formulas, character())
+	formula_string <- vec_cast(formula_string, character())
 
 	# Update attributes of terms
 	grps <- formula_args_to_list(groups)
@@ -133,7 +139,7 @@ formula_rx.term_rx <- function(x,
 
 	# Return
 	new_formula_rx(
-			formulas = formulas,
+			formula = formula_string,
 			terms = terms,
 			pattern = pattern
 	)
@@ -171,10 +177,10 @@ formula_rx.formula <- function(x,
 	tm <- vec_data(x)
 	left <- lhs(f)
 	right <- rhs(f)
-	formulas <- paste(paste(left, collapse = " + "),
+	formula_string <- paste(paste(left, collapse = " + "),
 										paste(right, collapse = " + "),
 										sep = " ~ ")
-	formulas <- vec_cast(formulas, character())
+	formula_string <- vec_cast(formula_string, character())
 
 	# Update groups
 	grps <- formula_args_to_list(groups)
@@ -189,7 +195,7 @@ formula_rx.formula <- function(x,
 
 	# Return
 	new_formula_rx(
-			formulas = formulas,
+			formula = formula_string,
 			terms = terms,
 			pattern = pattern
 	)
@@ -220,17 +226,17 @@ frx = formula_rx
 #' Formula vector
 #' @keywords internal
 #' @noRd
-new_formula_rx <- function(formulas = character(),
+new_formula_rx <- function(formula = character(),
 						   terms = term_rx(),
 						   pattern = character()) {
 
 
-	vec_assert(formulas, ptype = character())
+	vec_assert(formula, ptype = character())
 	vec_assert(pattern, ptype = character())
 	vec_assert(terms, ptype = term_rx())
 
 	new_vctr(
-		formulas,
+		formula,
 		terms = terms,
 		pattern = pattern,
 		class = "formula_rx"
