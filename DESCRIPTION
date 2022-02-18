@@ -21,7 +21,8 @@ RoxygenNote: 7.1.2
 Imports: 
     lifecycle,
     methods,
-    vctrs (>= 0.3.8.0)
+    vctrs (>= 0.3.8.0),
+    generics,
 Suggests: 
     covr,
     testthat (>= 3.0.0),

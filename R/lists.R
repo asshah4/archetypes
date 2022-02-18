@@ -152,39 +152,6 @@ vec_cast.character.vctrs_list_of <- function(x, to, ...) {
 }
 
 
-# fitting ----
-
-#' Fitting a list of formulas
-#'
-#' @return A list of model fits
-#'
-#' @param object A `list_of_formulas` that can be fit by a modeling function,
-#'   such as [stats::lm()]
-#'
-#' @rdname fit
-#' @export
-fit_fmls <- function(object, .f, ..., data) {
-
-	cl <- match.call()
-	args <- list(...)
-	validate_class(data, c("tbl_df", "data.frame"))
-	args$data <- quote(data)
-
-	.fn <- eval(cl[[3]])
-	if (!is.function(.fn)) {
-		stop("The argument `.f = ",
-				 paste(cl[[3]]),
-				 "` is not a acceptable function.")
-	}
-
-
-	y <- lapply(object, function(.x) {
-		f <- .x
-		do.call(.fn, args = c(formula = f, args))
-	})
-
-	y
-}
 
 # tables ----
 
