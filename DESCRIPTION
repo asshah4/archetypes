@@ -18,10 +18,12 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+Depends:
+    R (>= 4.0.0),
+    vctrs (>= 0.3.8.0),
 Imports: 
     lifecycle,
     methods,
-    vctrs (>= 0.3.8.0),
     generics,
 Suggests: 
     covr,
