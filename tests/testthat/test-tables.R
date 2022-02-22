@@ -8,7 +8,7 @@ test_that("lists can be decomposed into tables", {
 	lof <- list_of_formulas(x)
 	expect_match(names(lof)[20], "x_y0x2c2m1_seq")
 	expect_length(lof, 20)
-	tbl <- explode(lof)
+	tbl <- cast(lof)
 	expect_length(tbl, 7)
 	expect_equal(nrow(tbl), 20)
 	expect_equal(tbl$covariate[1], NA_character_)

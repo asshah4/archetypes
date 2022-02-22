@@ -24,7 +24,7 @@
 #'
 #' @name list_of_formulas
 #' @export
-list_of_formulas <- function(x = list_of(), ...) {
+list_of_formulas <- function(x = list(), ...) {
 	UseMethod("list_of_formulas", object = x)
 }
 
@@ -86,7 +86,7 @@ list_of_formulas.formula_rx <- function(x,
 
 #' @rdname list_of_formulas
 #' @export
-list_of_formulas.default <- function(x = list_of(), ...) {
+list_of_formulas.default <- function(x = list(), ...) {
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
@@ -112,7 +112,8 @@ new_list_of_formulas <- function(formula_list = list(),
 								 labels = list(),
 								 roles = list(),
 								 groups = list()) {
-	new_list_of(x = formula_list,
+	new_list_of(
+		x = formula_list,
 		ptype = list(),
 		class = "list_of_formulas",
 		labels = labels,

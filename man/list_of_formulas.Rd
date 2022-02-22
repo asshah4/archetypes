@@ -7,13 +7,13 @@
 \alias{fmls}
 \title{Prescribed Formula Lists}
 \usage{
-list_of_formulas(x = list_of(), ...)
+list_of_formulas(x = list(), ...)
 
 \method{list_of_formulas}{formula_rx}(x, name = deparse1(substitute(x)), pattern = character(), ...)
 
-\method{list_of_formulas}{default}(x = list_of(), ...)
+\method{list_of_formulas}{default}(x = list(), ...)
 
-fmls(x = list_of(), ...)
+fmls(x = list(), ...)
 }
 \arguments{
 \item{pattern}{This is the expansion pattern used to decide how the

@@ -1,18 +1,18 @@
-#' Explode out a formula-based object
+#' Cast a formula-based object as a data frame
 #'
-#' @return A `data.frame` object that is an explosion of the underlying
-#'   object, giving out the underlying terms, patterns, etc, corresponding to the initial properties of the object
-#'   formula
+#' @return A `data.frame` object that is an explosion of the underlying object,
+#'   giving out the underlying terms, patterns, etc, corresponding to the
+#'   initial properties of the object formula
 #'
-#' @name explode
+#' @name cast
 #' @export
-explode <- function(x, ...) {
-	UseMethod("explode", object = x)
+cast <- function(x, ...) {
+	UseMethod("cast", object = x)
 }
 
-#' @rdname explode
+#' @rdname cast
 #' @export
-explode.list_of_formulas <- function(x, ...) {
+cast.list_of_formulas <- function(x, ...) {
 
 	nm <- names(x)
 	rls <- roles(x)
