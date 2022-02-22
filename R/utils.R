@@ -271,12 +271,6 @@ labels.list_of_formulas <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.fmls <- function(x, ...) {
-	attr(x, "labels")
-}
-
-#' @rdname getters
-#' @export
 groups <- function(x, ...) {
 	UseMethod("groups", object = x)
 }

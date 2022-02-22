@@ -95,8 +95,7 @@ cast.list_of_formulas <- function(x, ...) {
 
 
 	# Cleans up final table after merging in formulas
-	tbl <-
-		list_to_table(x, id = ".id", val = "formula") |>
+	list_to_table(x, id = ".id", val = "formula") |>
 		merge(nms, by = ".id", sort = FALSE) |>
 		subset(select = c(name,
 						  pattern,
@@ -105,14 +104,5 @@ cast.list_of_formulas <- function(x, ...) {
 						  covariate,
 						  mediator,
 						  formula))
-
-	# Modify the class of this to be able to add and retrieve labels
-	tbl <- structure(tbl,
-					 class = c("fmls", class(tbl)),
-					 labels = labs)
-
-	# Return with labs attached
-	tbl
-
 
 }
