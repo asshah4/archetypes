@@ -9,7 +9,6 @@
 \alias{labels.term_rx}
 \alias{labels.formula_rx}
 \alias{labels.list_of_formulas}
-\alias{labels.fmls}
 \alias{groups}
 \alias{groups.term_rx}
 \alias{groups.formula_rx}
@@ -29,8 +28,6 @@ roles(x, ...)
 \method{labels}{formula_rx}(x, ...)
 
 \method{labels}{list_of_formulas}(x, ...)
-
-\method{labels}{fmls}(x, ...)
 
 groups(x, ...)
 
