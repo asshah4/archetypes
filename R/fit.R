@@ -3,7 +3,11 @@
 generics::fit
 
 #' @export
-fit.list_of_formulas <- function(object, .f, ..., data) {
+fit.list_of_formulas <- function(object,
+								 fitting_function,
+								 ...,
+								 data,
+								 strata = NULL) {
 
 	cl <- match.call()
 	args <- list(...)
