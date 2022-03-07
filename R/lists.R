@@ -33,6 +33,8 @@ list_of_formulas <- function(x = list(), ...) {
 list_of_formulas.formula_rx <- function(x,
 										name = deparse1(substitute(x)),
 										pattern = character(),
+										data = data.frame(),
+										strata = character(),
 										...) {
 
 	# Early break if not viable method dispatch
@@ -80,7 +82,8 @@ list_of_formulas.formula_rx <- function(x,
 		formula_list = lof,
 		labels = labs,
 		roles = rls,
-		groups = grps
+		groups = grps,
+		strata = strata
 	)
 }
 
@@ -111,14 +114,18 @@ fmls = list_of_formulas
 new_list_of_formulas <- function(formula_list = list(),
 								 labels = list(),
 								 roles = list(),
-								 groups = list()) {
+								 groups = list(),
+								 strata = character(),
+								 data = data.frame()) {
 	new_list_of(
 		x = formula_list,
 		ptype = list(),
 		class = "list_of_formulas",
 		labels = labels,
 		roles = roles,
-		groups = groups
+		groups = groups,
+		data = data,
+		strata = strata
 	)
 
 }
