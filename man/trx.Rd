@@ -9,21 +9,25 @@
 \alias{term_rx.default}
 \title{Term records}
 \usage{
-term_rx(x = character(), ...)
+term_rx(x = unspecified(), ...)
 
 \method{term_rx}{character}(
-  x = character(),
+  x,
   side = character(),
   role = character(),
   group = character(),
-  type = character(),
   operation = character(),
   label = character(),
+  description = character(),
+  distribution = character(),
+  type = character(),
+  subclass = character(),
+  data = list(),
   ...
 )
 
 \method{term_rx}{formula}(
-  x = formula(),
+  x,
   roles = list(),
   groups = list(),
   types = list(),
@@ -35,10 +39,11 @@ term_rx(x = character(), ...)
 
 \method{term_rx}{default}(x, ...)
 
-trx(x = character(), ...)
+trx(x = unspecified(), ...)
 }
 \arguments{
-\item{x}{An object of the following types that can be coerced to a \code{term_rx} object
+\item{x}{An object of the following types that can be coerced to a \code{term_rx}
+object
 \itemize{
 \item \code{character}
 \item \code{formula}

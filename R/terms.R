@@ -6,7 +6,8 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param x An object of the following types that can be coerced to a `term_rx` object
+#' @param x An object of the following types that can be coerced to a `term_rx`
+#'   object
 #'
 #'   * `character`
 #'
@@ -32,20 +33,25 @@
 #' @return An object of class `formula_rx`
 #' @name trx
 #' @export
-term_rx <- function(x = character(), ...) {
+term_rx <- function(x = unspecified(), ...) {
   UseMethod("term_rx", object = x)
 }
 
 #' @rdname trx
 #' @export
-term_rx.character <- function(x = character(),
+term_rx.character <- function(x,
                               side = character(),
                               role = character(),
                               group = character(),
-                              type = character(),
                               operation = character(),
                               label = character(),
+                              description = character(),
+                              distribution = character(),
+                              type = character(),
+                              subclass = character(),
+                              data = list(),
                               ...) {
+
 
 
   # Break early if need be
@@ -58,9 +64,12 @@ term_rx.character <- function(x = character(),
   if (length(side) == 0) side <- NA
   if (length(role) == 0) role <- "unknown"
   if (length(group) == 0) group <- NA
-  if (length(type) == 0) type <- NA
   if (length(operation) == 0) operation <- NA
   if (length(label) == 0) label <- NA
+  if (length(description) == 0) description <- NA
+  if (length(distribution) == 0) distribution <- NA
+  if (length(subclass) == 0) subclass <- NA
+  if (length(type) == 0) type <- NA
 
   # Casting
   x <- vec_cast(x, character())
@@ -78,13 +87,17 @@ term_rx.character <- function(x = character(),
     group = group,
     type = type,
     operation = operation,
-    label = label
+    label = label,
+    description = description,
+    distribution = distribution,
+    subclass = subclass,
+    data = data
   )
 }
 
 #' @rdname trx
 #' @export
-term_rx.formula <- function(x = formula(),
+term_rx.formula <- function(x,
                             roles = list(),
                             groups = list(),
                             types = list(),
@@ -278,7 +291,12 @@ new_term <- function(term = character(),
                      group = character(),
                      type = character(),
                      operation = character(),
-                     label = character()) {
+                     label = character(),
+                     description = character(),
+                     distribution = character(),
+                     subclass = character(),
+                     data = list()) {
+
   vec_assert(term, ptype = character())
   vec_assert(side, ptype = character())
   vec_assert(role, ptype = character())
@@ -286,6 +304,10 @@ new_term <- function(term = character(),
   vec_assert(type, ptype = character())
   vec_assert(operation, ptype = character())
   vec_assert(label, ptype = character())
+  vec_assert(description, ptype = character())
+  vec_assert(distribution, ptype = character())
+  vec_assert(subclass, ptype = character())
+  vec_assert(data, ptype = list())
 
   new_rcrd(list(
     "term" = term,
@@ -294,7 +316,11 @@ new_term <- function(term = character(),
     "group" = group,
     "type" = type,
     "operation" = operation,
-    "label" = label
+    "label" = label,
+    "description" = description,
+    "distribution" = distribution,
+    "subclass" = subclass,
+    "data" = data
   ),
   class = "term_rx"
   )

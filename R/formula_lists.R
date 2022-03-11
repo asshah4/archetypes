@@ -43,15 +43,9 @@ list_of_formulas.formula_rx <- function(x,
 	}
 
 	# Check pattern
-	ptrn <- attr(x, "pattern")
-
 	if (length(pattern) == 0) {
-		pattern <- ptrn
-	} else {
-		# Default option
 		pattern <- "direct"
 	}
-
 	if (!pattern %in% c("direct", "sequential", "parallel")) {
 		stop(
 			"The pattern ", deparse(pattern), " is not yet supported.",

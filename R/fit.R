@@ -15,7 +15,7 @@ fit.list_of_formulas <- function(object,
 	args$data <- quote(data)
 
 	if (!is.function(eval(cl[[3]]))) {
-		stop("The argument `.f = ",
+		stop("The `fitting_function = ",
 			 paste(cl[[3]]),
 			 "` is not yet an accepted function for model fitting.")
 	}

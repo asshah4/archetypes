@@ -88,23 +88,11 @@ formula_rx.term_rx <- function(x,
 							   roles = list(),
 							   groups = list(),
 							   labels = list(),
-							   pattern = character(),
 							   ...) {
 
 	# Break early if zero length
 	if (length(x) == 0) {
 		return(new_formula_rx())
-	}
-
-	# Check pattern
-	if (length(pattern) == 0) {
-		pattern <- "direct"
-	}
-	if (!pattern %in% c("direct", "sequential", "parallel")) {
-		stop(
-			"The pattern ", deparse(pattern), " is not yet supported.",
-			call. = FALSE
-		)
 	}
 
 	# Create simplified formula

@@ -10,14 +10,7 @@
 \usage{
 formula_rx(x = unspecified(), ...)
 
-\method{formula_rx}{term_rx}(
-  x,
-  roles = list(),
-  groups = list(),
-  labels = list(),
-  pattern = character(),
-  ...
-)
+\method{formula_rx}{term_rx}(x, roles = list(), groups = list(), labels = list(), ...)
 
 \method{formula_rx}{formula}(
   x,
