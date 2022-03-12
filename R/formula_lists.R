@@ -154,3 +154,40 @@ vec_cast.character.vctrs_list_of <- function(x, to, ...) {
 }
 
 
+# Output -----------------------------------------------------------------------
+
+#' @export
+format.list_of_formulas <- function(x, ...) {
+
+	f <- lapply(vec_data(x), function(.x) {
+		attributes(.x) <- NULL
+		.x
+	})
+	f <- unname(f)
+	f <- as.character(f)
+	f
+
+}
+
+#' @export
+obj_print_data.list_of_formulas <- function(x, ...) {
+	if (length(x) == 0) {
+		return()
+	}
+
+	if (length(x) >= 1) {
+		cat(format(x), sep = "\n")
+	} else {
+		cat(format(x))
+	}
+}
+
+#' @export
+vec_ptype_full.list_of_formulas <- function(x, ...) {
+	"list_of_formulas"
+}
+
+#' @export
+vec_ptype_abbr.list_of_formulas <- function(x, ...) {
+	"fmls"
+}

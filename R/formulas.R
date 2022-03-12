@@ -1,4 +1,4 @@
-# formula vector ----
+# Formula Prescription ---------------------------------------------------------
 
 #' Formula vector
 #'
@@ -209,15 +209,14 @@ formula_rx.default <- function(x, ...) {
 frx = formula_rx
 
 
-# vctrs ----
+# Vector Creation --------------------------------------------------------------
 
 #' Formula vector
 #' @keywords internal
 #' @noRd
 new_formula_rx <- function(formula = character(),
-						   terms = term_rx(),
-						   pattern = character()) {
-
+													 terms = term_rx(),
+													 pattern = character()) {
 
 	vec_assert(formula, ptype = character())
 	vec_assert(pattern, ptype = character())
@@ -297,6 +296,42 @@ vec_cast.term_rx.formula_rx <- function(x, to, ...) {
 
 }
 
+# Output -----------------------------------------------------------------------
 
+#' @export
+format.formula_rx <- function(x, ...) {
 
+	f <- vec_data(x)
+	t <- attr(x, "terms")
+	tm <- vec_data(t)
+	fmts <- format(t)
 
+	out <- fmts[which(tm$role == "outcome")]
+	exp <- fmts[which(tm$role == "exposure")]
+	med <- fmts[which(tm$role == "mediator")]
+	cov <- fmts[which(tm$role == "covariate")]
+
+	left <- paste(out, collapse = " + ")
+	right <- paste(c(exp, med, cov), collapse = " + ")
+	both <- paste(left, right, sep = " ~ ")
+
+	# Return
+	both
+
+}
+
+#' @export
+obj_print_data.formula_rx <- function(x, ...) {
+	if (vec_size(x) == 0) {
+		new_term()
+	} else if (vec_size(x) > 1) {
+		cat(format(x), sep = "\n")
+	} else {
+		cat(format(x))
+	}
+}
+
+#' @export
+vec_ptype_abbr.formula_rx <- function(x, ...) {
+	"fx"
+}

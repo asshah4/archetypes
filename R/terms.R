@@ -1,4 +1,4 @@
-# terms ----
+# Terms ------------------------------------------------------------------------
 
 #' Term records
 #'
@@ -13,7 +13,16 @@
 #'
 #'   * `formula`
 #'
-#' @param side Left or right hand side of the equation
+#'   * `data.frame`
+#'
+#' @param side States the side of the formula the variable belongs on:
+#'
+#'   * __left__: For variables that are intended to be dependent
+#'
+#'   * __right__: For variables that are intended to be independent
+#'
+#'   * __meta__: For variables that are intended to explain relationships
+#'   between other variables, e.g. _strata_ or _conditioning_ variables
 #'
 #' @param role Specific roles the variable plays within the formula. These are
 #'   of particular importance, as they serve as special terms that can effect
@@ -21,6 +30,15 @@
 #'
 #'   * __exposure__: a predictor variable that serves as a primary or key
 #'   variable in the \eqn{Exposure ~ Outcome} relationship
+#'
+#'   * __outcome__: a outcome/dependent variable that serves as an individual
+#'   variable in the \eqn{Exposure ~ Outcome} relationship
+#'
+#'   * __covariate__: a predictor variable that is used to adjust/control for an
+#'   additional primary variable
+#'
+#'   * __mediator__: a predictor variable that is thought to be a causal
+#'   intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
 #'
 #' @param group Grouping variable name for independent variables for modeling
 #'   terms together
@@ -30,7 +48,18 @@
 #'
 #' @param label Display-quality label describing the variable
 #'
-#' @return An object of class `formula_rx`
+#' @param description Option for further descriptions or definitions needed for
+#'   the term, potentially part of a data dictionary
+#'
+#' @param distribution If its associated with a data vector, describes the
+#'   distribution pattern of the original term
+#'
+#' @param type Type of the variable itself, e.g. ordinal, continuous,
+#'   dichotomous, etc
+#'
+#' @param subclass Expected class of the variable, such as `character` or
+#'   `numeric`
+#'
 #' @name trx
 #' @export
 term_rx <- function(x = unspecified(), ...) {
@@ -47,12 +76,9 @@ term_rx.character <- function(x,
                               label = character(),
                               description = character(),
                               distribution = character(),
-                              type = character(),
                               subclass = character(),
-                              data = list(),
+															type = character(),
                               ...) {
-
-
 
   # Break early if need be
   if (length(x) == 0) {
@@ -60,7 +86,6 @@ term_rx.character <- function(x,
   }
 
   # Missing values
-  if (length(x) == 0) x <- NA
   if (length(side) == 0) side <- NA
   if (length(role) == 0) role <- "unknown"
   if (length(group) == 0) group <- NA
@@ -76,33 +101,37 @@ term_rx.character <- function(x,
   side <- vec_cast(side, character())
   role <- vec_cast(role, character())
   group <- vec_cast(group, character())
-  type <- vec_cast(type, character())
   operation <- vec_cast(operation, character())
   label <- vec_cast(label, character())
+  description <- vec_cast(description, character())
+  subclass <- vec_cast(subclass, character())
+  type <- vec_cast(type, character())
 
   new_term(
     term = x,
     side = side,
     role = role,
     group = group,
-    type = type,
     operation = operation,
     label = label,
     description = description,
     distribution = distribution,
     subclass = subclass,
-    data = data
+    type = type
   )
 }
 
 #' @rdname trx
 #' @export
 term_rx.formula <- function(x,
-                            roles = list(),
-                            groups = list(),
-                            types = list(),
-                            labels = list(),
-                            ...) {
+														roles = list(),
+														groups = list(),
+														labels = list(),
+														descriptions = list(),
+														distributions = list(),
+														subclasses = list(),
+														types = list(),
+														...) {
 
   # Break early if need be
   if (length(x) == 0) {
@@ -110,13 +139,20 @@ term_rx.formula <- function(x,
   }
 
   # Validate
-  groups <- formula_args_to_list(groups)
-  labels <- formula_args_to_list(labels)
-  roles <- formula_args_to_list(roles)
   validate_class(roles, "list")
   validate_class(groups, "list")
-  validate_class(types, "list")
   validate_class(labels, "list")
+  validate_class(descriptions, "list")
+  validate_class(distributions, "list")
+  validate_class(subclasses, "list")
+  validate_class(types, "list")
+  roles <- formula_args_to_list(roles)
+  groups <- formula_args_to_list(groups)
+  labels <- formula_args_to_list(labels)
+  descriptions <- formula_args_to_list(descriptions)
+  distributions <- formula_args_to_list(distributions)
+  subclasses <- formula_args_to_list(subclasses)
+  types <- formula_args_to_list(types)
 
   # All terms are needed to build term record
   left <- lhs(x)
@@ -263,6 +299,13 @@ term_rx.formula <- function(x,
 
 #' @rdname trx
 #' @export
+term_rx.data.frame <- function(x, ...) {
+	# TODO
+	message("Not currently implemented")
+}
+
+#' @rdname trx
+#' @export
 term_rx.formula_rx <- function(x, ...) {
   attr(x, "terms")
 }
@@ -280,7 +323,7 @@ term_rx.default <- function(x, ...) {
 trx <- term_rx
 
 
-# rcrd ----
+# Record Definition ------------------------------------------------------------
 
 #' record of formula terms
 #' @keywords internal
@@ -289,38 +332,35 @@ new_term <- function(term = character(),
                      side = character(),
                      role = character(),
                      group = character(),
-                     type = character(),
                      operation = character(),
                      label = character(),
                      description = character(),
                      distribution = character(),
                      subclass = character(),
-                     data = list()) {
+                     type = character()) {
 
   vec_assert(term, ptype = character())
   vec_assert(side, ptype = character())
   vec_assert(role, ptype = character())
   vec_assert(group, ptype = character())
-  vec_assert(type, ptype = character())
   vec_assert(operation, ptype = character())
   vec_assert(label, ptype = character())
   vec_assert(description, ptype = character())
   vec_assert(distribution, ptype = character())
   vec_assert(subclass, ptype = character())
-  vec_assert(data, ptype = list())
+  vec_assert(type, ptype = character())
 
   new_rcrd(list(
     "term" = term,
     "side" = side,
     "role" = role,
     "group" = group,
-    "type" = type,
     "operation" = operation,
     "label" = label,
     "description" = description,
     "distribution" = distribution,
     "subclass" = subclass,
-    "data" = data
+    "type" = type
   ),
   class = "term_rx"
   )
@@ -331,7 +371,7 @@ new_term <- function(term = character(),
 methods::setOldClass(c("term_rx", "rcrds_rcrd"))
 
 
-# casting and coercion ----
+# Casting and coercion ---------------------------------------------------------
 
 ### term() ###
 
@@ -400,9 +440,7 @@ vec_cast.term_rx.rcrds_list_of <- function(x, to, ...) {
   t # Return record of terms
 }
 
-
-
-# operations ----
+# Arithmetic -------------------------------------------------------------------
 
 #' @export
 vec_arith.term_rx <- function(op, x, y, ...) {
@@ -422,4 +460,76 @@ vec_arith.term_rx.term_rx <- function(op, x, y, ...) {
     },
     stop_incompatible_op(op, x, y)
   )
+}
+
+# Output -----------------------------------------------------------------------
+
+#' @export
+format.term_rx <- function(x, ...) {
+
+	tm <- vec_data(x)
+	fmt_tx <- character()
+
+	if (vec_size(x) == 0) {
+		fmt_tx <- new_term()
+	} else if (has_cli() & vec_size(x) > 0) {
+		for (i in 1:nrow(tm)) {
+
+			if (tm$role[i] == "outcome") {
+				t <- tm$term[i]
+				fmt_tx <- append(fmt_tx, cli::col_yellow(t))
+			}
+
+			if (tm$role[i] == "exposure") {
+				t <- tm$term[i]
+				fmt_tx <- append(fmt_tx, cli::col_magenta(t))
+			}
+
+			if (tm$role[i] == "mediator") {
+				t <- tm$term[i]
+				fmt_tx <- append(fmt_tx, cli::col_cyan(t))
+			}
+
+			if (tm$role[i] == "covariate") {
+				t <- tm$term[i]
+				fmt_tx <- append(fmt_tx, cli::col_blue(t))
+			}
+
+			if (tm$role[i] == "strata") {
+				t <- tm$term[i]
+				fmt_tx <- append(fmt_tx, cli::col_br_yellow(t))
+			}
+
+			if (tm$role[i] == "unknown") {
+				t <- tm$term[i]
+				fmt_tx <- append(fmt_tx, cli::col_white(t))
+			}
+
+		}
+	} else {
+		for (i in 1:nrow(tm)) {
+			fmt_tx <- append(fmt_tx, tm$term[i])
+		}
+	}
+
+	# Return
+	fmt_tx
+
+}
+
+#' @export
+obj_print_data.term_rx <- function(x, ...) {
+
+	if (vec_size(x) == 0) {
+		new_term()
+	} else if (vec_size(x) > 1) {
+		cat(format(x), sep = "\n")
+	} else {
+		cat(format(x))
+	}
+}
+
+#' @export
+vec_ptype_abbr.term_rx <- function(x, ...) {
+	"tx"
 }

@@ -1,3 +1,65 @@
+test_that("term_rx() can generate character-based terms", {
+
+	ty <- term_rx(
+		"Y",
+		side = "left",
+		role = "outcome",
+		label = "Dependent Variable",
+		description = "Artificially created",
+		distribution = "normal",
+		subclass = "numeric",
+		type = "continuous"
+	)
+
+	tx <- term_rx(
+		"X",
+		side = "right",
+		role = "exposure",
+		label = "Independent Variable",
+		description = "Artificially created",
+		distribution = "normal",
+		subclass = "numeric",
+		type = "dichotomous"
+	)
+
+	tm <- term_rx(
+		"M",
+		side = "right",
+		role = "mediator",
+		label = "Independent Variable",
+		description = "Artificially created",
+		distribution = "normal",
+		subclass = "integer",
+		type = "continuous"
+	)
+
+	tc <- term_rx(
+		"C",
+		side = "right",
+		role = "covariate",
+		label = "Independent Variable",
+		description = "Artificially created",
+		distribution = "normal",
+		subclass = "character",
+		type = "categorical"
+	)
+
+	ts <- term_rx(
+		"S",
+		side = "meta",
+		role = "strata",
+		label = "Stratification Variable",
+		description = "Levels for data set",
+		distribution = "binary",
+		subclass = "character",
+		type = "dichotomous"
+	)
+
+	t <- c(ty, tx, tm, tc, ts)
+
+	expect_length(t, 5)
+})
+
 test_that("term_rx() makes term object or errors", {
 
 	t1 <- term_rx("y", side = "left", role = "outcome", label = "Dependent Variable")
@@ -60,8 +122,6 @@ test_that("vctr based operations work", {
 	expect_type(c(x1, y), "character")
 	expect_s3_class(c(x1, x2), "term_rx")
 	expect_type(vec_c(x1, y), "character")
-
-
 
 })
 

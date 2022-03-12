@@ -5,6 +5,7 @@
 \alias{term_rx}
 \alias{term_rx.character}
 \alias{term_rx.formula}
+\alias{term_rx.data.frame}
 \alias{term_rx.formula_rx}
 \alias{term_rx.default}
 \title{Term records}
@@ -20,9 +21,8 @@ term_rx(x = unspecified(), ...)
   label = character(),
   description = character(),
   distribution = character(),
-  type = character(),
   subclass = character(),
-  data = list(),
+  type = character(),
   ...
 )
 
@@ -30,10 +30,15 @@ term_rx(x = unspecified(), ...)
   x,
   roles = list(),
   groups = list(),
-  types = list(),
   labels = list(),
+  descriptions = list(),
+  distributions = list(),
+  subclasses = list(),
+  types = list(),
   ...
 )
+
+\method{term_rx}{data.frame}(x, ...)
 
 \method{term_rx}{formula_rx}(x, ...)
 
@@ -47,9 +52,16 @@ object
 \itemize{
 \item \code{character}
 \item \code{formula}
+\item \code{data.frame}
 }}
 
-\item{side}{Left or right hand side of the equation}
+\item{side}{States the side of the formula the variable belongs on:
+\itemize{
+\item \strong{left}: For variables that are intended to be dependent
+\item \strong{right}: For variables that are intended to be independent
+\item \strong{meta}: For variables that are intended to explain relationships
+between other variables, e.g. \emph{strata} or \emph{conditioning} variables
+}}
 
 \item{role}{Specific roles the variable plays within the formula. These are
 of particular importance, as they serve as special terms that can effect
@@ -57,6 +69,12 @@ how a formula is interpreted. The options for roles are as below:
 \itemize{
 \item \strong{exposure}: a predictor variable that serves as a primary or key
 variable in the \eqn{Exposure ~ Outcome} relationship
+\item \strong{outcome}: a outcome/dependent variable that serves as an individual
+variable in the \eqn{Exposure ~ Outcome} relationship
+\item \strong{covariate}: a predictor variable that is used to adjust/control for an
+additional primary variable
+\item \strong{mediator}: a predictor variable that is thought to be a causal
+intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
 }}
 
 \item{group}{Grouping variable name for independent variables for modeling
@@ -66,9 +84,18 @@ terms together}
 data}
 
 \item{label}{Display-quality label describing the variable}
-}
-\value{
-An object of class \code{formula_rx}
+
+\item{description}{Option for further descriptions or definitions needed for
+the term, potentially part of a data dictionary}
+
+\item{distribution}{If its associated with a data vector, describes the
+distribution pattern of the original term}
+
+\item{subclass}{Expected class of the variable, such as \code{character} or
+\code{numeric}}
+
+\item{type}{Type of the variable itself, e.g. ordinal, continuous,
+dichotomous, etc}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
