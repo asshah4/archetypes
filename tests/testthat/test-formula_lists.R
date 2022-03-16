@@ -1,8 +1,8 @@
 test_that("simple list of formulas can be generated", {
 
 	# Method dispatch
-	expect_length(list_of_formulas(formula_rx()), 0)
-	expect_error(list_of_formulas("error"))
+	expect_length(formula_list(formula_rx()), 0)
+	expect_error(formula_list("error"))
 
 	# Super simple check
 	f <- mpg + wt ~ hp + cyl + gear
@@ -17,8 +17,8 @@ test_that("simple list of formulas can be generated", {
 	xd <- formula_rx(t, pattern = "direct")
 	xs <- formula_rx(t, pattern = "sequential")
 	xp <- formula_rx(t, pattern = "parallel")
-	ld <- list_of_formulas(xd)
-	ls <- list_of_formulas(xs)
+	ld <- formula_list(xd)
+	ls <- formula_list(xs)
 	lp <- fmls(xp) # Abbreviated/shortcut
 	expect_length(ld, 4)
 	expect_length(ls, 12)
@@ -36,15 +36,15 @@ test_that("simple list of formulas can be generated", {
 	xd <- formula_rx(t, pattern = "direct")
 	xs <- formula_rx(t, pattern = "sequential")
 	xp <- formula_rx(t, pattern = "parallel")
-	ld <- list_of_formulas(xd)
-	ls <- list_of_formulas(xs)
-	lp <- list_of_formulas(xp)
+	ld <- formula_list(xd)
+	ls <- formula_list(xs)
+	lp <- formula_list(xp)
 	expect_length(ld, 5)
 	expect_equal(length(ls), length(lp))
 
 	# Printing
 	expect_output(print(ld), "mpg")
-	expect_output(print(new_list_of_formulas()), "[0]")
+	expect_output(print(new_formula_list()), "[0]")
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(ld) |>
 			print() |>
@@ -63,7 +63,7 @@ test_that("inputs are correct", {
 	expect_s3_class({
 		frx(Surv(stop_cv, status_cv) ~ X(lf_rest_zn) + X(bpm_rest_zn) + X(hf_rest_zn) + X(lf_stress_zn) + X(bpm_stress_zn) + X(hf_stress_zn) + M(rdr_msi_bl)) |>
 		fmls()
-	}, "list_of_formulas")
+	}, "formula_list")
 
 })
 
@@ -73,14 +73,14 @@ test_that("mediation creates appropriate lists", {
 	x <- Surv(stop, status) ~ X(primary) + X(secondary) + M(mediator)
 	t <- trx(x)
 	f <- frx(t)
-	lof <- list_of_formulas(f)
+	lof <- formula_list(f)
 	expect_length(lof, 5)
 
 	# Mediation with covariates
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(exposure) + M(mediator) + covariate
 	t <- trx(x)
 	f <- frx(t)
-	lof <- list_of_formulas(f)
+	lof <- formula_list(f)
 	expect_length(lof, 5)
 
 

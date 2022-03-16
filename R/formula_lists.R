@@ -22,15 +22,40 @@
 #'   * __parallel__: the covariates or groups of covariates will be placed in
 #'   parallel
 #'
-#' @name list_of_formulas
+#' @section Patterns:
+#'
+#' The expansion pattern allows for instructions on how the covariates should be
+#' included in different formulas. Below, assuming that _x1_, _x2_, and _x3_ are
+#' covariates...
+#'
+#' \deqn{y ~ x1 + x2 + x3}
+#'
+#' __Direct__:
+#'
+#' \deqn{y ~ x1 + x2 + x3}
+#'
+#' __Seqential__:
+#'
+#' \deqn{y ~ x1}
+#' \deqn{y ~ x1 + x2}
+#' \deqn{y ~ x1 + x2 + x3}
+#'
+#' __Parallel__:
+#'
+#' \deqn{y ~ x1}
+#' \deqn{y ~ x2}
+#' \deqn{y ~ x3}
+#'
+#'
+#' @name formula_list
 #' @export
-list_of_formulas <- function(x = list(), ...) {
-	UseMethod("list_of_formulas", object = x)
+formula_list <- function(x = list(), ...) {
+	UseMethod("formula_list", object = x)
 }
 
-#' @rdname list_of_formulas
+#' @rdname formula_list
 #' @export
-list_of_formulas.formula_rx <- function(x,
+formula_list.formula_rx <- function(x,
 										name = deparse1(substitute(x)),
 										pattern = character(),
 										data = data.frame(),
@@ -39,7 +64,7 @@ list_of_formulas.formula_rx <- function(x,
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
-		return(new_list_of_formulas())
+		return(new_formula_list())
 	}
 
 	# Check pattern
@@ -72,7 +97,7 @@ list_of_formulas.formula_rx <- function(x,
 					 },
 					 USE.NAMES = FALSE)
 
-	new_list_of_formulas(
+	new_formula_list(
 		formula_list = lof,
 		labels = labs,
 		roles = rls,
@@ -81,40 +106,41 @@ list_of_formulas.formula_rx <- function(x,
 	)
 }
 
-#' @rdname list_of_formulas
+#' @rdname formula_list
 #' @export
-list_of_formulas.default <- function(x = list(), ...) {
+formula_list.default <- function(x = list(), ...) {
 
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
-		return(new_list_of_formulas())
+		return(new_formula_list())
 	} else {
-		stop("`list_of_formulas()` is not defined for a `",
+		stop("`formula_list()` is not defined for a `",
 			 class(x)[1],
 			 "` object.",
 			 call. = FALSE)
 	}
 }
 
-#' @rdname list_of_formulas
+#' @rdname formula_list
 #' @export
-fmls = list_of_formulas
+fmls = formula_list
 
 # vctrs ----
 
 #' Formula list
 #' @keywords internal
 #' @noRd
-new_list_of_formulas <- function(formula_list = list(),
-								 labels = list(),
-								 roles = list(),
-								 groups = list(),
-								 strata = character(),
-								 data = data.frame()) {
+new_formula_list <- function(formula_list = list(),
+														 labels = list(),
+														 roles = list(),
+														 groups = list(),
+														 strata = character(),
+														 data = data.frame()) {
+
 	new_list_of(
 		x = formula_list,
 		ptype = list(),
-		class = "list_of_formulas",
+		class = "formula_list",
 		labels = labels,
 		roles = roles,
 		groups = groups,
@@ -126,7 +152,7 @@ new_list_of_formulas <- function(formula_list = list(),
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("list_of_formulas", "vctrs_vctr"))
+methods::setOldClass(c("formula_list", "vctrs_vctr"))
 
 # casting and coercion ----
 
@@ -157,7 +183,7 @@ vec_cast.character.vctrs_list_of <- function(x, to, ...) {
 # Output -----------------------------------------------------------------------
 
 #' @export
-format.list_of_formulas <- function(x, ...) {
+format.formula_list <- function(x, ...) {
 
 	f <- lapply(vec_data(x), function(.x) {
 		attributes(.x) <- NULL
@@ -170,7 +196,7 @@ format.list_of_formulas <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.list_of_formulas <- function(x, ...) {
+obj_print_data.formula_list <- function(x, ...) {
 	if (length(x) == 0) {
 		return()
 	}
@@ -183,11 +209,11 @@ obj_print_data.list_of_formulas <- function(x, ...) {
 }
 
 #' @export
-vec_ptype_full.list_of_formulas <- function(x, ...) {
-	"list_of_formulas"
+vec_ptype_full.formula_list <- function(x, ...) {
+	"formula_list"
 }
 
 #' @export
-vec_ptype_abbr.list_of_formulas <- function(x, ...) {
+vec_ptype_abbr.formula_list <- function(x, ...) {
 	"fmls"
 }

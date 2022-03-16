@@ -28,49 +28,13 @@
 #'   the group name on the RHS (quotations to indicate character value not
 #'   necessary). E.g. `list(c(x1, x2) ~ grp)`
 #'
-#' @param pattern This is the expansion pattern used to decide how the
-#'   covariates will incorporated into the formulas. The options are
-#'   `c("direct", "sequential", "parallel")`. See the details for further
-#'   explanation.
-#'
-#'   * __direct__: the covariates will all be included in each formula
-#'
-#'   * __sequential__: the covariates will be added sequentially, one by one, or
-#'   by groups, as indicated
-#'
-#'   * __parallel__: the covariates or groups of covariates will be placed in
-#'   parallel
 #'
 #' @param ... Arguments to be passed to or from other methods
 #'
 #' @details
 #'
-#' @section Patterns:
-#'
-#' The expansion pattern allows for instructions on how the covariates should be
-#' included in different formulas. Below, assuming that _x1_, _x2_, and _x3_ are
-#' covariates...
-#'
-#' \deqn{y ~ x1 + x2 + x3}
-#'
-#' __Direct__:
-#'
-#' \deqn{y ~ x1 + x2 + x3}
-#'
-#' __Seqential__:
-#'
-#' \deqn{y ~ x1}
-#' \deqn{y ~ x1 + x2}
-#' \deqn{y ~ x1 + x2 + x3}
-#'
-#' __Parallel__:
-#'
-#' \deqn{y ~ x1}
-#' \deqn{y ~ x2}
-#' \deqn{y ~ x3}
-#'
 #' @return An object of class `formula_rx`
-#' @name frx
+#' @name fx
 #' @export
 formula_rx <- function(x = unspecified(), ...) {
 
@@ -82,13 +46,13 @@ formula_rx <- function(x = unspecified(), ...) {
 	UseMethod("formula_rx", object = x)
 }
 
-#' @rdname frx
+#' @rdname fx
 #' @export
 formula_rx.term_rx <- function(x,
-							   roles = list(),
-							   groups = list(),
-							   labels = list(),
-							   ...) {
+															 roles = list(),
+															 groups = list(),
+															 labels = list(),
+															 ...) {
 
 	# Break early if zero length
 	if (length(x) == 0) {
@@ -133,14 +97,14 @@ formula_rx.term_rx <- function(x,
 	)
 }
 
-#' @rdname frx
+#' @rdname fx
 #' @export
 formula_rx.formula <- function(x,
-							   roles = list(),
-							   groups = list(),
-							   labels = list(),
-							   pattern = character(),
-							   ...) {
+															 roles = list(),
+															 groups = list(),
+															 labels = list(),
+															 pattern = character(),
+															 ...) {
 
 	# Break early if zero length
 	if (length(x) == 0) {
@@ -189,7 +153,7 @@ formula_rx.formula <- function(x,
 	)
 }
 
-#' @rdname frx
+#' @rdname fx
 #' @export
 formula_rx.default <- function(x, ...) {
 
@@ -204,9 +168,9 @@ formula_rx.default <- function(x, ...) {
 	}
 }
 
-#' @rdname frx
+#' @rdname fx
 #' @export
-frx = formula_rx
+fx = formula_rx
 
 
 # Vector Creation --------------------------------------------------------------
@@ -215,17 +179,14 @@ frx = formula_rx
 #' @keywords internal
 #' @noRd
 new_formula_rx <- function(formula = character(),
-													 terms = term_rx(),
-													 pattern = character()) {
+													 terms = term_rx()) {
 
 	vec_assert(formula, ptype = character())
-	vec_assert(pattern, ptype = character())
 	vec_assert(terms, ptype = term_rx())
 
 	new_vctr(
 		formula,
 		terms = terms,
-		pattern = pattern,
 		class = "formula_rx"
 	)
 

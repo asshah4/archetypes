@@ -54,19 +54,22 @@
 #' @param distribution If its associated with a data vector, describes the
 #'   distribution pattern of the original term
 #'
-#' @param type Type of the variable itself, e.g. ordinal, continuous,
-#'   dichotomous, etc
+#' @param class Class of the variable itself, either expected or measured, such
+#'   as `character` or `numeric` or `factor`
 #'
-#' @param subclass Expected class of the variable, such as `character` or
-#'   `numeric`
+#' @param type The type of variable, either categorical (qualitative) or
+#'   continuous (quantitative)
 #'
-#' @name trx
+#' @param subtype How the variable itself is more specifically subcategorized,
+#'   e.g. ordinal, continuous, dichotomous, etc
+#'
+#' @name tx
 #' @export
 term_rx <- function(x = unspecified(), ...) {
   UseMethod("term_rx", object = x)
 }
 
-#' @rdname trx
+#' @rdname tx
 #' @export
 term_rx.character <- function(x,
                               side = character(),
@@ -76,8 +79,8 @@ term_rx.character <- function(x,
                               label = character(),
                               description = character(),
                               distribution = character(),
-                              subclass = character(),
-															type = character(),
+                              type = character(),
+															subtype = character(),
                               ...) {
 
   # Break early if need be
@@ -87,14 +90,14 @@ term_rx.character <- function(x,
 
   # Missing values
   if (length(side) == 0) side <- NA
-  if (length(role) == 0) role <- "unknown"
+  if (length(role) == 0) role <- NA
   if (length(group) == 0) group <- NA
   if (length(operation) == 0) operation <- NA
   if (length(label) == 0) label <- NA
   if (length(description) == 0) description <- NA
   if (length(distribution) == 0) distribution <- NA
-  if (length(subclass) == 0) subclass <- NA
   if (length(type) == 0) type <- NA
+  if (length(subtype) == 0) subtype <- NA
 
   # Casting
   x <- vec_cast(x, character())
@@ -104,8 +107,9 @@ term_rx.character <- function(x,
   operation <- vec_cast(operation, character())
   label <- vec_cast(label, character())
   description <- vec_cast(description, character())
-  subclass <- vec_cast(subclass, character())
+  distribution <- vec_cast(distribution, character())
   type <- vec_cast(type, character())
+  subtype <- vec_cast(subtype, character())
 
   new_term(
     term = x,
@@ -116,12 +120,12 @@ term_rx.character <- function(x,
     label = label,
     description = description,
     distribution = distribution,
-    subclass = subclass,
-    type = type
+    type = type,
+    subtype = subtype
   )
 }
 
-#' @rdname trx
+#' @rdname tx
 #' @export
 term_rx.formula <- function(x,
 														roles = list(),
@@ -129,8 +133,8 @@ term_rx.formula <- function(x,
 														labels = list(),
 														descriptions = list(),
 														distributions = list(),
-														subclasses = list(),
 														types = list(),
+														subtypes = list(),
 														...) {
 
   # Break early if need be
@@ -144,15 +148,15 @@ term_rx.formula <- function(x,
   validate_class(labels, "list")
   validate_class(descriptions, "list")
   validate_class(distributions, "list")
-  validate_class(subclasses, "list")
   validate_class(types, "list")
+  validate_class(subtypes, "list")
   roles <- formula_args_to_list(roles)
   groups <- formula_args_to_list(groups)
   labels <- formula_args_to_list(labels)
   descriptions <- formula_args_to_list(descriptions)
   distributions <- formula_args_to_list(distributions)
-  subclasses <- formula_args_to_list(subclasses)
   types <- formula_args_to_list(types)
+  subtypes <- formula_args_to_list(subtypes)
 
   # All terms are needed to build term record
   left <- lhs(x)
@@ -256,13 +260,6 @@ term_rx.formula <- function(x,
       NA
     }
 
-    # Groups
-    typ <- if (t %in% names(types)) {
-      groups[[t]]
-    } else {
-      NA
-    }
-
     # Labels
     lab <- if (t %in% names(labels)) {
       labels[[t]]
@@ -270,25 +267,14 @@ term_rx.formula <- function(x,
       NA
     }
 
-    # Casting
-    x <- vec_cast(t, character())
-    side <- vec_cast(side, character())
-    role <- vec_cast(role, character())
-    grp <- vec_cast(grp, character())
-    typ <- vec_cast(typ, character())
-    op <- vec_cast(op, character())
-    lab <- vec_cast(lab, character())
-
-
-    # Place into term list
+    # Place into term list after casting appropriate classes
     term_list[[i]] <- term_rx.character(
-      x = x,
-      side = side,
-      role = role,
-      group = grp,
-      type = typ,
-      operation = op,
-      label = lab
+    	x = vec_cast(t, character()),
+    	side = vec_cast(side, character()),
+    	role = vec_cast(role, character()),
+    	group = vec_cast(grp, character()),
+    	operation = vec_cast(op, character()),
+    	label = vec_cast(lab, character())
     )
   }
 
@@ -297,30 +283,69 @@ term_rx.formula <- function(x,
     vec_list_cast(to = term_rx())
 }
 
-#' @rdname trx
+#' @rdname tx
 #' @export
 term_rx.data.frame <- function(x, ...) {
+
+  # Break early if need be
+  if (length(x) == 0) {
+    return(new_term())
+  }
 	# TODO
 	message("Not currently implemented")
 }
 
-#' @rdname trx
+#' @rdname tx
+#' @export
+term_rx.lm <- function(x,
+											 roles = list(),
+											 groups = list(),
+											 labels = list(),
+											 descriptions = list(),
+											 distributions = list(),
+											 type = list(),
+											 subtype = list(),
+											 ...) {
+
+  # Break early if need be
+  if (length(x) == 0) {
+    return(new_term())
+  }
+
+	# TODO
+	message("Not currently implemented")
+}
+
+
+#' @rdname tx
 #' @export
 term_rx.formula_rx <- function(x, ...) {
+
+  # Break early if need be
+  if (length(x) == 0) {
+    return(new_term())
+  }
+
   attr(x, "terms")
 }
 
-#' @rdname trx
+#' @rdname tx
 #' @export
-term_rx.default <- function(x, ...) {
+term_rx.default <- function(x = unspecified(), ...) {
+
+  # Break early if need be
+  if (length(x) == 0) {
+    return(new_term())
+  }
+
   stop("`term()` is not defined for a `", class(x)[1], "` object.",
     call. = FALSE
   )
 }
 
-#' @rdname trx
+#' @rdname tx
 #' @export
-trx <- term_rx
+tx = term_rx
 
 
 # Record Definition ------------------------------------------------------------
@@ -336,8 +361,8 @@ new_term <- function(term = character(),
                      label = character(),
                      description = character(),
                      distribution = character(),
-                     subclass = character(),
-                     type = character()) {
+                     type = character(),
+                     subtype = character()) {
 
   vec_assert(term, ptype = character())
   vec_assert(side, ptype = character())
@@ -347,8 +372,8 @@ new_term <- function(term = character(),
   vec_assert(label, ptype = character())
   vec_assert(description, ptype = character())
   vec_assert(distribution, ptype = character())
-  vec_assert(subclass, ptype = character())
   vec_assert(type, ptype = character())
+  vec_assert(subtype, ptype = character())
 
   new_rcrd(list(
     "term" = term,
@@ -359,8 +384,8 @@ new_term <- function(term = character(),
     "label" = label,
     "description" = description,
     "distribution" = distribution,
-    "subclass" = subclass,
-    "type" = type
+    "type" = type,
+    "subtype" = subtype
   ),
   class = "term_rx"
   )
@@ -500,7 +525,7 @@ format.term_rx <- function(x, ...) {
 				fmt_tx <- append(fmt_tx, cli::col_br_yellow(t))
 			}
 
-			if (tm$role[i] == "unknown") {
+			if (is.na(tm$role[i])) {
 				t <- tm$term[i]
 				fmt_tx <- append(fmt_tx, cli::col_white(t))
 			}

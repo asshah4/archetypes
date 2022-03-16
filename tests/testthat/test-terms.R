@@ -1,4 +1,4 @@
-test_that("term_rx() can generate character-based terms", {
+test_that("new terms can be made from character/atomic components", {
 
 	ty <- term_rx(
 		"Y",
@@ -7,8 +7,8 @@ test_that("term_rx() can generate character-based terms", {
 		label = "Dependent Variable",
 		description = "Artificially created",
 		distribution = "normal",
-		subclass = "numeric",
-		type = "continuous"
+		type = "numeric",
+		subtype = "continuous"
 	)
 
 	tx <- term_rx(
@@ -18,8 +18,8 @@ test_that("term_rx() can generate character-based terms", {
 		label = "Independent Variable",
 		description = "Artificially created",
 		distribution = "normal",
-		subclass = "numeric",
-		type = "dichotomous"
+		type = "numeric",
+		subtype = "dichotomous"
 	)
 
 	tm <- term_rx(
@@ -29,8 +29,8 @@ test_that("term_rx() can generate character-based terms", {
 		label = "Independent Variable",
 		description = "Artificially created",
 		distribution = "normal",
-		subclass = "integer",
-		type = "continuous"
+		type = "integer",
+		subtype = "continuous"
 	)
 
 	tc <- term_rx(
@@ -40,8 +40,8 @@ test_that("term_rx() can generate character-based terms", {
 		label = "Independent Variable",
 		description = "Artificially created",
 		distribution = "normal",
-		subclass = "character",
-		type = "categorical"
+		type = "character",
+		subtype = "categorical"
 	)
 
 	ts <- term_rx(
@@ -51,8 +51,8 @@ test_that("term_rx() can generate character-based terms", {
 		label = "Stratification Variable",
 		description = "Levels for data set",
 		distribution = "binary",
-		subclass = "character",
-		type = "dichotomous"
+		type = "character",
+		subtype = "dichotomous"
 	)
 
 	t <- c(ty, tx, tm, tc, ts)
@@ -60,10 +60,11 @@ test_that("term_rx() can generate character-based terms", {
 	expect_length(t, 5)
 })
 
+
 test_that("term_rx() makes term object or errors", {
 
 	t1 <- term_rx("y", side = "left", role = "outcome", label = "Dependent Variable")
-	t2 <- trx("x", side = "right", role = "exposure", label = "Independent Variable")
+	t2 <- tx("x", side = "right", role = "exposure", label = "Independent Variable")
 	expect_s3_class(t1, "term_rx")
 	expect_true(is_term_rx(t1))
 	expect_error(new_term("x"))
@@ -78,10 +79,24 @@ test_that("term_rx() makes term object or errors", {
 
 })
 
-test_that("formula can be broken into terms", {
+test_that("terms can be generated from formulas", {
+
+	# Simple formula for terms to be broken down
+	fs <- mpg + wt ~ hp + cyl + gear
+	ts <- term_rx(
+		x = fs,
+		groups = list(cyl ~ "engine", gear ~ "engine"),
+		labels = list(mpg ~ "Mileage")
+	)
+	expect_length(ts, 5)
 
 	# Complex formula with term and data operations
-	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + log(qsec)
+	fc <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + log(qsec)
+	tc <- term_rx(
+
+	)
+
+
 	t1 <- term_rx(f)
 	t2 <- term_rx(f, labels = list(mpg ~ "Mileage"), groups = list(qsec + drat ~ "speed"))
 	expect_equal(vec_size(t1), 7)
@@ -97,6 +112,9 @@ test_that("formula can be broken into terms", {
 
 })
 
+test_that("terms can be made from a fitted model", {
+
+})
 test_that("formatting is correct", {
 
 	t1 <- term_rx("y", side = "left", role = "outcome", label = "Dependent Variable")
