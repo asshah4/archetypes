@@ -88,17 +88,16 @@ term_rx <- function(x = unspecified(), ...) {
 #' @rdname tx
 #' @export
 term_rx.character <- function(x,
-                              side = character(),
-                              role = character(),
-                              group = character(),
-                              operation = character(),
-                              label = character(),
-                              description = character(),
-                              distribution = character(),
-                              type = character(),
-															subtype = character(),
-                              ...) {
-
+							  side = character(),
+							  role = character(),
+							  group = character(),
+							  operation = character(),
+							  label = character(),
+							  description = character(),
+							  distribution = character(),
+							  type = character(),
+							  subtype = character(),
+							  ...) {
 	# Early break
 	if (length(x) == 0) {
 		message(
@@ -111,55 +110,63 @@ term_rx.character <- function(x,
 		return(new_term())
 	}
 
-  # Missing values
-  if (length(side) == 0) side <- NA
-  if (length(role) == 0) role <- "unknown"
-  if (length(group) == 0) group <- NA
-  if (length(operation) == 0) operation <- NA
-  if (length(label) == 0) label <- NA
-  if (length(description) == 0) description <- NA
-  if (length(distribution) == 0) distribution <- NA
-  if (length(type) == 0) type <- NA
-  if (length(subtype) == 0) subtype <- NA
+	# Missing values
+	if (length(side) == 0)
+		side <- NA
+	if (length(role) == 0)
+		role <- "unknown"
+	if (length(group) == 0)
+		group <- NA
+	if (length(operation) == 0)
+		operation <- NA
+	if (length(label) == 0)
+		label <- NA
+	if (length(description) == 0)
+		description <- NA
+	if (length(distribution) == 0)
+		distribution <- NA
+	if (length(type) == 0)
+		type <- NA
+	if (length(subtype) == 0)
+		subtype <- NA
 
-  # Casting
-  x <- vec_cast(x, character())
-  side <- vec_cast(side, character())
-  role <- vec_cast(role, character())
-  group <- vec_cast(group, character())
-  operation <- vec_cast(operation, character())
-  label <- vec_cast(label, character())
-  description <- vec_cast(description, character())
-  distribution <- vec_cast(distribution, character())
-  type <- vec_cast(type, character())
-  subtype <- vec_cast(subtype, character())
+	# Casting
+	x <- vec_cast(x, character())
+	side <- vec_cast(side, character())
+	role <- vec_cast(role, character())
+	group <- vec_cast(group, character())
+	operation <- vec_cast(operation, character())
+	label <- vec_cast(label, character())
+	description <- vec_cast(description, character())
+	distribution <- vec_cast(distribution, character())
+	type <- vec_cast(type, character())
+	subtype <- vec_cast(subtype, character())
 
-  new_term(
-    term = x,
-    side = side,
-    role = role,
-    group = group,
-    operation = operation,
-    label = label,
-    description = description,
-    distribution = distribution,
-    type = type,
-    subtype = subtype
-  )
+	new_term(
+		term = x,
+		side = side,
+		role = role,
+		group = group,
+		operation = operation,
+		label = label,
+		description = description,
+		distribution = distribution,
+		type = type,
+		subtype = subtype
+	)
 }
 
 #' @rdname tx
 #' @export
 term_rx.formula <- function(x,
-														role = list(),
-														group = list(),
-														label = list(),
-														description = list(),
-														distribution = list(),
-														type = list(),
-														subtype = list(),
-														...) {
-
+							role = list(),
+							group = list(),
+							label = list(),
+							description = list(),
+							distribution = list(),
+							type = list(),
+							subtype = list(),
+							...) {
 	# Early break
 	if (length(x) == 0) {
 		message(
@@ -172,151 +179,148 @@ term_rx.formula <- function(x,
 		return(new_term())
 	}
 
-  # Validate
-  validate_class(role, "list")
-  validate_class(group, "list")
-  validate_class(label, "list")
-  validate_class(description, "list")
-  validate_class(distribution, "list")
-  validate_class(type, "list")
-  validate_class(subtype, "list")
-  roles <- formula_args_to_list(role)
-  groups <- formula_args_to_list(group)
-  labels <- formula_args_to_list(label)
-  descriptions <- formula_args_to_list(description)
-  distributions <- formula_args_to_list(distribution)
-  types <- formula_args_to_list(type)
-  subtypes <- formula_args_to_list(subtype)
+	# Validate
+	validate_class(role, "list")
+	validate_class(group, "list")
+	validate_class(label, "list")
+	validate_class(description, "list")
+	validate_class(distribution, "list")
+	validate_class(type, "list")
+	validate_class(subtype, "list")
+	roles <- formula_args_to_list(role)
+	groups <- formula_args_to_list(group)
+	labels <- formula_args_to_list(label)
+	descriptions <- formula_args_to_list(description)
+	distributions <- formula_args_to_list(distribution)
+	types <- formula_args_to_list(type)
+	subtypes <- formula_args_to_list(subtype)
 
-  # All terms are needed to build term record
-  left <- lhs(x)
-  right <- rhs(x, tidy = TRUE)
-  all <- c(left, right)
-  n <- length(all)
+	# All terms are needed to build term record
+	left <- lhs(x)
+	right <- rhs(x, tidy = TRUE)
+	all <- c(left, right)
+	n <- length(all)
 
-  # The roles and operations need to be identified (upon which term they apply)
-  right_ops <-
-    rhs(x, tidy = FALSE) |>
-    paste(collapse = " + ") |>
-    {
-      \(.x) paste("~", .x)
-    }() |>
-    stats::as.formula() |>
-    all.vars(functions = TRUE, unique = FALSE) |>
-    {
-      \(.x) grep("~", .x, value = TRUE, invert = TRUE)
-    }() |>
-    {
-      \(.x) grep("\\+", .x, value = TRUE, invert = TRUE)
-    }() |>
-    {
-      \(.x) {
-        .y <- as.list(.x[!(.x %in% right)])
-        names(.y) <- .x[which(!.x %in% right) + 1]
-        .y
-      }
-    }()
+	# The roles and operations need to be identified (upon which term they apply)
+	right_ops <-
+		rhs(x, tidy = FALSE) |>
+		paste(collapse = " + ") |>
+		{
+			\(.x) paste("~", .x)
+		}() |>
+		stats::as.formula() |>
+		all.vars(functions = TRUE, unique = FALSE) |>
+		{
+			\(.x) grep("~", .x, value = TRUE, invert = TRUE)
+		}() |>
+		{
+			\(.x) grep("\\+", .x, value = TRUE, invert = TRUE)
+		}() |>
+		{
+			\(.x) {
+				.y <- as.list(.x[!(.x %in% right)])
+				names(.y) <- .x[which(!.x %in% right) + 1]
+				.y
+			}
+		}()
 
-  # Check to see if it is a "role" or a data transformation
-  which_ops <- vapply(
-    right_ops,
-    FUN.VALUE = TRUE,
-    function(.x) {
-      .y <-
-        try(getFromNamespace(.x, c("base", "stats", "utils", "methods")), silent = TRUE)
-      if (class(.y) == "try-error") {
-        .y <- FALSE
-      } else if (class(.y) == "function") {
-        .y <- TRUE
-      }
-    }
-  )
-  data_ops <- right_ops[which_ops]
+	# Check to see if it is a "role" or a data transformation
+	which_ops <- vapply(right_ops,
+						FUN.VALUE = TRUE,
+						function(.x) {
+							.y <-
+								try(getFromNamespace(.x, c("base", "stats", "utils", "methods")), silent = TRUE)
+							if (class(.y) == "try-error") {
+								.y <- FALSE
+							} else if (class(.y) == "function") {
+								.y <- TRUE
+							}
+						})
+	data_ops <- right_ops[which_ops]
 
-  # Roles, with default of LHS as `outcome` and RHS as `covariate`
-  role_ops <- right_ops[!which_ops]
+	# Roles, with default of LHS as `outcome` and RHS as `covariate`
+	role_ops <- right_ops[!which_ops]
 
-  other <- right[!(right %in% names(role_ops))]
-  other_ops <- rep("covariate", length(other))
-  names(other_ops) <- other
-  other_ops <- as.list(other_ops)
+	other <- right[!(right %in% names(role_ops))]
+	other_ops <- rep("covariate", length(other))
+	names(other_ops) <- other
+	other_ops <- as.list(other_ops)
 
-  left_ops <- rep("outcome", length(left))
-  names(left_ops) <- left
-  left_ops <- as.list(left_ops)
+	left_ops <- rep("outcome", length(left))
+	names(left_ops) <- left
+	left_ops <- as.list(left_ops)
 
-  role_ops <- c(roles, role_ops, left_ops, other_ops)
+	role_ops <- c(roles, role_ops, left_ops, other_ops)
 
-  for (i in seq_along(role_ops)) {
-    if (role_ops[[i]] == "X") {
-      role_ops[[i]] <- "exposure"
-    }
+	for (i in seq_along(role_ops)) {
+		if (role_ops[[i]] == "X") {
+			role_ops[[i]] <- "exposure"
+		}
 
-    if (role_ops[[i]] == "M") {
-      role_ops[[i]] <- "mediator"
-    }
-  }
+		if (role_ops[[i]] == "M") {
+			role_ops[[i]] <- "mediator"
+		}
+	}
 
-  # Create terms
-  term_list <- list()
+	# Create terms
+	term_list <- list()
 
-  for (i in 1:n) {
-    # Make parameters
-    t <- all[i]
-    side <- if (t %in% left) {
-      "left"
-    } else if (t %in% right) {
-      "right"
-    }
+	for (i in 1:n) {
+		# Make parameters
+		t <- all[i]
+		side <- if (t %in% left) {
+			"left"
+		} else if (t %in% right) {
+			"right"
+		}
 
-    # Data transforms
-    op <- if (t %in% names(data_ops)) {
-      data_ops[[t]]
-    } else {
-      NA
-    }
+		# Data transforms
+		op <- if (t %in% names(data_ops)) {
+			data_ops[[t]]
+		} else {
+			NA
+		}
 
-    # Roles
-    role <- if (t %in% names(role_ops)) {
-      role_ops[[t]]
-    } else {
-      NA
-    }
+		# Roles
+		role <- if (t %in% names(role_ops)) {
+			role_ops[[t]]
+		} else {
+			NA
+		}
 
-    # Groups
-    grp <- if (t %in% names(groups)) {
-      groups[[t]]
-    } else {
-      NA
-    }
+		# Groups
+		grp <- if (t %in% names(groups)) {
+			groups[[t]]
+		} else {
+			NA
+		}
 
-    # Labels
-    lab <- if (t %in% names(labels)) {
-      labels[[t]]
-    } else {
-      NA
-    }
+		# Labels
+		lab <- if (t %in% names(labels)) {
+			labels[[t]]
+		} else {
+			NA
+		}
 
-    # Place into term list after casting appropriate classes
-    term_list[[i]] <- term_rx.character(
-    	x = vec_cast(t, character()),
-    	side = vec_cast(side, character()),
-    	role = vec_cast(role, character()),
-    	group = vec_cast(grp, character()),
-    	operation = vec_cast(op, character()),
-    	label = vec_cast(lab, character())
-    )
-  }
+		# Place into term list after casting appropriate classes
+		term_list[[i]] <- term_rx.character(
+			x = vec_cast(t, character()),
+			side = vec_cast(side, character()),
+			role = vec_cast(role, character()),
+			group = vec_cast(grp, character()),
+			operation = vec_cast(op, character()),
+			label = vec_cast(lab, character())
+		)
+	}
 
-  # Return as a record of terms
-  term_list |>
-    vec_list_cast(to = term_rx())
+	# Return as a record of terms
+	term_list |>
+		vec_list_cast(to = term_rx())
 }
 
 #' @rdname tx
 #' @export
 term_rx.data.frame <- function(x, ...) {
-
 	# Early break
 	if (length(x) == 0) {
 		message(
@@ -336,36 +340,88 @@ term_rx.data.frame <- function(x, ...) {
 #' @rdname tx
 #' @export
 term_rx.lm <- function(x,
-											 roles = list(),
-											 groups = list(),
-											 labels = list(),
-											 descriptions = list(),
-											 distributions = list(),
-											 type = list(),
-											 subtype = list(),
-											 ...) {
+					   role = list(),
+					   group = list(),
+					   label = list(),
+					   description = list(),
+					   distribution = list(),
+					   type = list(),
+					   subtype = list(),
+					   ...) {
 
-	# Early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"No `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_rx` object."
-			)
-		)
-		return(new_term())
+	# Obtain original formula
+	f <- formula(x)
+
+	# Generate terms
+	term_rx.formula(
+		f,
+		role = role,
+		group = group,
+		label = label,
+		description = description,
+		distribution = distribution,
+		type = type,
+		subtype = subtype
+	)
+
+}
+
+#' @rdname tx
+#' @export
+term_rx.glm <- function(x,
+					   role = list(),
+					   group = list(),
+					   label = list(),
+					   description = list(),
+					   distribution = list(),
+					   type = list(),
+					   subtype = list(),
+					   ...) {
+
+	# Obtain original formula
+	f <- formula(x)
+
+	# Generate terms
+	term_rx.formula(
+		f,
+		role = role,
+		group = group,
+		label = label,
+		description = description,
+		distribution = distribution,
+		type = type,
+		subtype = subtype
+	)
+
+}
+
+#' @rdname tx
+#' @export
+term_rx.model_fit <- function(x,
+							  role = list(),
+							  group = list(),
+							  label = list(),
+							  description = list(),
+							  distribution = list(),
+							  type = list(),
+							  subtype = list(),
+							  ...) {
+
+	# Acceptable model types
+	model_types <- c("lm", "glm")
+
+	# Get model fit and pass to appropriate term_rx dispatcher
+	m <- x$fit
+	if (class(m) %in% model_types) {
+		term_rx(m)
 	}
 
-	# TODO
-	message("Not currently implemented")
 }
 
 
 #' @rdname tx
 #' @export
 term_rx.formula_rx <- function(x, ...) {
-
 	# Early break
 	if (length(x) == 0) {
 		message(
@@ -378,28 +434,22 @@ term_rx.formula_rx <- function(x, ...) {
 		return(new_term())
 	}
 
-  attr(x, "terms")
+	attr(x, "terms")
 }
 
 #' @rdname tx
 #' @export
 term_rx.default <- function(x = unspecified(), ...) {
-
 	# Early break
 	if (length(x) == 0) {
-		message(
-			paste0(
-				"No `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_rx` object."
-			)
-		)
 		return(new_term())
 	}
 
-  stop("`term()` is not defined for a `", class(x)[1], "` object.",
-    call. = FALSE
-  )
+	stop("`term()` is not defined for a `",
+		 class(x)[1],
+		 "` object.",
+		 call. = FALSE)
+
 }
 
 #' @rdname tx

@@ -7,6 +7,8 @@
 \alias{term_rx.formula}
 \alias{term_rx.data.frame}
 \alias{term_rx.lm}
+\alias{term_rx.glm}
+\alias{term_rx.model_fit}
 \alias{term_rx.formula_rx}
 \alias{term_rx.default}
 \title{Term records}
@@ -43,11 +45,35 @@ term_rx(x = unspecified(), ...)
 
 \method{term_rx}{lm}(
   x,
-  roles = list(),
-  groups = list(),
-  labels = list(),
-  descriptions = list(),
-  distributions = list(),
+  role = list(),
+  group = list(),
+  label = list(),
+  description = list(),
+  distribution = list(),
+  type = list(),
+  subtype = list(),
+  ...
+)
+
+\method{term_rx}{glm}(
+  x,
+  role = list(),
+  group = list(),
+  label = list(),
+  description = list(),
+  distribution = list(),
+  type = list(),
+  subtype = list(),
+  ...
+)
+
+\method{term_rx}{model_fit}(
+  x,
+  role = list(),
+  group = list(),
+  label = list(),
+  description = list(),
+  distribution = list(),
   type = list(),
   subtype = list(),
   ...

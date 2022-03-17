@@ -63,6 +63,11 @@ test_that("new terms can be made from character/atomic components", {
 
 test_that("term_rx() makes term object or errors", {
 
+	# Messages for zero length objects
+	expect_message(term_rx(formula()))
+	expect_message(term_rx(character()))
+	expect_message(term_rx(data.frame()))
+
 	t1 <- term_rx("y", side = "left", role = "outcome", label = "Dependent Variable")
 	t2 <- tx("x", side = "right", role = "exposure", label = "Independent Variable")
 	expect_s3_class(t1, "term_rx")
@@ -71,7 +76,6 @@ test_that("term_rx() makes term object or errors", {
 	expect_length(t1, 1)
 	expect_length(t2, 1)
 	expect_length(suppressMessages(term_rx(formula())), 0)
-	expect_message(term_rx(formula()))
 
 	# Field size should be the same
 	expect_error(term_rx(c("x", "y")))
@@ -118,7 +122,33 @@ test_that("terms can be generated from formulas", {
 
 test_that("terms can be made from a fitted model", {
 
+	# lm models
+	m_lm <- lm(mpg ~ wt + hp + cyl, mtcars)
+	t_lm <- term_rx(m_lm)
+	expect_length(t_lm, 4)
+
+	# glm
+	m_glm <- glm(am ~ wt + hp, mtcars, family = "binomial")
+	t_glm <- term_rx(m_glm, label = list(am ~ "Automatic Transmission"))
+	expect_length(t_glm, 3)
+	expect_equal(labels(t_glm)$am, "Automatic Transmission")
+
+	# Model spec of parsip models
+	if (isTRUE(requireNamespace("parsnip", quietly = TRUE))) {
+
+		m_parsnip <-
+			parsnip::linear_reg() |>
+			parsnip::set_engine("lm") |>
+			parsnip::fit(mpg ~ ., data = mtcars)
+
+		# TODO check if can be done without explicit dispatch
+		t_parsnip <- term_rx.model_fit(m_parsnip)
+
+		expect_length(t_parsnip, 11)
+	}
+
 })
+
 test_that("formatting is correct", {
 
 	t1 <- term_rx("y", side = "left", role = "outcome", label = "Dependent Variable")
