@@ -37,7 +37,6 @@
 #' @name fx
 #' @export
 formula_rx <- function(x = unspecified(), ...) {
-
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula_rx())
@@ -49,11 +48,10 @@ formula_rx <- function(x = unspecified(), ...) {
 #' @rdname fx
 #' @export
 formula_rx.term_rx <- function(x,
-															 roles = list(),
-															 groups = list(),
-															 labels = list(),
-															 ...) {
-
+							   roles = list(),
+							   groups = list(),
+							   labels = list(),
+							   ...) {
 	# Break early if zero length
 	if (length(x) == 0) {
 		return(new_formula_rx())
@@ -73,8 +71,8 @@ formula_rx.term_rx <- function(x,
 
 	# Formula display
 	formula_string <- paste(paste(left, collapse = " + "),
-										paste(right, collapse = " + "),
-										sep = " ~ ")
+							paste(right, collapse = " + "),
+							sep = " ~ ")
 	formula_string <- vec_cast(formula_string, character())
 
 	# Update attributes of terms
@@ -90,22 +88,19 @@ formula_rx.term_rx <- function(x,
 	terms <- x
 
 	# Return
-	new_formula_rx(
-			formula = formula_string,
-			terms = terms,
-			pattern = pattern
-	)
+	new_formula_rx(formula = formula_string,
+				   terms = terms,
+				   pattern = pattern)
 }
 
 #' @rdname fx
 #' @export
 formula_rx.formula <- function(x,
-															 roles = list(),
-															 groups = list(),
-															 labels = list(),
-															 pattern = character(),
-															 ...) {
-
+							   roles = list(),
+							   groups = list(),
+							   labels = list(),
+							   pattern = character(),
+							   ...) {
 	# Break early if zero length
 	if (length(x) == 0) {
 		return(new_formula_rx())
@@ -116,10 +111,10 @@ formula_rx.formula <- function(x,
 		pattern <- "direct"
 	}
 	if (!pattern %in% c("direct", "sequential", "parallel")) {
-		stop(
-			"The pattern ", deparse(pattern), " is not yet supported.",
-			call. = FALSE
-		)
+		stop("The pattern ",
+			 deparse(pattern),
+			 " is not yet supported.",
+			 call. = FALSE)
 	}
 
 	f <- x
@@ -130,8 +125,8 @@ formula_rx.formula <- function(x,
 	left <- lhs(f)
 	right <- rhs(f)
 	formula_string <- paste(paste(left, collapse = " + "),
-										paste(right, collapse = " + "),
-										sep = " ~ ")
+							paste(right, collapse = " + "),
+							sep = " ~ ")
 	formula_string <- vec_cast(formula_string, character())
 
 	# Update groups
@@ -146,17 +141,14 @@ formula_rx.formula <- function(x,
 	terms <- x
 
 	# Return
-	new_formula_rx(
-			formula = formula_string,
-			terms = terms,
-			pattern = pattern
-	)
+	new_formula_rx(formula = formula_string,
+				   terms = terms,
+				   pattern = pattern)
 }
 
 #' @rdname fx
 #' @export
 formula_rx.default <- function(x, ...) {
-
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula_rx())
@@ -173,22 +165,20 @@ formula_rx.default <- function(x, ...) {
 fx = formula_rx
 
 
+
 # Vector Creation --------------------------------------------------------------
 
 #' Formula vector
 #' @keywords internal
 #' @noRd
 new_formula_rx <- function(formula = character(),
-													 terms = term_rx()) {
-
+						   terms = term_rx()) {
 	vec_assert(formula, ptype = character())
 	vec_assert(terms, ptype = term_rx())
 
-	new_vctr(
-		formula,
-		terms = terms,
-		class = "formula_rx"
-	)
+	new_vctr(formula,
+			 terms = terms,
+			 class = "formula_rx")
 
 }
 
@@ -247,6 +237,7 @@ vec_ptype2.formula_rx.term_rx <- function(x, y, ...) {
 
 #' @export
 vec_ptype2.term_rx.formula_rx <- function(x, y, ...) {
+
 	x
 }
 
@@ -259,9 +250,9 @@ vec_cast.term_rx.formula_rx <- function(x, to, ...) {
 
 # Output -----------------------------------------------------------------------
 
+
 #' @export
 format.formula_rx <- function(x, ...) {
-
 	f <- vec_data(x)
 	t <- attr(x, "terms")
 	tm <- vec_data(t)
