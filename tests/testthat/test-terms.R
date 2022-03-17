@@ -68,8 +68,10 @@ test_that("term_rx() makes term object or errors", {
 	expect_s3_class(t1, "term_rx")
 	expect_true(is_term_rx(t1))
 	expect_error(new_term("x"))
-	expect_equal(length(t2), vec_size(t1))
-	expect_length(term_rx(formula()), 0)
+	expect_length(t1, 1)
+	expect_length(t2, 1)
+	expect_length(suppressMessages(term_rx(formula())), 0)
+	expect_message(term_rx(formula()))
 
 	# Field size should be the same
 	expect_error(term_rx(c("x", "y")))
@@ -82,30 +84,32 @@ test_that("term_rx() makes term object or errors", {
 test_that("terms can be generated from formulas", {
 
 	# Simple formula for terms to be broken down
-	fs <- mpg + wt ~ hp + cyl + gear
 	ts <- term_rx(
-		x = fs,
+		x = mpg + wt ~ hp + cyl + gear,
 		groups = list(cyl ~ "engine", gear ~ "engine"),
 		labels = list(mpg ~ "Mileage")
 	)
 	expect_length(ts, 5)
 
 	# Complex formula with term and data operations
-	fc <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + log(qsec)
-	tc <- term_rx(
-
+	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + log(qsec)
+	t <- term_rx(
+		x = f,
+		group = list(drat + qsec ~ "spec"),
+		label = list(mpg ~ "Mileage", wt ~ "Weight")
 	)
+	expect_length(t, 7)
 
 
 	t1 <- term_rx(f)
-	t2 <- term_rx(f, labels = list(mpg ~ "Mileage"), groups = list(qsec + drat ~ "speed"))
+	t2 <- term_rx(f, label = list(mpg ~ "Mileage"), group = list(qsec + drat ~ "speed"))
 	expect_equal(vec_size(t1), 7)
 	expect_equal(vec_size(t1), length(t1))
 	expect_length(groups.term_rx(t2), 2)
 
 	# Adding roles and labels works
 	tm <-
-		term_rx(f, labels = list(gear ~ "Gears")) |>
+		term_rx(f, label = list(gear ~ "Gears")) |>
 		vec_data()
 	expect_equal(tm$role[tm$term == "cyl"], "mediator")
 	expect_equal(tm$label[tm$term == "gear"], "Gears")

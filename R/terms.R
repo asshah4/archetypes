@@ -7,11 +7,15 @@
 #' `r lifecycle::badge('experimental')`
 #'
 #' @param x An object of the following types that can be coerced to a `term_rx`
-#'   object
+#'   object. If it is an object that contains multiple terms, such as `formula`,
+#'   the parameters are pluralized and should be contained via a list of
+#'   formulas. See details for further explanation.
 #'
 #'   * `character`
 #'
 #'   * `formula`
+#'
+#'   * `lm`
 #'
 #'   * `data.frame`
 #'
@@ -63,6 +67,18 @@
 #' @param subtype How the variable itself is more specifically subcategorized,
 #'   e.g. ordinal, continuous, dichotomous, etc
 #'
+#' @details
+#'
+#' For the arguments that would be dispatched for objects that are plural, e.g.
+#' containing multiple terms such as a `formula` object, the input should be
+#' wrapped within a `list()`.
+#'
+#' For example, for the __roles__ argument, it would be written:
+#'
+#' `role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "covariate")`
+#'
+#' This applies for all others plural objects and arguments.
+#'
 #' @name tx
 #' @export
 term_rx <- function(x = unspecified(), ...) {
@@ -83,14 +99,21 @@ term_rx.character <- function(x,
 															subtype = character(),
                               ...) {
 
-  # Break early if need be
-  if (length(x) == 0) {
-    return(new_term())
-  }
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_rx` object."
+			)
+		)
+		return(new_term())
+	}
 
   # Missing values
   if (length(side) == 0) side <- NA
-  if (length(role) == 0) role <- NA
+  if (length(role) == 0) role <- "unknown"
   if (length(group) == 0) group <- NA
   if (length(operation) == 0) operation <- NA
   if (length(label) == 0) label <- NA
@@ -128,35 +151,42 @@ term_rx.character <- function(x,
 #' @rdname tx
 #' @export
 term_rx.formula <- function(x,
-														roles = list(),
-														groups = list(),
-														labels = list(),
-														descriptions = list(),
-														distributions = list(),
-														types = list(),
-														subtypes = list(),
+														role = list(),
+														group = list(),
+														label = list(),
+														description = list(),
+														distribution = list(),
+														type = list(),
+														subtype = list(),
 														...) {
 
-  # Break early if need be
-  if (length(x) == 0) {
-    return(new_term())
-  }
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_rx` object."
+			)
+		)
+		return(new_term())
+	}
 
   # Validate
-  validate_class(roles, "list")
-  validate_class(groups, "list")
-  validate_class(labels, "list")
-  validate_class(descriptions, "list")
-  validate_class(distributions, "list")
-  validate_class(types, "list")
-  validate_class(subtypes, "list")
-  roles <- formula_args_to_list(roles)
-  groups <- formula_args_to_list(groups)
-  labels <- formula_args_to_list(labels)
-  descriptions <- formula_args_to_list(descriptions)
-  distributions <- formula_args_to_list(distributions)
-  types <- formula_args_to_list(types)
-  subtypes <- formula_args_to_list(subtypes)
+  validate_class(role, "list")
+  validate_class(group, "list")
+  validate_class(label, "list")
+  validate_class(description, "list")
+  validate_class(distribution, "list")
+  validate_class(type, "list")
+  validate_class(subtype, "list")
+  roles <- formula_args_to_list(role)
+  groups <- formula_args_to_list(group)
+  labels <- formula_args_to_list(label)
+  descriptions <- formula_args_to_list(description)
+  distributions <- formula_args_to_list(distribution)
+  types <- formula_args_to_list(type)
+  subtypes <- formula_args_to_list(subtype)
 
   # All terms are needed to build term record
   left <- lhs(x)
@@ -287,10 +317,18 @@ term_rx.formula <- function(x,
 #' @export
 term_rx.data.frame <- function(x, ...) {
 
-  # Break early if need be
-  if (length(x) == 0) {
-    return(new_term())
-  }
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_rx` object."
+			)
+		)
+		return(new_term())
+	}
+
 	# TODO
 	message("Not currently implemented")
 }
@@ -307,10 +345,17 @@ term_rx.lm <- function(x,
 											 subtype = list(),
 											 ...) {
 
-  # Break early if need be
-  if (length(x) == 0) {
-    return(new_term())
-  }
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_rx` object."
+			)
+		)
+		return(new_term())
+	}
 
 	# TODO
 	message("Not currently implemented")
@@ -321,10 +366,17 @@ term_rx.lm <- function(x,
 #' @export
 term_rx.formula_rx <- function(x, ...) {
 
-  # Break early if need be
-  if (length(x) == 0) {
-    return(new_term())
-  }
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_rx` object."
+			)
+		)
+		return(new_term())
+	}
 
   attr(x, "terms")
 }
@@ -333,10 +385,17 @@ term_rx.formula_rx <- function(x, ...) {
 #' @export
 term_rx.default <- function(x = unspecified(), ...) {
 
-  # Break early if need be
-  if (length(x) == 0) {
-    return(new_term())
-  }
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_rx` object."
+			)
+		)
+		return(new_term())
+	}
 
   stop("`term()` is not defined for a `", class(x)[1], "` object.",
     call. = FALSE
@@ -346,7 +405,6 @@ term_rx.default <- function(x = unspecified(), ...) {
 #' @rdname tx
 #' @export
 tx = term_rx
-
 
 # Record Definition ------------------------------------------------------------
 
@@ -525,7 +583,7 @@ format.term_rx <- function(x, ...) {
 				fmt_tx <- append(fmt_tx, cli::col_br_yellow(t))
 			}
 
-			if (is.na(tm$role[i])) {
+			if (tm$role[i] == "unknown") {
 				t <- tm$term[i]
 				fmt_tx <- append(fmt_tx, cli::col_white(t))
 			}
