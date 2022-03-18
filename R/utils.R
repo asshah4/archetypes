@@ -329,14 +329,26 @@ groups.list_of_formulas <- function(x, ...) {
 #' @return A modified
 #' @name setters
 #' @export
-setGroups <- function(x, ...) {
-	UseMethod("setGroups", object = x)
+setRoles <- function(x, roles, ...) {
+
+	validate_class(roles, "list")
+
+	# Update and append roles
+	rls <- append(roles.term_rx(x), roles)
+
+	# Save the most "recent" updated label and erase prior if duplicate
+	tm <- vec_data(x)
+	for (i in seq_along(rls)) {
+		tm$role[tm$term == names(rls[i])] <- rls[[i]]
+	}
+
+	vec_restore(tm, to = term_rx())
+
 }
 
 #' @rdname setters
 #' @export
-setGroups.term_rx <- function(x, groups, ...) {
-
+setGroups <- function(x, groups, ...) {
 	validate_class(groups, "list")
 
 	# Append groups
@@ -351,18 +363,11 @@ setGroups.term_rx <- function(x, groups, ...) {
 	}
 
 	vec_restore(tm, to = term_rx())
-
 }
 
-#' @name setters
+#' @rdname setters
 #' @export
-setLabels <- function(x, ...) {
-	UseMethod("setLabels", object = x)
-}
-
-#' @name setters
-#' @export
-setLabels.term_rx <- function(x, labels, ...) {
+setLabels <- function(x, labels, ...) {
 
 	validate_class(labels, "list")
 

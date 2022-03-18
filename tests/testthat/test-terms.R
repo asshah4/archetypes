@@ -90,8 +90,8 @@ test_that("terms can be generated from formulas", {
 	# Simple formula for terms to be broken down
 	ts <- term_rx(
 		x = mpg + wt ~ hp + cyl + gear,
-		groups = list(cyl ~ "engine", gear ~ "engine"),
-		labels = list(mpg ~ "Mileage")
+		group = list(cyl ~ "engine", gear ~ "engine"),
+		label = list(mpg ~ "Mileage")
 	)
 	expect_length(ts, 5)
 

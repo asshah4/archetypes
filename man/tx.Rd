@@ -145,14 +145,17 @@ as \code{character} or \code{numeric} or \code{factor}}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
-\details{
+\section{Pluralized Arguments}{
+
+
 For the arguments that would be dispatched for objects that are plural, e.g.
 containing multiple terms such as a \code{formula} object, the input should be
 wrapped within a \code{list()}.
 
-For example, for the \strong{roles} argument, it would be written:
+For example, for the \strong{role} argument, it would be written:
 
 \code{role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "covariate")}
 
 This applies for all others plural objects and arguments.
 }
+

@@ -3,25 +3,38 @@
 \name{fx}
 \alias{fx}
 \alias{formula_rx}
-\alias{formula_rx.term_rx}
 \alias{formula_rx.formula}
+\alias{formula_rx.term_rx}
 \alias{formula_rx.default}
 \title{Formula vector}
 \usage{
 formula_rx(x = unspecified(), ...)
 
-\method{formula_rx}{term_rx}(x, roles = list(), groups = list(), labels = list(), ...)
-
 \method{formula_rx}{formula}(
   x,
-  roles = list(),
-  groups = list(),
-  labels = list(),
-  pattern = character(),
+  role = list(),
+  group = list(),
+  label = list(),
+  description = list(),
+  distribution = list(),
+  type = list(),
+  subtype = list(),
   ...
 )
 
-\method{formula_rx}{default}(x, ...)
+\method{formula_rx}{term_rx}(
+  x,
+  role = list(),
+  group = list(),
+  label = list(),
+  description = list(),
+  distribution = list(),
+  type = list(),
+  subtype = list(),
+  ...
+)
+
+\method{formula_rx}{default}(x = unspecified(), ...)
 
 fx(x = unspecified(), ...)
 }
@@ -33,21 +46,36 @@ fx(x = unspecified(), ...)
 
 \item{...}{Arguments to be passed to or from other methods}
 
-\item{roles}{Specific roles the variable plays within the formula. These are
+\item{role}{Specific roles the variable plays within the formula. These are
 of particular importance, as they serve as special terms that can effect
 how a formula is interpreted. The options for roles are as below:
 \itemize{
-\item \strong{exposure} or \code{X(...)}: a predictor variable that serves as a primary
-or key variable in the \eqn{Exposure ~ Outcome} relationship
-}
+\item \strong{exposure}: a predictor variable that serves as a primary or key
+variable in the \eqn{Exposure ~ Outcome} relationship
+\item \strong{outcome}: a outcome/dependent variable that serves as an individual
+variable in the \eqn{Exposure ~ Outcome} relationship
+\item \strong{covariate}: a predictor variable that is used to adjust/control for an
+additional primary variable
+\item \strong{mediator}: a predictor variable that is thought to be a causal
+intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
+}}
 
-Formulas can be condensed by applying their specific role to individual
-terms as a function/wrapper. For example, \code{y ~ X(x1) + x2 + x3}. This would
-signify that \code{x1} has the specific role of an exposure.}
+\item{group}{Grouping variable name for independent variables for modeling
+terms together}
 
-\item{groups}{List of formulas that have the term (or terms) on the LHS and
-the group name on the RHS (quotations to indicate character value not
-necessary). E.g. \code{list(c(x1, x2) ~ grp)}}
+\item{label}{Display-quality label describing the variable}
+
+\item{description}{Option for further descriptions or definitions needed for
+the term, potentially part of a data dictionary}
+
+\item{distribution}{If its associated with a data vector, describes the
+distribution pattern of the original term}
+
+\item{type}{The type of variable, either categorical (qualitative) or
+continuous (quantitative)}
+
+\item{subtype}{How the variable itself is more specifically subcategorized,
+e.g. ordinal, continuous, dichotomous, etc}
 }
 \value{
 An object of class \code{formula_rx}
@@ -58,6 +86,33 @@ An object of class \code{formula_rx}
 This function defines a new modified \code{formula} class that has been
 vectorized. It expands upon the functionality of formulas.
 }
-\details{
+\section{Roles}{
 
+
+Specific roles the variable plays within the formula. These are of particular
+importance, as they serve as special terms that can effect how a formula is
+interpreted. The options for roles are as below:
+\itemize{
+\item \strong{exposure} or \code{X(...)}: a predictor variable that serves as a primary or
+key variable in the \eqn{Exposure ~ Outcome} relationship
 }
+
+Formulas can be condensed by applying their specific role to individual terms
+as a function/wrapper. For example, \code{y ~ X(x1) + x2 + x3}. This would signify
+that \code{x1} has the specific role of an exposure.
+}
+
+\section{Pluralized Arguments}{
+
+
+For the arguments that would be dispatched for objects that are plural, e.g.
+containing multiple terms such as a \code{formula} object, the input should be
+wrapped within a \code{list()}.
+
+For example, for the \strong{role} argument, it would be written:
+
+\code{role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "covariate")}
+
+This applies for all others plural objects and arguments.
+}
+

@@ -1,18 +1,32 @@
+test_that("a formula can be upgraded into a formula_rx object", {
+
+	f <- formula_rx(
+		mpg + wt ~ hp + cyl + gear + drat + qsec,
+		role = list(hp ~ "exposure", cyl ~ "mediator")
+	)
+	expect_length(f, 1)
+	expect_length(rhs(f), 5)
+	expect_length(lhs(f), 2)
+})
+
 test_that("basic formula vector can be made and displayed", {
 
 	# Construction
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
 	t <- term_rx(f)
-	f1 <- formula_rx(t, pattern = "direct")
-	labels <- list(mpg ~ "Mileage", cyl ~ "Cylinders")
+	f1 <- formula_rx(t, label = list(mpg ~ "Mileage", cyl ~ "Cylinders"))
 	expect_length(rhs(f1), 5)
 	expect_length(lhs(f1), 2)
 
 	expect_error(validate_class(f1, "formula"))
 	expect_silent(validate_class(t, "term_rx"))
 	expect_s3_class(f1, "formula_rx")
-	expect_equal(f1, formula_rx(x = term_rx(f), pattern = "direct"))
-	expect_s3_class(frx(f), "formula_rx") # Until formal implementation is made
+	expect_equal(f1,
+				 formula_rx(x = term_rx(
+				 	f,
+				 	label = list(mpg ~ "Mileage", cyl ~ "Cylinders")
+				 )))
+	expect_s3_class(fx(f), "formula_rx") # Until formal implementation is made
 
 	# Vectorization
 	t1 <- term_rx(mpg ~ wt)
@@ -24,7 +38,7 @@ test_that("basic formula vector can be made and displayed", {
 
 	# Printing
 	expect_output(print(f1), "[1]")
-	expect_output(print(new_formula_rx()), "[0]")
+	expect_output(print(new_formula()), "[0]")
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(f1) |>
 			print() |>
@@ -45,18 +59,17 @@ test_that("formula_rx() inputs are acceptable", {
 	groups <- list(hardware ~ c(wt), speed ~ c(drat, qsec))
 	f2 <- formula_rx(t4, groups = groups)
 
-	# Patterns
 	t <- term_rx(mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec))
-	expect_error(formula_rx(x = t, pattern = "error"))
+	expect_length(lhs(fx(t)), 2)
 
 	# Using a formula directly
 	expect_length(formula_rx(formula()), 0)
 	x <- mpg + qsec ~ X(wt) + M(hp)
 	f <- formula_rx(x)
-	expect_error(formula_rx(x, pattern = "error"))
+	expect_error(formula_rx("x"))
 
 	# Modifiers such as roles, labels, and groups are incorporated
-	f <- formula_rx(x, labels = list(hp ~ "Horsepower"))
+	f <- formula_rx(x, label = list(hp ~ "Horsepower"))
 	expect_length(labels(f), 1) # Currently erroring
 
 })
@@ -65,22 +78,22 @@ test_that("complex formulas can be made", {
 
 	# Survival
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(primary) + secondary + tertiary
-	t <- trx(x)
-	f1 <- frx(x)
-	f2 <- frx(t)
+	t <- tx(x)
+	f1 <- fx(x)
+	f2 <- fx(t)
 	expect_equal(f1, f2)
 
 	# Mediation
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(primary) + M(secondary) + tertiary
-	t <- trx(x)
-	f1 <- frx(x)
-	f2 <- frx(t)
+	t <- tx(x)
+	f1 <- fx(x)
+	f2 <- fx(t)
 	expect_equal(f1, f2)
 
 	# Multiple exposures and outcomes
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(primary) + X(secondary) + tertiary
-	f1 <- frx(Surv(stop, status) + Surv(stop, censor) ~ X(primary) + X(secondary) + tertiary)
-	f2 <- frx(x)
+	f1 <- fx(Surv(stop, status) + Surv(stop, censor) ~ X(primary) + X(secondary) + tertiary)
+	f2 <- fx(x)
 	expect_equal(f1, f2)
 
 })
@@ -89,7 +102,7 @@ test_that("vctrs casting and coercion work appropriately", {
 
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
 	t <- term_rx(f)
-	f1 <- formula_rx(x = t, pattern = "direct")
+	f1 <- formula_rx(x = t)
 
 	# formula_rx()
 	f2 <- formula_rx(x = f)
@@ -114,7 +127,6 @@ test_that("vctrs casting and coercion work appropriately", {
 })
 
 test_that("formula vectors can be modified in place", {
-
 
 	# Updates to the right
 	x <- mpg + wt ~ hp + cyl + gear

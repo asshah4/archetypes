@@ -67,13 +67,13 @@
 #' @param subtype How the variable itself is more specifically subcategorized,
 #'   e.g. ordinal, continuous, dichotomous, etc
 #'
-#' @details
+#' @section Pluralized Arguments:
 #'
 #' For the arguments that would be dispatched for objects that are plural, e.g.
 #' containing multiple terms such as a `formula` object, the input should be
 #' wrapped within a `list()`.
 #'
-#' For example, for the __roles__ argument, it would be written:
+#' For example, for the __role__ argument, it would be written:
 #'
 #' `role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "covariate")`
 #'
