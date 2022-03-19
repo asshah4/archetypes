@@ -7,20 +7,19 @@
 \alias{fmls}
 \title{Prescribed Formula Lists}
 \usage{
-formula_list(x = list(), ...)
+formula_list(x = unspecified(), ...)
 
 \method{formula_list}{formula_rx}(
   x,
-  name = deparse1(substitute(x)),
+  tag = deparse1(substitute(x)),
   pattern = character(),
-  data = data.frame(),
   strata = character(),
   ...
 )
 
 \method{formula_list}{default}(x = list(), ...)
 
-fmls(x = list(), ...)
+fmls(x = unspecified(), ...)
 }
 \arguments{
 \item{pattern}{This is the expansion pattern used to decide how the

@@ -5,7 +5,7 @@
 \alias{setRoles}
 \alias{setGroups}
 \alias{setLabels}
-\title{Set components of terms and formulas}
+\title{Set components of terms}
 \usage{
 setRoles(x, roles, ...)
 
@@ -17,5 +17,5 @@ setLabels(x, labels, ...)
 A modified
 }
 \description{
-Set components of terms and formulas
+Set components of terms
 }

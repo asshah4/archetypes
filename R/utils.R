@@ -1,4 +1,4 @@
-# Conversion ----
+# Conversion -------------------------------------------------------------------
 
 #' Convert between lists and tables
 #'
@@ -97,7 +97,7 @@ formula_args_to_list <- function(x, ...) {
 	pl
 }
 
-# formula tools ----
+# Formula Tools ----------------------------------------------------------------
 
 #' Tools for working with formula-like objects
 #' @name sides
@@ -323,9 +323,9 @@ groups.list_of_formulas <- function(x, ...) {
 }
 
 
-# Setters ----
+# Term Tools -------------------------------------------------------------------
 
-#' Set components of terms and formulas
+#' Set components of terms
 #' @return A modified
 #' @name setters
 #' @export
@@ -386,10 +386,20 @@ setLabels <- function(x, labels, ...) {
 
 }
 
-# updates ----
+# Updating Functions -----------------------------------------------------------
 
-#' Updating prescribed formulas
+#' Update Prescriptions
+#'
+#' These are a variety of functions to help update and modify objects from the
+#' `{forks}` package.
+#' @return An object of the original class
 #' @name updates
+#' @export
+update.term_rx <- function(object, parameters, ...) {
+	object
+}
+
+#' @rdname updates
 #' @export
 update.formula_rx <- function(object, parameters, ...) {
 
@@ -450,11 +460,14 @@ update.formula_rx <- function(object, parameters, ...) {
 }
 
 #' @rdname updates
-#' @return An object of class `formula_rx`
 #' @export
-add <- function(object, parameters, ...) {
+add <- function(object, ...) {
+	UseMethod("add", object = object)
+}
 
-	validate_class(object, "formula_rx")
+#' @rdname updates
+#' @export
+add.formula_rx <- function(object, parameters, ...) {
 
 	obj <- term_rx(object)
 
@@ -478,4 +491,17 @@ add <- function(object, parameters, ...) {
 	f
 }
 
+#' @rdname updates
+#' @export
+add.term_rx <- function(object, parameters, ...) {
 
+	validate_class(parameters, "term_rx")
+
+	# Find the "older" term that is a duplicate
+	c(object, parameters) |>
+		vec_data() |>
+		{\(.x) {
+			.x[!duplicated(.x$term, fromLast = TRUE)]
+		}}() |>
+		vec_restore(to = term_rx())
+}

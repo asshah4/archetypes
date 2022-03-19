@@ -49,6 +49,7 @@ formula_rx.formula <- function(x,
 							   distribution = list(),
 							   type = list(),
 							   subtype = list(),
+							   tag = deparse1(substitute(x)),
 							   ...) {
 	# Break early if zero length
 	if (length(x) == 0) {
@@ -90,6 +91,7 @@ formula_rx.term_rx <- function(x,
 							   distribution = list(),
 							   type = list(),
 							   subtype = list(),
+							   tag = deparse1(substitute(x)),
 							   ...) {
 	# Early break
 	if (length(x) == 0) {
@@ -97,7 +99,8 @@ formula_rx.term_rx <- function(x,
 			paste0(
 				"No `",
 				class(x)[1],
-				"` object was provided, resulting in a [0] length `formula_rx` object."
+				"` object was provided, resulting in a [0] length ",
+				"`formula_rx` object."
 			)
 		)
 		return(new_formula())
@@ -227,13 +230,11 @@ vec_ptype2.formula_rx.term_rx <- function(x, y, ...) {
 
 #' @export
 vec_ptype2.term_rx.formula_rx <- function(x, y, ...) {
-
 	x
 }
 
 #' @export
 vec_cast.term_rx.formula_rx <- function(x, to, ...) {
-
 	attr(x, "terms")
 
 }

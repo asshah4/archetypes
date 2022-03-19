@@ -19,6 +19,7 @@ formula_rx(x = unspecified(), ...)
   distribution = list(),
   type = list(),
   subtype = list(),
+  tag = deparse1(substitute(x)),
   ...
 )
 
@@ -31,6 +32,7 @@ formula_rx(x = unspecified(), ...)
   distribution = list(),
   type = list(),
   subtype = list(),
+  tag = deparse1(substitute(x)),
   ...
 )
 

@@ -2,17 +2,27 @@
 % Please edit documentation in R/utils.R
 \name{updates}
 \alias{updates}
+\alias{update.term_rx}
 \alias{update.formula_rx}
 \alias{add}
-\title{Updating prescribed formulas}
+\alias{add.formula_rx}
+\alias{add.term_rx}
+\title{Update Prescriptions}
 \usage{
+\method{update}{term_rx}(object, parameters, ...)
+
 \method{update}{formula_rx}(object, parameters, ...)
 
-add(object, parameters, ...)
+add(object, ...)
+
+\method{add}{formula_rx}(object, parameters, ...)
+
+\method{add}{term_rx}(object, parameters, ...)
 }
 \value{
-An object of class \code{formula_rx}
+An object of the original class
 }
 \description{
-Updating prescribed formulas
+These are a variety of functions to help update and modify objects from the
+\code{{forks}} package.
 }

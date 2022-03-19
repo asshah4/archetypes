@@ -49,19 +49,17 @@
 #'
 #' @name formula_list
 #' @export
-formula_list <- function(x = list(), ...) {
+formula_list <- function(x = unspecified(), ...) {
 	UseMethod("formula_list", object = x)
 }
 
 #' @rdname formula_list
 #' @export
 formula_list.formula_rx <- function(x,
-										name = deparse1(substitute(x)),
-										pattern = character(),
-										data = data.frame(),
-										strata = character(),
-										...) {
-
+									tag = deparse1(substitute(x)),
+									pattern = character(),
+									strata = character(),
+									...) {
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula_list())
@@ -72,10 +70,10 @@ formula_list.formula_rx <- function(x,
 		pattern <- "direct"
 	}
 	if (!pattern %in% c("direct", "sequential", "parallel")) {
-		stop(
-			"The pattern ", deparse(pattern), " is not yet supported.",
-			call. = FALSE
-		)
+		stop("The pattern ",
+			 deparse(pattern),
+			 " is not yet supported.",
+			 call. = FALSE)
 	}
 
 	# Get components from formula
@@ -83,33 +81,33 @@ formula_list.formula_rx <- function(x,
 	t <- attr(x, "terms")
 	ops <- identify_ops(t, pattern)
 
-	# Get attributes of labels, roles, groups
-	labs <- labels.term_rx(t)
-	rls <- roles.term_rx(t)
-	grps <- groups.term_rx(t)
+	# Update with strata if needed
+	strata_term <-
+		suppressMessages(term_rx(x = strata, side = "meta", role = "strata"))
+
+	t <- add(t, strata_term)
+
+
 
 	# Expansion of formulas
 	lof <- perform_ops(ops)
 	names(lof) <-
 		sapply(names(lof),
-					 function(x) {
-					 	paste(name, sep = "_", x)
-					 },
-					 USE.NAMES = FALSE)
+			   function(x) {
+			   	paste(tag, sep = "_", x)
+			   },
+			   USE.NAMES = FALSE)
 
 	new_formula_list(
 		formula_list = lof,
-		labels = labs,
-		roles = rls,
-		groups = grps,
-		strata = strata
+		formula = x,
+		terms = t
 	)
 }
 
 #' @rdname formula_list
 #' @export
 formula_list.default <- function(x = list(), ...) {
-
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula_list())
@@ -131,21 +129,15 @@ fmls = formula_list
 #' @keywords internal
 #' @noRd
 new_formula_list <- function(formula_list = list(),
-														 labels = list(),
-														 roles = list(),
-														 groups = list(),
-														 strata = character(),
-														 data = data.frame()) {
+							 formula = formula_rx(),
+							 terms = term_rx()) {
 
 	new_list_of(
 		x = formula_list,
 		ptype = list(),
 		class = "formula_list",
-		labels = labels,
-		roles = roles,
-		groups = groups,
-		data = data,
-		strata = strata
+		formula = formula,
+		terms = terms
 	)
 
 }
@@ -169,7 +161,8 @@ vec_ptype2.character.vctrs_list_of <- function(x, y, ...) {
 #' @export
 vec_cast.vctrs_list_of.character <- function(x, to, ...) {
 	cl <- as.list(x) # Make list of characters
-	loc <- new_list_of(cl, ptype = character()) # Turn into list_of class
+	loc <-
+		new_list_of(cl, ptype = character()) # Turn into list_of class
 	loc # Return list of characters
 }
 
@@ -184,7 +177,6 @@ vec_cast.character.vctrs_list_of <- function(x, to, ...) {
 
 #' @export
 format.formula_list <- function(x, ...) {
-
 	f <- lapply(vec_data(x), function(.x) {
 		attributes(.x) <- NULL
 		.x
