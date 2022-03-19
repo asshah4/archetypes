@@ -1,5 +1,5 @@
-Package: forks
-Title: Prescription Formulas
+Package: axe
+Title: Formula Prescriptions
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Anish S.",
@@ -32,7 +32,7 @@ Suggests:
     cli,
     knitr,
     rmarkdown
-URL: https://github.com/asshah4/forks
-BugReports: https://github.com/asshah4/forks/issues
+URL: https://github.com/asshah4/axe
+BugReports: https://github.com/asshah4/axe/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr

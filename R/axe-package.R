@@ -1,7 +1,7 @@
-#' forks package
+#' axe package
 #'
 #' @docType package
-#' @aliases forks-package
+#' @aliases axe-package
 #' @keywords internal
 "_PACKAGE"
 
@@ -9,7 +9,7 @@
 #'
 #' @import vctrs
 #' @keywords internal
-#' @name forks-vctrs
+#' @name axe-vctrs
 NULL
 
 ## usethis namespace: start
