@@ -2,7 +2,7 @@
 #' @return A list object of operations
 #' @keywords internal
 #' @noRd
-identify_ops <- function(x = term_rx(), pattern) {
+identify_ops <- function(x = term(), pattern) {
 
   # Retrieve all basic term information
   tm <- vec_data(x)
@@ -10,7 +10,7 @@ identify_ops <- function(x = term_rx(), pattern) {
   ind_vars <- co_vars <- rhs(x)
 
   # Special roles
-  rls <- roles.term_rx(x)
+  rls <- roles(x)
   exp_vars <- character()
   med_vars <- character()
   for (i in seq_along(rls)) {
@@ -23,7 +23,7 @@ identify_ops <- function(x = term_rx(), pattern) {
   }
 
   # Groups (grouped variables are not part of traditional covariates)
-  grp <- groups.term_rx(x, "group")
+  grp <- groups(x, "group")
   grp_vars <- names(grp)
   grp_vars <- grp_vars[!(grp_vars %in% dep_vars)]
   grp <- grp[grp_vars]

@@ -2,14 +2,14 @@
 % Please edit documentation in R/formula_lists.R
 \name{formula_list}
 \alias{formula_list}
-\alias{formula_list.formula_rx}
+\alias{formula_list.rx}
 \alias{formula_list.default}
 \alias{fmls}
 \title{Prescribed Formula Lists}
 \usage{
 formula_list(x = unspecified(), ...)
 
-\method{formula_list}{formula_rx}(
+\method{formula_list}{rx}(
   x,
   tag = deparse1(substitute(x)),
   pattern = character(),

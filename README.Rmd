@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/axe)](https://CRAN.R-project.org/package=axe)
 <!-- badges: end -->
 
-_Formulas with Operations Prescribed_ are described within the `{axe}` package, __/fɔrks/__, which helps to extend and vectorize the base R `formula` class.
+_Formulas with prescribed operations_ are described within the `{axe}` package, which helps to extend and vectorize the base R `formula` class. The purpose is to help __chop__ a formula-based object into underlying `term` objects, and __rebuild__ it as _prescribed formula_.
 
 ## Installation
 

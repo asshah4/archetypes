@@ -1,6 +1,6 @@
 # Formula Prescription ---------------------------------------------------------
 
-#' Formula vector
+#' Prescriptions
 #'
 #' @description
 #'
@@ -11,9 +11,9 @@
 #'
 #' @param x Objects of the following types can be used as inputs
 #'
-#'   * `term_rx`
+#'   * `term`
 #'
-#' @inheritParams tx
+#' @inheritParams term
 #'
 #' @param ... Arguments to be passed to or from other methods
 #'
@@ -30,18 +30,18 @@
 #' as a function/wrapper. For example, `y ~ X(x1) + x2 + x3`. This would signify
 #' that `x1` has the specific role of an exposure.
 #'
-#' @inheritSection tx Pluralized Arguments
+#' @inheritSection term Pluralized Arguments
 #'
-#' @return An object of class `formula_rx`
-#' @name fx
+#' @return An object of class `rx`
+#' @name rx
 #' @export
-formula_rx <- function(x = unspecified(), ...) {
-	UseMethod("formula_rx", object = x)
+prescribe <- function(x = unspecified(), ...) {
+	UseMethod("prescribe", object = x)
 }
 
-#' @rdname fx
+#' @rdname rx
 #' @export
-formula_rx.formula <- function(x,
+prescribe.formula <- function(x,
 							   role = list(),
 							   group = list(),
 							   label = list(),
@@ -57,7 +57,7 @@ formula_rx.formula <- function(x,
 	}
 
 	f <- x
-	x <- term_rx.formula(x)
+	x <- term.formula(x)
 
 	# Create simplified formula
 	tm <- vec_data(x)
@@ -81,9 +81,9 @@ formula_rx.formula <- function(x,
 				terms = trms)
 }
 
-#' @rdname fx
+#' @rdname rx
 #' @export
-formula_rx.term_rx <- function(x,
+prescribe.term <- function(x,
 							   role = list(),
 							   group = list(),
 							   label = list(),
@@ -100,7 +100,7 @@ formula_rx.term_rx <- function(x,
 				"No `",
 				class(x)[1],
 				"` object was provided, resulting in a [0] length ",
-				"`formula_rx` object."
+				"`prescribe` object."
 			)
 		)
 		return(new_formula())
@@ -137,25 +137,23 @@ formula_rx.term_rx <- function(x,
 }
 
 
-#' @rdname fx
+#' @rdname rx
 #' @export
-formula_rx.default <- function(x = unspecified(), ...) {
+prescribe.default <- function(x = unspecified(), ...) {
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula())
 	} else {
-		stop("`formula_rx()` is not defined for a `",
+		stop("`prescribe()` is not defined for a `",
 			 class(x)[1],
 			 "` object.",
 			 call. = FALSE)
 	}
 }
 
-#' @rdname fx
+#' @rdname rx
 #' @export
-fx = formula_rx
-
-
+rx = prescribe
 
 # Vector Creation --------------------------------------------------------------
 
@@ -163,30 +161,30 @@ fx = formula_rx
 #' @keywords internal
 #' @noRd
 new_formula <- function(formula = character(),
-						terms = term_rx()) {
+						terms = term()) {
 
 	# Validation of types
 	vec_assert(formula, ptype = character())
-	vec_assert(terms, ptype = term_rx())
+	vec_assert(terms, ptype = term())
 
 	# Terms should contain all the additional information
 	new_vctr(formula,
 			 terms = terms,
-			 class = "formula_rx")
+			 class = "rx")
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("formula_rx", "vctrs_vctr"))
+methods::setOldClass(c("rx", "vctrs_vctr"))
 
 # casting and coercion ----
 
 # Arithmetic
-vec_arith.formula_rx <- function(op, x, y, ...) {
-	UseMethod("vec_arith.formula_rx", y)
+vec_arith.rx <- function(op, x, y, ...) {
+	UseMethod("vec_arith.rx", y)
 }
 
-vec_arith.formula_rx.default <- function(op, x, y, ...) {
+vec_arith.rx.default <- function(op, x, y, ...) {
 	stop_incompatible_op(op, x, y)
 }
 
@@ -194,47 +192,47 @@ vec_arith.formula_rx.default <- function(op, x, y, ...) {
 ### self
 
 #' @export
-vec_ptype2.formula_rx.formula_rx <- function(x, y, ...) {
+vec_ptype2.rx.rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.formula_rx.formula_rx <- function(x, to, ...) {
+vec_cast.rx.rx <- function(x, to, ...) {
 	x
 }
 
 ### characters
 
 #' @export
-vec_ptype2.formula_rx.character <- function(x, y, ...) {
+vec_ptype2.rx.character <- function(x, y, ...) {
 	y
 }
 
 #' @export
-vec_ptype2.character.formula_rx <- function(x, y, ...) {
+vec_ptype2.character.rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.character.formula_rx <- function(x, to, ...) {
+vec_cast.character.rx <- function(x, to, ...) {
 	attributes(x) <- NULL
 	as.character(x)
 }
 
-### term_rx
+### term
 
 #' @export
-vec_ptype2.formula_rx.term_rx <- function(x, y, ...) {
+vec_ptype2.rx.term <- function(x, y, ...) {
 	y
 }
 
 #' @export
-vec_ptype2.term_rx.formula_rx <- function(x, y, ...) {
+vec_ptype2.term.rx <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.term_rx.formula_rx <- function(x, to, ...) {
+vec_cast.term.rx <- function(x, to, ...) {
 	attr(x, "terms")
 
 }
@@ -243,7 +241,7 @@ vec_cast.term_rx.formula_rx <- function(x, to, ...) {
 
 
 #' @export
-format.formula_rx <- function(x, ...) {
+format.rx <- function(x, ...) {
 	f <- vec_data(x)
 	t <- attr(x, "terms")
 	tm <- vec_data(t)
@@ -264,7 +262,7 @@ format.formula_rx <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.formula_rx <- function(x, ...) {
+obj_print_data.rx <- function(x, ...) {
 	if (vec_size(x) == 0) {
 		new_term()
 	} else if (vec_size(x) > 1) {
@@ -275,6 +273,11 @@ obj_print_data.formula_rx <- function(x, ...) {
 }
 
 #' @export
-vec_ptype_abbr.formula_rx <- function(x, ...) {
-	"fx"
+vec_ptype_full.rx <- function(x, ...) {
+	"script"
+}
+
+#' @export
+vec_ptype_abbr.rx <- function(x, ...) {
+	"rx"
 }

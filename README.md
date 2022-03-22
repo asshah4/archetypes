@@ -1,39 +1,40 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# forks
+# axe
 
 <!-- badges: start -->
 
 [![Codecov test
-coverage](https://codecov.io/gh/asshah4/forks/branch/main/graph/badge.svg)](https://codecov.io/gh/asshah4/forks?branch=main)
+coverage](https://codecov.io/gh/asshah4/axe/branch/main/graph/badge.svg)](https://codecov.io/gh/asshah4/axe?branch=main)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/asshah4/forks/workflows/R-CMD-check/badge.svg)](https://github.com/asshah4/forks/actions)
+[![R-CMD-check](https://github.com/asshah4/axe/workflows/R-CMD-check/badge.svg)](https://github.com/asshah4/axe/actions)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/forks)](https://CRAN.R-project.org/package=forks)
+status](https://www.r-pkg.org/badges/version/axe)](https://CRAN.R-project.org/package=axe)
 <!-- badges: end -->
 
-*Formulas with Operations Prescribed* are described within the `{forks}`
-package, **/fɔrks/**, which helps to extend and vectorize the base R
-`formula` class.
+*Formulas with prescribed operations* are described within the `{axe}`
+package, which helps to extend and vectorize the base R `formula` class.
+The purpose is to help **chop** a formula-based object into underlying
+`term` objects, and **rebuild** it as *prescribed formula*.
 
 ## Installation
 
-You can install the released version of `forks` from
+You can install the released version of `axe` from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-#install.packages("forks")
+#install.packages("axe")
 ```
 
 And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("asshah4/forks")
+devtools::install_github("asshah4/axe")
 ```
 
 ## Usage
 
-The `forks` package is simple, and only has several major functions.
+The `axe` package is simple, and only has several major functions.

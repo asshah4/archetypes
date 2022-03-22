@@ -4,29 +4,29 @@
 \alias{sides}
 \alias{lhs}
 \alias{rhs}
-\alias{rhs.term_rx}
-\alias{lhs.term_rx}
+\alias{rhs.term}
+\alias{lhs.term}
 \alias{rhs.formula}
 \alias{lhs.formula}
-\alias{rhs.formula_rx}
-\alias{lhs.formula_rx}
+\alias{rhs.rx}
+\alias{lhs.rx}
 \title{Tools for working with formula-like objects}
 \usage{
 lhs(x, ...)
 
 rhs(x, ...)
 
-\method{rhs}{term_rx}(x, ...)
+\method{rhs}{term}(x, ...)
 
-\method{lhs}{term_rx}(x, ...)
+\method{lhs}{term}(x, ...)
 
 \method{rhs}{formula}(x, tidy = FALSE, ...)
 
 \method{lhs}{formula}(x, tidy = FALSE, ...)
 
-\method{rhs}{formula_rx}(x, tidy = FALSE, ...)
+\method{rhs}{rx}(x, tidy = FALSE, ...)
 
-\method{lhs}{formula_rx}(x, ...)
+\method{lhs}{rx}(x, ...)
 }
 \arguments{
 \item{tidy}{Logical value to decide if operations should be removed from the terms. If \code{FALSE}, then the operations will remain included.}

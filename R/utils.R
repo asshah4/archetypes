@@ -114,14 +114,14 @@ rhs <- function(x, ...) {
 
 #' @rdname sides
 #' @export
-rhs.term_rx <- function(x, ...) {
+rhs.term <- function(x, ...) {
 	tm <- vec_data(x)
 	tm$term[tm$side == "right"]
 }
 
 #' @rdname sides
 #' @export
-lhs.term_rx <- function(x, ...) {
+lhs.term <- function(x, ...) {
 	tm <- vec_data(x)
 	tm$term[tm$side == "left"]
 }
@@ -173,7 +173,7 @@ lhs.formula <- function(x, tidy = FALSE, ...) {
 
 #' @rdname sides
 #' @export
-rhs.formula_rx <- function(x, tidy = FALSE, ...) {
+rhs.rx <- function(x, tidy = FALSE, ...) {
 
 	if (tidy) {
 		x |>
@@ -192,7 +192,7 @@ rhs.formula_rx <- function(x, tidy = FALSE, ...) {
 
 #' @rdname sides
 #' @export
-lhs.formula_rx <- function(x, ...) {
+lhs.rx <- function(x, ...) {
 
 	x |>
 		as.formula() |>
@@ -212,7 +212,7 @@ roles <- function(x, ...) {
 }
 
 #' @rdname getters
-roles.term_rx <- function(x, ...) {
+roles.term <- function(x, ...) {
 	vec_data(x) |>
 		{
 			\(.x) .x[, c("term", "role")]
@@ -221,7 +221,7 @@ roles.term_rx <- function(x, ...) {
 }
 
 #' @rdname getters
-roles.formula_rx <- function(x, ...) {
+roles.rx <- function(x, ...) {
 	attr(x, "terms") |>
 		vec_data() |>
 		{
@@ -232,18 +232,15 @@ roles.formula_rx <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-roles.list_of_formulas <- function(x, ...) {
-	attr(x, "roles")
+roles.formula_list <- function(x, ...) {
+	attr(x, "terms") |>
+		roles.term()
 }
 
-#' @export
-roles.list_of_models <- function(x, ...) {
-	attr(x, "roles")
-}
 
 #' @rdname getters
 #' @export
-labels.term_rx <- function(x, ...) {
+labels.term <- function(x, ...) {
 	vec_data(x) |>
 		{
 			\(.x) .x[, c("term", "label")]
@@ -256,7 +253,7 @@ labels.term_rx <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.formula_rx <- function(x, ...) {
+labels.rx <- function(x, ...) {
 	attr(x, "terms") |>
 		vec_data() |>
 		{
@@ -270,18 +267,9 @@ labels.formula_rx <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.list_of_formulas <- function(x, ...) {
-	attr(x, "labels")
-}
-
-#' @export
-labels.list_of_models <- function(x, ...) {
-	attr(x, "labels")
-}
-
-#' @export
-labels.mdls <- function(x, ...) {
-	attr(x, "labels")
+labels.formula_list <- function(x, ...) {
+	attr(x, "terms") |>
+		labels.term()
 }
 
 
@@ -292,7 +280,7 @@ groups <- function(x, ...) {
 }
 
 #' @rdname getters
-groups.term_rx <- function(x, ...) {
+groups.term <- function(x, ...) {
 	vec_data(x) |>
 		{
 			\(.x) .x[, c("term", "group")]
@@ -304,7 +292,7 @@ groups.term_rx <- function(x, ...) {
 }
 
 #' @rdname getters
-groups.formula_rx <- function(x, ...) {
+groups.rx <- function(x, ...) {
 	attr(x, "terms") |>
 		vec_data() |>
 		{
@@ -318,8 +306,9 @@ groups.formula_rx <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-groups.list_of_formulas <- function(x, ...) {
-	attr(x, "groups")
+groups.formula_list <- function(x, ...) {
+	attr(x, "terms") |>
+		groups.term()
 }
 
 
@@ -334,7 +323,7 @@ setRoles <- function(x, roles, ...) {
 	validate_class(roles, "list")
 
 	# Update and append roles
-	rls <- append(roles.term_rx(x), roles)
+	rls <- append(roles.term(x), roles)
 
 	# Save the most "recent" updated label and erase prior if duplicate
 	tm <- vec_data(x)
@@ -342,7 +331,7 @@ setRoles <- function(x, roles, ...) {
 		tm$role[tm$term == names(rls[i])] <- rls[[i]]
 	}
 
-	vec_restore(tm, to = term_rx())
+	vec_restore(tm, to = term())
 
 }
 
@@ -353,7 +342,7 @@ setGroups <- function(x, groups, ...) {
 
 	# Append groups
 	grps <-
-		groups.term_rx(x) |>
+		groups.term(x) |>
 		append(groups)
 
 	tm <- vec_data(x)
@@ -362,7 +351,7 @@ setGroups <- function(x, groups, ...) {
 		tm$group[tm$term == names(grps[i])] <- grps[[i]]
 	}
 
-	vec_restore(tm, to = term_rx())
+	vec_restore(tm, to = term())
 }
 
 #' @rdname setters
@@ -373,7 +362,7 @@ setLabels <- function(x, labels, ...) {
 
 	# Update and append labels
 	labs <-
-		labels.term_rx(x) |>
+		labels.term(x) |>
 		append(labels)
 
 	# Save the most "recent" updated label and erase prior if duplicate
@@ -382,7 +371,7 @@ setLabels <- function(x, labels, ...) {
 		tm$label[tm$term == names(labs[i])] <- labs[[i]]
 	}
 
-	vec_restore(tm, to = term_rx())
+	vec_restore(tm, to = term())
 
 }
 
@@ -395,15 +384,15 @@ setLabels <- function(x, labels, ...) {
 #' @return An object of the original class
 #' @name updates
 #' @export
-update.term_rx <- function(object, parameters, ...) {
+update.term <- function(object, parameters, ...) {
 	object
 }
 
 #' @rdname updates
 #' @export
-update.formula_rx <- function(object, parameters, ...) {
+update.rx <- function(object, parameters, ...) {
 
-	t <- term_rx(object)
+	t <- term(object)
 
 	if (class(parameters) == "formula") {
 
@@ -414,7 +403,7 @@ update.formula_rx <- function(object, parameters, ...) {
 		# Add
 		if (length(plus_left) > 0) {
 			for (i in seq_along(plus_left)) {
-				.t <- term_rx(x = plus_left[i], role = "outcome", side = "left")
+				.t <- term(x = plus_left[i], role = "outcome", side = "left")
 				t <- c(t, .t)
 			}
 		}
@@ -425,7 +414,7 @@ update.formula_rx <- function(object, parameters, ...) {
 		tm <- vec_data(t)
 		left <-
 			tm[tm$side == "left" & !(tm$term %in% minus_left), ] |>
-			vec_restore(term_rx())
+			vec_restore(term())
 
 		### RHS
 		all_right <- rhs(parameters, tidy = TRUE)
@@ -437,7 +426,7 @@ update.formula_rx <- function(object, parameters, ...) {
 				paste(plus_right, collapse = " + ") |>
 				{\(.x) paste("~", .x)}() |>
 				stats::as.formula() |>
-				term_rx()
+				term()
 
 			t <- c(t, .t)
 		}
@@ -448,7 +437,7 @@ update.formula_rx <- function(object, parameters, ...) {
 		tm <- vec_data(t)
 		right <-
 			tm[tm$side == "right" & !(tm$term %in% minus_right),] |>
-			vec_restore(term_rx())
+			vec_restore(term())
 
 		# Combine both sides
 		t <- c(left, right)
@@ -456,7 +445,7 @@ update.formula_rx <- function(object, parameters, ...) {
 	}
 
 	# Return
-	formula_rx(t)
+	prescribe(t)
 }
 
 #' @rdname updates
@@ -467,23 +456,23 @@ add <- function(object, ...) {
 
 #' @rdname updates
 #' @export
-add.formula_rx <- function(object, parameters, ...) {
+add.rx <- function(object, parameters, ...) {
 
-	obj <- term_rx(object)
+	obj <- term(object)
 
 	switch(
 		class(parameters)[1],
-		term_rx = {
+		term = {
 			f <-
 				obj |>
 				{\(.x) c(.x, parameters)}() |>
-				formula_rx()
+				prescribe()
 		},
 		formula = {
 			f <-
-				term_rx(parameters) |>
+				term(parameters) |>
 				{\(.x) c(obj, .x)}() |>
-				formula_rx()
+				prescribe()
 		}
 	)
 
@@ -493,9 +482,9 @@ add.formula_rx <- function(object, parameters, ...) {
 
 #' @rdname updates
 #' @export
-add.term_rx <- function(object, parameters, ...) {
+add.term <- function(object, parameters, ...) {
 
-	validate_class(parameters, "term_rx")
+	validate_class(parameters, "term")
 
 	# Find the "older" term that is a duplicate
 	c(object, parameters) |>
@@ -503,5 +492,5 @@ add.term_rx <- function(object, parameters, ...) {
 		{\(.x) {
 			.x[!duplicated(.x$term, fromLast = TRUE)]
 		}}() |>
-		vec_restore(to = term_rx())
+		vec_restore(to = term())
 }

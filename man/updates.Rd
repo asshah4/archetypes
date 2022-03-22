@@ -2,22 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{updates}
 \alias{updates}
-\alias{update.term_rx}
-\alias{update.formula_rx}
+\alias{update.term}
+\alias{update.rx}
 \alias{add}
-\alias{add.formula_rx}
-\alias{add.term_rx}
+\alias{add.rx}
+\alias{add.term}
 \title{Update Prescriptions}
 \usage{
-\method{update}{term_rx}(object, parameters, ...)
+\method{update}{term}(object, parameters, ...)
 
-\method{update}{formula_rx}(object, parameters, ...)
+\method{update}{rx}(object, parameters, ...)
 
 add(object, ...)
 
-\method{add}{formula_rx}(object, parameters, ...)
+\method{add}{rx}(object, parameters, ...)
 
-\method{add}{term_rx}(object, parameters, ...)
+\method{add}{term}(object, parameters, ...)
 }
 \value{
 An object of the original class

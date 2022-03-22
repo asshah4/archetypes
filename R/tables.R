@@ -1,18 +1,18 @@
-#' Cast a formula-based object as a data frame
+#' Rebuild a formula-based object as a data frame
 #'
 #' @return A `data.frame` object that is an explosion of the underlying object,
 #'   giving out the underlying terms, patterns, etc, corresponding to the
 #'   initial properties of the object formula
 #'
-#' @name cast
+#' @name rebuild
 #' @export
-cast <- function(x, ...) {
-	UseMethod("cast", object = x)
+rebuild <- function(x, ...) {
+	UseMethod("rebuild", object = x)
 }
 
-#' @rdname cast
+#' @rdname rebuild
 #' @export
-cast.list_of_formulas <- function(x, ...) {
+rebuild.formula_list <- function(x, ...) {
 
 	nm <- names(x)
 	rls <- roles(x)
@@ -104,68 +104,5 @@ cast.list_of_formulas <- function(x, ...) {
 						  covariate,
 						  mediator,
 						  formula))
-
-}
-
-#' @export
-cast.list_of_models <- function(x, ...) {
-
-	# Basic extraction
-	nm <- names(x)
-
-	# Roles
-	rls <- roles(x)
-	out <- names(rls[rls == "outcome"])
-	prd <- names(rls[rls == "exposure"])
-
-	# Name/term splits
-	nms <-
-		strsplit(nm, "_") |>
-		{\(.x) do.call(rbind, .x)}() |>
-		data.frame()
-	colnames(nms) <- c("name", ".id", "pattern")
-
-	# Always broken into groups by term
-	# y = outcome
-	# x = exposure
-	# m = mediator
-	# p = predictor (confounder)
-
-	nms$outcome <- substr(nms$.id, start = 1, stop = 2)
-	nms$exposure <- substr(nms$.id, start = 3, stop = 4)
-	nms$number <- 1:nrow(nms)
-
-	# Rename the specific terms (if available)
-	for (i in 1:nrow(nms)) {
-		for (j in c("outcome", "exposure")) {
-			y <- as.integer(substr(nms[[j]][i], start = 2, stop = 2))
-			if (y == 0) {
-
-				z <- NA
-				# z <- names(rls)[rls == j]
-				# if (length(z) == 0 | j != "covariate") {
-				# 	z <- NA
-				# } else {
-				# 	z <- paste(z, collapse = ", ")
-				# }
-			} else if (y >= 1) {
-				if (j == "exposure") {
-					z <- names(rls)[rls == j][y]
-				} else {
-					z <- names(rls)[rls == j][y]
-				}
-			}
-
-			nms[[j]][i] <- z
-		}
-	}
-
-	nms[names(nms) == ".id"] <- nm
-
-	# Add in model list
-	nms$models <- x
-
-	# Cleans up final table after merging in formulas
-	subset(nms, select = c(name, number, outcome, exposure, models))
 
 }

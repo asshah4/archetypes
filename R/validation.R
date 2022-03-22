@@ -20,22 +20,27 @@ validate_class <- function(x, what) {
 
 }
 
-#' Identification of objects in the `forks` package
+#' Identification of formula and formula-adjacent objects
 #'
 #' @param x Confirmation of an object being of the following classes:
 #'
-#'   * `term_rx`
-#'   * `formula_rx`
+#'   * `term`
+#'   * `rx`
 #'
-#' @name checkers
+#' @name check
 #' @export
-is_term_rx <- function(x) {
-	inherits(x, "term_rx")
+is_term <- function(x) {
+	inherits(x, "term")
 }
 
-#' @rdname checkers
+#' @rdname check
 #' @export
-is_formula_rx <- function(x) {
-	inherits(x, "formula_rx")
+is_script <- function(x) {
+	inherits(x, "rx")
 }
 
+#' @rdname check
+#' @export
+is_formula <- function(x) {
+	inherits(x, "formula")
+}

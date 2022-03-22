@@ -55,11 +55,12 @@ formula_list <- function(x = unspecified(), ...) {
 
 #' @rdname formula_list
 #' @export
-formula_list.formula_rx <- function(x,
-									tag = deparse1(substitute(x)),
-									pattern = character(),
-									strata = character(),
-									...) {
+formula_list.rx <- function(x,
+							tag = deparse1(substitute(x)),
+							pattern = character(),
+							strata = character(),
+							...) {
+
 	# Early break if not viable method dispatch
 	if (length(x) == 0) {
 		return(new_formula_list())
@@ -83,7 +84,7 @@ formula_list.formula_rx <- function(x,
 
 	# Update with strata if needed
 	strata_term <-
-		suppressMessages(term_rx(x = strata, side = "meta", role = "strata"))
+		suppressMessages(term(x = strata, side = "meta", role = "strata"))
 
 	t <- add(t, strata_term)
 
@@ -129,8 +130,8 @@ fmls = formula_list
 #' @keywords internal
 #' @noRd
 new_formula_list <- function(formula_list = list(),
-							 formula = formula_rx(),
-							 terms = term_rx()) {
+							 formula = prescribe(),
+							 terms = term()) {
 
 	new_list_of(
 		x = formula_list,
