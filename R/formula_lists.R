@@ -88,8 +88,6 @@ formula_list.rx <- function(x,
 
 	t <- add(t, strata_term)
 
-
-
 	# Expansion of formulas
 	lof <- perform_ops(ops)
 	names(lof) <-
@@ -104,6 +102,18 @@ formula_list.rx <- function(x,
 		formula = x,
 		terms = t
 	)
+}
+
+#' @rdname formula_list
+#' @export
+formula_list.list <- function(x,
+							  tag = deparse1(substitute(x)),
+							  pattern = character(),
+							  strata = character(),
+							  ...) {
+
+	# TODO
+	# Need to think about how to add several formulas together
 }
 
 #' @rdname formula_list
@@ -124,13 +134,13 @@ formula_list.default <- function(x = list(), ...) {
 #' @export
 fmls = formula_list
 
-# vctrs ----
+# Vector definition ------------------------------------------------------------
 
 #' Formula list
 #' @keywords internal
 #' @noRd
 new_formula_list <- function(formula_list = list(),
-							 formula = prescribe(),
+							 formula = rx(),
 							 terms = term()) {
 
 	new_list_of(
@@ -147,7 +157,7 @@ new_formula_list <- function(formula_list = list(),
 #' @noRd
 methods::setOldClass(c("formula_list", "vctrs_vctr"))
 
-# casting and coercion ----
+# Casting and coercion ---------------------------------------------------------
 
 #' @export
 vec_ptype2.vctrs_list_of.character <- function(x, y, ...) {

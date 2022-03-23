@@ -678,7 +678,7 @@ obj_print_data.term <- function(x, ...) {
 
 #' @export
 vec_ptype_full.term <- function(x, ...) {
-	"term"
+	"terms"
 }
 
 #' @export

@@ -170,7 +170,7 @@ new_formula <- function(formula = character(),
 	# Terms should contain all the additional information
 	new_vctr(formula,
 			 terms = terms,
-			 class = "rx")
+			 class = c("rx", "formula"))
 }
 
 #' @keywords internal
