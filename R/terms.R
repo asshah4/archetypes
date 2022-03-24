@@ -38,13 +38,16 @@
 #'   how a formula is interpreted. The options for roles are as below:
 #'
 #'   * __exposure__: predictor variable that serves as a primary or key
-#'   variable in the \eqn{Exposure ~ Outcome} relationship
+#'   variable in the \eqn{Exposure -> Outcome} relationship
 #'
 #'   * __outcome__: outcome/dependent variable that serves as an individual
-#'   variable in the \eqn{Exposure ~ Outcome} relationship
+#'   variable in the \eqn{Exposure -> Outcome} relationship
 #'
 #'   * __covariate__: predictor variable that is used to adjust/control for an
-#'   additional primary variable
+#'   additional primary variable, such as \eqn{Outcome <- Exposure + Covariate}
+#'
+#'   * __predictor__: predictor variable that is non-specific but decidedly on
+#'   the right-hand side of an equation
 #'
 #'   * __mediator__: predictor variable that is thought to be a causal
 #'   intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
@@ -262,7 +265,7 @@ term.formula <- function(x,
 	role_ops <- right_ops[!which_ops]
 
 	other <- right[!(right %in% names(role_ops))]
-	other_ops <- rep("unknown", length(other))
+	other_ops <- rep("predictor", length(other))
 	names(other_ops) <- other
 	other_ops <- as.list(other_ops)
 
@@ -655,6 +658,11 @@ format.term <- function(x, ...) {
 			if (tm$role[i] == "outcome") {
 				t <- tm$term[i]
 				fmt_tm <- append(fmt_tm, cli::col_yellow(t))
+			}
+
+			if (tm$role[i] == "predictor") {
+				t <- tm$term[i]
+				fmt_tm <- append(fmt_tm, t)
 			}
 
 			if (tm$role[i] == "exposure") {
