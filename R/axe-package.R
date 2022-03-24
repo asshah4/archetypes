@@ -1,7 +1,7 @@
-#' asklepian package
+#' axe package
 #'
 #' @docType package
-#' @aliases asklepian-package
+#' @aliases axe-package
 #' @keywords internal
 "_PACKAGE"
 
@@ -9,7 +9,7 @@
 #'
 #' @import vctrs
 #' @keywords internal
-#' @name asklepian-vctrs
+#' @name axe-vctrs
 NULL
 
 ## usethis namespace: start

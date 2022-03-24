@@ -1,4 +1,4 @@
-Package: asklepian
+Package: axe
 Title: Formula Prescriptions
 Version: 0.0.0.9000
 Authors@R: 
@@ -32,7 +32,7 @@ Suggests:
     cli,
     knitr,
     rmarkdown
-URL: https://github.com/asshah4/asklepian
-BugReports: https://github.com/asshah4/asklepian/issues
+URL: https://github.com/asshah4/axe
+BugReports: https://github.com/asshah4/axe/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr
