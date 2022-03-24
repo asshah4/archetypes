@@ -25,6 +25,11 @@
 #'
 #'   * __right__: For variables that are intended to be independent
 #'
+#'   * __between__: For variables that are in between other variables on a
+#'   pathway
+#'
+#'   * __unknown__: For variables that have unknown sides
+#'
 #'   * __meta__: For variables that are intended to explain relationships
 #'   between other variables, e.g. _strata_ or _conditioning_ variables
 #'
@@ -32,17 +37,24 @@
 #'   of particular importance, as they serve as special terms that can effect
 #'   how a formula is interpreted. The options for roles are as below:
 #'
-#'   * __exposure__: a predictor variable that serves as a primary or key
+#'   * __exposure__: predictor variable that serves as a primary or key
 #'   variable in the \eqn{Exposure ~ Outcome} relationship
 #'
-#'   * __outcome__: a outcome/dependent variable that serves as an individual
+#'   * __outcome__: outcome/dependent variable that serves as an individual
 #'   variable in the \eqn{Exposure ~ Outcome} relationship
 #'
-#'   * __covariate__: a predictor variable that is used to adjust/control for an
+#'   * __covariate__: predictor variable that is used to adjust/control for an
 #'   additional primary variable
 #'
-#'   * __mediator__: a predictor variable that is thought to be a causal
+#'   * __mediator__: predictor variable that is thought to be a causal
 #'   intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
+#'
+#'   * __confounder__: predictor variable that is thought to be a confounder of
+#'   the causal relationship in the \eqn{Exposure <- Confounder -> Outcome}
+#'   pathway
+#'
+#'   * __unknown__: default role of a variable that has not yet been assigned a
+#'   place, such as a potential intermediary object
 #'
 #' @param group Grouping variable name for independent variables for modeling
 #'   terms together
@@ -246,11 +258,11 @@ term.formula <- function(x,
 						})
 	data_ops <- right_ops[which_ops]
 
-	# Roles, with default of LHS as `outcome` and RHS as `covariate`
+	# Roles, with default of LHS as `outcome` and RHS as `unknown`
 	role_ops <- right_ops[!which_ops]
 
 	other <- right[!(right %in% names(role_ops))]
-	other_ops <- rep("covariate", length(other))
+	other_ops <- rep("unknown", length(other))
 	names(other_ops) <- other
 	other_ops <- as.list(other_ops)
 
@@ -667,7 +679,7 @@ format.term <- function(x, ...) {
 
 			if (tm$role[i] == "unknown") {
 				t <- tm$term[i]
-				fmt_tm <- append(fmt_tm, cli::col_white(t))
+				fmt_tm <- append(fmt_tm, t)
 			}
 
 		}

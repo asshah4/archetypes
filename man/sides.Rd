@@ -29,7 +29,8 @@ rhs(x, ...)
 \method{lhs}{rx}(x, ...)
 }
 \arguments{
-\item{tidy}{Logical value to decide if operations should be removed from the terms. If \code{FALSE}, then the operations will remain included.}
+\item{tidy}{Logical value to decide if operations should be removed from the
+terms. If \code{FALSE}, then the operations will remain included.}
 }
 \description{
 Tools for working with formula-like objects

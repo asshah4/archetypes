@@ -42,15 +42,16 @@ prescribe <- function(x = unspecified(), ...) {
 #' @rdname rx
 #' @export
 prescribe.formula <- function(x,
-							   role = list(),
-							   group = list(),
-							   label = list(),
-							   description = list(),
-							   distribution = list(),
-							   type = list(),
-							   subtype = list(),
-							   tag = deparse1(substitute(x)),
-							   ...) {
+							  role = list(),
+							  group = list(),
+							  label = list(),
+							  description = list(),
+							  distribution = list(),
+							  type = list(),
+							  subtype = list(),
+							  tag = deparse1(substitute(x)),
+							  ...) {
+
 	# Break early if zero length
 	if (length(x) == 0) {
 		return(new_formula())
@@ -72,9 +73,9 @@ prescribe.formula <- function(x,
 	# Updated attributes/components internally
 	trms <-
 		x |>
-		setRoles(roles = formula_args_to_list(role)) |>
-		setGroups(groups = formula_args_to_list(group)) |>
-		setLabels(labels = formula_args_to_list(label))
+		set_roles(roles = formula_args_to_list(role)) |>
+		set_groups(groups = formula_args_to_list(group)) |>
+		set_labels(labels = formula_args_to_list(label))
 
 	# Return
 	new_formula(formula = formula_string,
@@ -131,9 +132,9 @@ prescribe.term <- function(x,
 	# Updated attributes/components internally
 	terms <-
 		x |>
-		setRoles(roles = formula_args_to_list(role)) |>
-		setGroups(groups = formula_args_to_list(group)) |>
-		setLabels(labels = formula_args_to_list(label))
+		set_roles(roles = formula_args_to_list(role)) |>
+		set_groups(groups = formula_args_to_list(group)) |>
+		set_labels(labels = formula_args_to_list(label))
 
 	# Return
 	new_formula(formula = formula_string,

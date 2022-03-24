@@ -52,14 +52,19 @@ rx(x = unspecified(), ...)
 of particular importance, as they serve as special terms that can effect
 how a formula is interpreted. The options for roles are as below:
 \itemize{
-\item \strong{exposure}: a predictor variable that serves as a primary or key
+\item \strong{exposure}: predictor variable that serves as a primary or key
 variable in the \eqn{Exposure ~ Outcome} relationship
-\item \strong{outcome}: a outcome/dependent variable that serves as an individual
+\item \strong{outcome}: outcome/dependent variable that serves as an individual
 variable in the \eqn{Exposure ~ Outcome} relationship
-\item \strong{covariate}: a predictor variable that is used to adjust/control for an
+\item \strong{covariate}: predictor variable that is used to adjust/control for an
 additional primary variable
-\item \strong{mediator}: a predictor variable that is thought to be a causal
+\item \strong{mediator}: predictor variable that is thought to be a causal
 intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
+\item \strong{confounder}: predictor variable that is thought to be a confounder of
+the causal relationship in the \eqn{Exposure <- Confounder -> Outcome}
+pathway
+\item \strong{unknown}: default role of a variable that has not yet been assigned a
+place, such as a potential intermediary object
 }}
 
 \item{group}{Grouping variable name for independent variables for modeling

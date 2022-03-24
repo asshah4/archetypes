@@ -115,11 +115,11 @@ formula_list.list <- function(x,
 	# Each member of a list has to be of the same class (that of formula())
 	class_check <- sapply(x, is_formula)
 	lof <- x[class_check]
-	if (length(x) != length(y)) {
+	if (length(x) != length(lof)) {
 		stop(
 			"The list items: `",
 			paste0(x[!class_check], collapse = ", "),
-			"` are not of the formula class",
+			"` are not of the `formula` class",
 			call. = FALSE
 		)
 	}
@@ -197,27 +197,14 @@ methods::setOldClass(c("formula_list", "vctrs_vctr"))
 # Casting and coercion ---------------------------------------------------------
 
 #' @export
-vec_ptype2.vctrs_list_of.character <- function(x, y, ...) {
-	x
-}
+vec_ptype2.formula_list.formula_list <- function(x, y, ...) {x}
 
 #' @export
-vec_ptype2.character.vctrs_list_of <- function(x, y, ...) {
-	y
-}
+vec_cast.formula_list.formula_list <- function(x, y, ...) {x}
 
 #' @export
-vec_cast.vctrs_list_of.character <- function(x, to, ...) {
-	cl <- as.list(x) # Make list of characters
-	loc <-
-		new_list_of(cl, ptype = character()) # Turn into list_of class
-	loc # Return list of characters
-}
-
-#' @export
-vec_cast.character.vctrs_list_of <- function(x, to, ...) {
-	cv <- unlist(x) # Flatten list of characters
-	cv # Return character vector (named)
+vec_proxy.formula_list <- function(x, ...) {
+	unclass(x)
 }
 
 

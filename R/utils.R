@@ -127,7 +127,8 @@ lhs.term <- function(x, ...) {
 }
 
 #' @rdname sides
-#' @param tidy Logical value to decide if operations should be removed from the terms. If `FALSE`, then the operations will remain included.
+#' @param tidy Logical value to decide if operations should be removed from the
+#'   terms. If `FALSE`, then the operations will remain included.
 #' @export
 rhs.formula <- function(x, tidy = FALSE, ...) {
 
@@ -318,7 +319,7 @@ groups.formula_list <- function(x, ...) {
 #' @return A modified
 #' @name setters
 #' @export
-setRoles <- function(x, roles, ...) {
+set_roles <- function(x, roles, ...) {
 
 	validate_class(roles, "list")
 
@@ -337,7 +338,7 @@ setRoles <- function(x, roles, ...) {
 
 #' @rdname setters
 #' @export
-setGroups <- function(x, groups, ...) {
+set_groups <- function(x, groups, ...) {
 	validate_class(groups, "list")
 
 	# Append groups
@@ -356,7 +357,7 @@ setGroups <- function(x, groups, ...) {
 
 #' @rdname setters
 #' @export
-setLabels <- function(x, labels, ...) {
+set_labels <- function(x, labels, ...) {
 
 	validate_class(labels, "list")
 

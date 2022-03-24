@@ -2,16 +2,16 @@
 % Please edit documentation in R/utils.R
 \name{setters}
 \alias{setters}
-\alias{setRoles}
-\alias{setGroups}
-\alias{setLabels}
+\alias{set_roles}
+\alias{set_groups}
+\alias{set_labels}
 \title{Set components of terms}
 \usage{
-setRoles(x, roles, ...)
+set_roles(x, roles, ...)
 
-setGroups(x, groups, ...)
+set_groups(x, groups, ...)
 
-setLabels(x, labels, ...)
+set_labels(x, labels, ...)
 }
 \value{
 A modified
