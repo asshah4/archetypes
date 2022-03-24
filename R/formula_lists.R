@@ -99,7 +99,7 @@ formula_list.rx <- function(x,
 
 	new_formula_list(
 		formula_list = lof,
-		formula = x,
+		script = x,
 		terms = t
 	)
 }
@@ -112,8 +112,45 @@ formula_list.list <- function(x,
 							  strata = character(),
 							  ...) {
 
-	# TODO
-	# Need to think about how to add several formulas together
+	# Each member of a list has to be of the same class (that of formula())
+	class_check <- sapply(x, is_formula)
+	lof <- x[class_check]
+	if (length(x) != length(y)) {
+		stop(
+			"The list items: `",
+			paste0(x[!class_check], collapse = ", "),
+			"` are not of the formula class",
+			call. = FALSE
+		)
+	}
+
+	# Generate terms from the formulas
+	t <- term()
+	for (i in lof) {
+		t <- unique(append(t, term(i)))
+	}
+
+	# Generate a full formula
+	x <- rx(t)
+
+	# Add names
+	new_names <- character()
+	for (i in seq_along(lof)) {
+		if (is.null(names(lof[i]))) {
+			new_names <- append(new_names, paste0(tag, "_", i))
+		} else {
+			new_names <- append(new_names, names(lof[i]))
+		}
+	}
+	names(lof) <- new_names
+
+	# Return
+	new_formula_list(
+		formula_list = lof,
+		script = x,
+		terms = t
+	)
+
 }
 
 #' @rdname formula_list
@@ -140,14 +177,14 @@ fmls = formula_list
 #' @keywords internal
 #' @noRd
 new_formula_list <- function(formula_list = list(),
-							 formula = rx(),
+							 script = prescribe(),
 							 terms = term()) {
 
 	new_list_of(
 		x = formula_list,
 		ptype = list(),
 		class = "formula_list",
-		formula = formula,
+		script = script,
 		terms = terms
 	)
 

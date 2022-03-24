@@ -1,4 +1,4 @@
-test_that("simple list of formulas can be generated", {
+test_that("simple list of prescribed formulas can be generated", {
 
 	# Method dispatch
 	expect_length(formula_list(prescribe()), 0)
@@ -78,7 +78,19 @@ test_that("mediation creates appropriate lists", {
 	lof <- formula_list(f)
 	expect_length(lof, 5)
 
+})
 
+test_that("generic formulas can be put together to create a list of formulas", {
+
+	f1 <- mpg ~ cyl + hp
+	f2 <- mpg ~ am + wt
+	f3 <- hp ~ gear + qsec
+	fl <- list(f1, f2, f3)
+
+	lof <- formula_list(fl)
+	expect_length(lof, 3)
+	expect_length(term(lof), 8)
+	expect_length(attr(lof, "script"), 1)
 })
 
 

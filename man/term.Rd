@@ -9,6 +9,7 @@
 \alias{term.glm}
 \alias{term.model_fit}
 \alias{term.rx}
+\alias{term.formula_list}
 \alias{term.default}
 \alias{tx}
 \title{Term records}
@@ -81,6 +82,8 @@ term(x = unspecified(), ...)
 )
 
 \method{term}{rx}(x, ...)
+
+\method{term}{formula_list}(x, ...)
 
 \method{term}{default}(x = unspecified(), ...)
 

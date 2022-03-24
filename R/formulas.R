@@ -84,15 +84,16 @@ prescribe.formula <- function(x,
 #' @rdname rx
 #' @export
 prescribe.term <- function(x,
-							   role = list(),
-							   group = list(),
-							   label = list(),
-							   description = list(),
-							   distribution = list(),
-							   type = list(),
-							   subtype = list(),
-							   tag = deparse1(substitute(x)),
-							   ...) {
+						   role = list(),
+						   group = list(),
+						   label = list(),
+						   description = list(),
+						   distribution = list(),
+						   type = list(),
+						   subtype = list(),
+						   tag = deparse1(substitute(x)),
+						   ...) {
+
 	# Early break
 	if (length(x) == 0) {
 		message(
@@ -107,15 +108,18 @@ prescribe.term <- function(x,
 	}
 
 	# Create simplified formula
-	t <- vec_data(x)
+	tm <- vec_data(x)
 
 	# Update roles to prepare for color and display of formula
-	t$term[!is.na(t$role) & t$role == "exposure"] <-
-		paste0("X(", t$term[!is.na(t$role) & t$role == "exposure"], ")")
-	t$term[!is.na(t$role) & t$role == "mediator"] <-
-		paste0("M(", t$term[!is.na(t$role) & t$role == "mediator"], ")")
-	left <- t$term[t$side == "left"]
-	right <- t$term[t$side == "right"]
+	for (i in 1:nrow(tm)) {
+		if (tm$role[i] == "exposure") {
+			tm$term[i] <- paste0("X(", tm$term[i], ")")
+		} else if (tm$role[i] == "mediator") {
+			tm$term[i] <- paste0("M(", tm$term[i], ")")
+		}
+	}
+	left <- tm$term[tm$side == "left"]
+	right <- tm$term[tm$side == "right"]
 
 	# Character representation of formula
 	formula_string <-
@@ -125,7 +129,7 @@ prescribe.term <- function(x,
 
 	# Term list (nested for field length equivalence)
 	# Updated attributes/components internally
-	trms <-
+	terms <-
 		x |>
 		setRoles(roles = formula_args_to_list(role)) |>
 		setGroups(groups = formula_args_to_list(group)) |>
@@ -133,7 +137,7 @@ prescribe.term <- function(x,
 
 	# Return
 	new_formula(formula = formula_string,
-				terms = trms)
+				terms = terms)
 }
 
 
@@ -170,14 +174,14 @@ new_formula <- function(formula = character(),
 	# Terms should contain all the additional information
 	new_vctr(formula,
 			 terms = terms,
-			 class = c("rx", "formula"))
+			 class = "rx")
 }
 
 #' @keywords internal
 #' @noRd
 methods::setOldClass(c("rx", "vctrs_vctr"))
 
-# casting and coercion ----
+# Casting and coercion ---------------------------------------------------------
 
 # Arithmetic
 vec_arith.rx <- function(op, x, y, ...) {
@@ -239,7 +243,6 @@ vec_cast.term.rx <- function(x, to, ...) {
 
 # Output -----------------------------------------------------------------------
 
-
 #' @export
 format.rx <- function(x, ...) {
 	f <- vec_data(x)
@@ -247,14 +250,10 @@ format.rx <- function(x, ...) {
 	tm <- vec_data(t)
 	fmts <- format(t)
 
-	out <- fmts[which(tm$role == "outcome")]
-	exp <- fmts[which(tm$role == "exposure")]
-	med <- fmts[which(tm$role == "mediator")]
-	cov <- fmts[which(tm$role == "covariate")]
 
-	left <- paste(out, collapse = " + ")
-	right <- paste(c(exp, med, cov), collapse = " + ")
-	both <- paste(left, right, sep = " ~ ")
+	left <- paste0(fmts[which(tm$side == "left")], collapse = " + ")
+	right <- paste0(fmts[which(tm$side == "right")], collapse = " + ")
+	both <- paste0(left, " ~ ", right)
 
 	# Return
 	both
@@ -264,7 +263,7 @@ format.rx <- function(x, ...) {
 #' @export
 obj_print_data.rx <- function(x, ...) {
 	if (vec_size(x) == 0) {
-		new_term()
+		new_formula()
 	} else if (vec_size(x) > 1) {
 		cat(format(x), sep = "\n")
 	} else {

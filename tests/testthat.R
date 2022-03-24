@@ -1,4 +1,4 @@
 library(testthat)
-library(axe)
+library(asklepian)
 
-test_check("axe")
+test_check("asklepian")

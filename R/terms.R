@@ -448,13 +448,31 @@ term.rx <- function(x, ...) {
 
 #' @rdname term
 #' @export
+term.formula_list <- function(x, ...) {
+	# Early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"No `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term` object."
+			)
+		)
+		return(new_term())
+	}
+
+	attr(x, "terms")
+}
+
+#' @rdname term
+#' @export
 term.default <- function(x = unspecified(), ...) {
 	# Early break
 	if (length(x) == 0) {
 		return(new_term())
 	}
 
-	stop("`term()` is not defined for a `",
+	stop("`paths()` are not defined for a `",
 		 class(x)[1],
 		 "` object.",
 		 call. = FALSE)

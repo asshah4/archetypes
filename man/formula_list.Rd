@@ -3,6 +3,7 @@
 \name{formula_list}
 \alias{formula_list}
 \alias{formula_list.rx}
+\alias{formula_list.list}
 \alias{formula_list.default}
 \alias{fmls}
 \title{Prescribed Formula Lists}
@@ -10,6 +11,14 @@
 formula_list(x = unspecified(), ...)
 
 \method{formula_list}{rx}(
+  x,
+  tag = deparse1(substitute(x)),
+  pattern = character(),
+  strata = character(),
+  ...
+)
+
+\method{formula_list}{list}(
   x,
   tag = deparse1(substitute(x)),
   pattern = character(),
