@@ -2,22 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{updates}
 \alias{updates}
-\alias{update.term}
-\alias{update.rx}
+\alias{update.term_archetype}
+\alias{update.formula_script}
 \alias{add}
-\alias{add.rx}
-\alias{add.term}
+\alias{add.formula_script}
+\alias{add.term_archetype}
 \title{Update Prescriptions}
 \usage{
-\method{update}{term}(object, parameters, ...)
+\method{update}{term_archetype}(object, parameters, ...)
 
-\method{update}{rx}(object, parameters, ...)
+\method{update}{formula_script}(object, parameters, ...)
 
 add(object, ...)
 
-\method{add}{rx}(object, parameters, ...)
+\method{add}{formula_script}(object, parameters, ...)
 
-\method{add}{term}(object, parameters, ...)
+\method{add}{term_archetype}(object, parameters, ...)
 }
 \value{
 An object of the original class

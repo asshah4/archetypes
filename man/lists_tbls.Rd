@@ -6,9 +6,9 @@
 \alias{table_to_list}
 \title{Convert between lists and tables}
 \usage{
-list_to_table(x, id = "term", val = "ops", ...)
+list_to_table(x, id = "terms", val = "ops", ...)
 
-table_to_list(x, id = "term", ...)
+table_to_list(x, id = "terms", ...)
 }
 \arguments{
 \item{x}{\itemize{
@@ -16,7 +16,7 @@ table_to_list(x, id = "term", ...)
 \item For \code{table_to_list()}: A \code{data.frame} object
 }}
 
-\item{id}{Name of column that contains terms}
+\item{id}{Name of column that contains term_archetype}
 
 \item{val}{Name of column that contains specific values}
 

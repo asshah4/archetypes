@@ -343,7 +343,7 @@ perform_ops <- function(ops, ...) {
       parallel = {
         y <- paste0("y", seq_along(out))
         x <- paste0("x", seq_along(exp))
-        c <- paste0("c", 0:length(others))
+        c <- paste0("c", 1:length(others))
         m <- paste0("m", length(med))
       }
     )
@@ -400,7 +400,8 @@ pattern_expander <- function(formula_list,
       }
     },
     parallel = {
-      for (n in 0:length(others)) {
+
+      for (n in 1:length(others)) {
         f <-
           c(right, others[n]) |>
           paste0(collapse = " + ") |>

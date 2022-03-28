@@ -4,29 +4,29 @@
 \alias{sides}
 \alias{lhs}
 \alias{rhs}
-\alias{rhs.term}
-\alias{lhs.term}
+\alias{rhs.term_archetype}
+\alias{lhs.term_archetype}
 \alias{rhs.formula}
 \alias{lhs.formula}
-\alias{rhs.rx}
-\alias{lhs.rx}
+\alias{rhs.formula_script}
+\alias{lhs.formula_script}
 \title{Tools for working with formula-like objects}
 \usage{
 lhs(x, ...)
 
 rhs(x, ...)
 
-\method{rhs}{term}(x, ...)
+\method{rhs}{term_archetype}(x, ...)
 
-\method{lhs}{term}(x, ...)
+\method{lhs}{term_archetype}(x, ...)
 
 \method{rhs}{formula}(x, tidy = FALSE, ...)
 
 \method{lhs}{formula}(x, tidy = FALSE, ...)
 
-\method{rhs}{rx}(x, tidy = FALSE, ...)
+\method{rhs}{formula_script}(x, ...)
 
-\method{lhs}{rx}(x, ...)
+\method{lhs}{formula_script}(x, ...)
 }
 \arguments{
 \item{tidy}{Logical value to decide if operations should be removed from the

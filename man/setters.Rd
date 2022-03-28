@@ -5,7 +5,7 @@
 \alias{set_roles}
 \alias{set_groups}
 \alias{set_labels}
-\title{Set components of terms}
+\title{Set components of term_archetype}
 \usage{
 set_roles(x, roles, ...)
 
@@ -17,5 +17,5 @@ set_labels(x, labels, ...)
 A modified
 }
 \description{
-Set components of terms
+Set components of term_archetype
 }

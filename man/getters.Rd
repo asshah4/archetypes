@@ -3,39 +3,39 @@
 \name{getters}
 \alias{getters}
 \alias{roles}
-\alias{roles.term}
-\alias{roles.rx}
-\alias{roles.formula_list}
-\alias{labels.term}
-\alias{labels.rx}
-\alias{labels.formula_list}
+\alias{roles.term_archetype}
+\alias{roles.formula_script}
+\alias{roles.list_of_formulas}
+\alias{labels.term_archetype}
+\alias{labels.formula_script}
+\alias{labels.list_of_formulas}
 \alias{groups}
-\alias{groups.term}
-\alias{groups.rx}
-\alias{groups.formula_list}
+\alias{groups.term_archetype}
+\alias{groups.formula_script}
+\alias{groups.list_of_formulas}
 \title{Retrieval functions for \code{forks} classes}
 \usage{
 roles(x, ...)
 
-\method{roles}{term}(x, ...)
+\method{roles}{term_archetype}(x, ...)
 
-\method{roles}{rx}(x, ...)
+\method{roles}{formula_script}(x, ...)
 
-\method{roles}{formula_list}(x, ...)
+\method{roles}{list_of_formulas}(x, ...)
 
-\method{labels}{term}(x, ...)
+\method{labels}{term_archetype}(x, ...)
 
-\method{labels}{rx}(x, ...)
+\method{labels}{formula_script}(x, ...)
 
-\method{labels}{formula_list}(x, ...)
+\method{labels}{list_of_formulas}(x, ...)
 
 groups(x, ...)
 
-\method{groups}{term}(x, ...)
+\method{groups}{term_archetype}(x, ...)
 
-\method{groups}{rx}(x, ...)
+\method{groups}{formula_script}(x, ...)
 
-\method{groups}{formula_list}(x, ...)
+\method{groups}{list_of_formulas}(x, ...)
 }
 \description{
 Retrieval functions for \code{forks} classes

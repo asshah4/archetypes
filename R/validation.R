@@ -30,7 +30,7 @@ validate_class <- function(x, what) {
 #' @name check
 #' @export
 is_term <- function(x) {
-	inherits(x, "term")
+	inherits(x, "term_archetype")
 }
 
 #' @rdname check

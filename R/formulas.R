@@ -1,283 +1,159 @@
-# Formula Prescription ---------------------------------------------------------
+# Formula class ----------------------------------------------------------------
 
-#' Prescriptions
-#'
-#' @description
-#'
-#' `r lifecycle::badge('experimental')`
-#'
-#' This function defines a new modified `formula` class that has been
-#' vectorized. It expands upon the functionality of formulas.
-#'
-#' @param x Objects of the following types can be used as inputs
-#'
-#'   * `term`
-#'
-#' @inheritParams term
-#'
-#' @param ... Arguments to be passed to or from other methods
-#'
-#' @section Roles:
-#'
-#' Specific roles the variable plays within the formula. These are of particular
-#' importance, as they serve as special terms that can effect how a formula is
-#' interpreted. The options for roles are as below:
-#'
-#' * __exposure__ or `X(...)`: a predictor variable that serves as a primary or
-#' key variable in the \eqn{Exposure ~ Outcome} relationship
-#'
-#' Formulas can be condensed by applying their specific role to individual terms
-#' as a function/wrapper. For example, `y ~ X(x1) + x2 + x3`. This would signify
-#' that `x1` has the specific role of an exposure.
-#'
-#' @inheritSection term Pluralized Arguments
-#'
-#' @return An object of class `rx`
-#' @name rx
+#' Formula Archetype
+#' @name formula
 #' @export
-prescribe <- function(x = unspecified(), ...) {
-	UseMethod("prescribe", object = x)
+formula_archetype <- function(x = unspecified(), ...) {
+	UseMethod("formula_archetype", object = x)
 }
 
-#' @rdname rx
+#' @rdname formula
 #' @export
-prescribe.formula <- function(x,
-							  role = list(),
-							  group = list(),
-							  label = list(),
-							  description = list(),
-							  distribution = list(),
-							  type = list(),
-							  subtype = list(),
-							  tag = deparse1(substitute(x)),
-							  ...) {
+formula_archetype.formula <- function(x,
+									  ...) {
 
-	# Break early if zero length
-	if (length(x) == 0) {
-		return(new_formula())
-	}
-
-	f <- x
-	x <- term.formula(x)
-
-	# Create simplified formula
-	tm <- vec_data(x)
-	left <- lhs(f)
-	right <- rhs(f)
-	formula_string <-
-		paste(left, collapse = " + ") |>
-		paste(paste(right, collapse = " + "), sep = " ~ ") |>
-		vec_cast(character())
-
-	# Term list (nested for field length equivalence)
-	# Updated attributes/components internally
-	trms <-
-		x |>
-		set_roles(roles = formula_args_to_list(role)) |>
-		set_groups(groups = formula_args_to_list(group)) |>
-		set_labels(labels = formula_args_to_list(label))
-
-	# Return
-	new_formula(formula = formula_string,
-				terms = trms)
-}
-
-#' @rdname rx
-#' @export
-prescribe.term <- function(x,
-						   role = list(),
-						   group = list(),
-						   label = list(),
-						   description = list(),
-						   distribution = list(),
-						   type = list(),
-						   subtype = list(),
-						   tag = deparse1(substitute(x)),
-						   ...) {
-
-	# Early break
+	# early break
 	if (length(x) == 0) {
 		message(
 			paste0(
-				"No `",
+				"no `",
 				class(x)[1],
-				"` object was provided, resulting in a [0] length ",
-				"`prescribe` object."
+				"` object was provided, resulting in a [0] length `formula_archetype` object."
 			)
 		)
 		return(new_formula())
 	}
 
-	# Create simplified formula
-	tm <- vec_data(x)
+	f <- deparse1(x)
 
-	# Update roles to prepare for color and display of formula
-	for (i in 1:nrow(tm)) {
-		if (tm$role[i] == "exposure") {
-			tm$term[i] <- paste0("X(", tm$term[i], ")")
-		} else if (tm$role[i] == "mediator") {
-			tm$term[i] <- paste0("M(", tm$term[i], ")")
-		}
-	}
-	left <- tm$term[tm$side == "left"]
-	right <- tm$term[tm$side == "right"]
+	new_formula(
+		fx = f
+	)
 
-	# Character representation of formula
-	formula_string <-
-		paste(left, collapse = " + ") |>
-		paste(paste(right, collapse = " + "), sep = " ~ ") |>
-		vec_cast(character())
-
-	# Term list (nested for field length equivalence)
-	# Updated attributes/components internally
-	terms <-
-		x |>
-		set_roles(roles = formula_args_to_list(role)) |>
-		set_groups(groups = formula_args_to_list(group)) |>
-		set_labels(labels = formula_args_to_list(label))
-
-	# Return
-	new_formula(formula = formula_string,
-				terms = terms)
 }
 
-
-#' @rdname rx
+#' @rdname formula
 #' @export
-prescribe.default <- function(x = unspecified(), ...) {
-	# Early break if not viable method dispatch
+formula_archetype.default <- function(x = unspecified(), ...) {
+	# early break
 	if (length(x) == 0) {
 		return(new_formula())
-	} else {
-		stop("`prescribe()` is not defined for a `",
-			 class(x)[1],
-			 "` object.",
-			 call. = FALSE)
 	}
+
+	stop("`paths()` are not defined for a `",
+		 class(x)[1],
+		 "` object.",
+		 call. = FALSE)
+
 }
 
-#' @rdname rx
+
+#' @rdname formula
 #' @export
-rx = prescribe
+fx = formula_archetype
 
-# Vector Creation --------------------------------------------------------------
+# Record definition ------------------------------------------------------------
 
-#' Formula vector
+#' Record of formula archetypes
 #' @keywords internal
 #' @noRd
-new_formula <- function(formula = character(),
-						terms = term()) {
+new_formula <- function(fx = character(),
+						tag = character()) {
 
-	# Validation of types
-	vec_assert(formula, ptype = character())
-	vec_assert(terms, ptype = term())
-
-	# Terms should contain all the additional information
-	new_vctr(formula,
-			 terms = terms,
-			 class = "rx")
+	  new_rcrd(
+	  	fields = list(
+	  		"formula" = fx
+	  	),
+	  	class = "formula_archetype"
+  )
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("rx", "vctrs_vctr"))
-
-# Casting and coercion ---------------------------------------------------------
-
-# Arithmetic
-vec_arith.rx <- function(op, x, y, ...) {
-	UseMethod("vec_arith.rx", y)
-}
-
-vec_arith.rx.default <- function(op, x, y, ...) {
-	stop_incompatible_op(op, x, y)
-}
-
-
-### self
-
-#' @export
-vec_ptype2.rx.rx <- function(x, y, ...) {
-	x
-}
-
-#' @export
-vec_cast.rx.rx <- function(x, to, ...) {
-	x
-}
-
-### characters
-
-#' @export
-vec_ptype2.rx.character <- function(x, y, ...) {
-	y
-}
-
-#' @export
-vec_ptype2.character.rx <- function(x, y, ...) {
-	x
-}
-
-#' @export
-vec_cast.character.rx <- function(x, to, ...) {
-	attributes(x) <- NULL
-	as.character(x)
-}
-
-### term
-
-#' @export
-vec_ptype2.rx.term <- function(x, y, ...) {
-	y
-}
-
-#' @export
-vec_ptype2.term.rx <- function(x, y, ...) {
-	x
-}
-
-#' @export
-vec_cast.term.rx <- function(x, to, ...) {
-	attr(x, "terms")
-
-}
+methods::setOldClass(c("formula_archetype", "rcrds_rcrd"))
 
 # Output -----------------------------------------------------------------------
 
 #' @export
-format.rx <- function(x, ...) {
-	f <- vec_data(x)
-	t <- attr(x, "terms")
-	tm <- vec_data(t)
-	fmts <- format(t)
-
-
-	left <- paste0(fmts[which(tm$side == "left")], collapse = " + ")
-	right <- paste0(fmts[which(tm$side == "right")], collapse = " + ")
-	both <- paste0(left, " ~ ", right)
-
-	# Return
-	both
-
+format.formula_archetype <- function(x, ...) {
+	field(x, "formula")
 }
 
+
 #' @export
-obj_print_data.rx <- function(x, ...) {
+obj_print_data.formula_archetype <- function(x, ...) {
+
+	# Colorful printing
 	if (vec_size(x) == 0) {
-		new_formula()
-	} else if (vec_size(x) > 1) {
-		cat(format(x), sep = "\n")
+		fmt <- new_script()
 	} else {
-		cat(format(x))
+
+		# Depending on length
+		if (length(x) > 1) {
+			cat(format(x), sep = "\n")
+		} else {
+			cat(format(x))
+		}
+
 	}
 }
 
 #' @export
-vec_ptype_full.rx <- function(x, ...) {
-	"script"
+vec_ptype_full.formula_archetype <- function(x, ...) {
+	"formula_archetype"
 }
 
 #' @export
-vec_ptype_abbr.rx <- function(x, ...) {
-	"rx"
+vec_ptype_abbr.formula_archetype <- function(x, ...) {
+	"fx"
+}
+
+# Casting and coercion ---------------------------------------------------------
+
+#' @export
+vec_ptype2.formula_archetype.formula_archetype <- function(x, y, ...) {
+  x
+}
+
+#' @export
+vec_cast.formula_archetype.formula_archetype <- function(x, to, ...) {
+  x
+}
+
+
+#' @export
+vec_ptype2.formula_archetype.character <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_ptype2.character.formula_archetype <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_cast.character.formula_archetype <- function(x, to, ...) {
+	format(x) # Returns a character class by default
+}
+
+#' @export
+vec_ptype2.formula_archetype.term_archetype <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_ptype2.term_archetype.formula_archetype <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_cast.term_archetype.formula_archetype <- function(x, to, ...) {
+	term_archetype.formula_archetype(x)
+}
+
+
+#' @export
+formula.formula_archetype <- function(x, ...) {
+	format(x) |>
+		as.formula()
 }

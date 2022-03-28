@@ -1,8 +1,20 @@
+test_that("initialization of a list of formulas works", {
+
+	# Convert into a character list of length two
+	x <-
+		c(mpg ~ hp + am, wt ~ mpg + qsec) |>
+		lapply(FUN = function(.x) {formula_archetype(.x)})
+	lof <- new_list_of_formulas(x)
+	expect_s3_class(lof, "list_of_formulas")
+
+
+})
+
 test_that("simple list of prescribed formulas can be generated", {
 
 	# Method dispatch
-	expect_length(formula_list(prescribe()), 0)
-	expect_error(formula_list("error"))
+	expect_length(list_of_formulas(prescribe()), 0)
+	expect_error(list_of_formulas("error"))
 
 	# Super simple check
 	f <- mpg + wt ~ hp + cyl + gear
@@ -13,10 +25,10 @@ test_that("simple list of prescribed formulas can be generated", {
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
 	labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
 	groups <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
-	t <- term(f, label = labels, group = groups)
+	t <- term_archetype(f, label = labels, group = groups)
 	x <- prescribe(t)
-	ld <- formula_list(x, pattern = "direct")
-	ls <- formula_list(x, pattern = "sequential")
+	ld <- list_of_formulas(x, pattern = "direct")
+	ls <- list_of_formulas(x, pattern = "sequential")
 	lp <- fmls(x, pattern = "parallel") # Abbreviated/shortcut
 	expect_length(ld, 4)
 	expect_length(ls, 12)
@@ -30,17 +42,17 @@ test_that("simple list of prescribed formulas can be generated", {
 	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + qsec
 	labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
 	groups <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
-	t <- term(f, label = labels, group = groups)
+	t <- term_archetype(f, label = labels, group = groups)
 	x <- prescribe(t)
-	ld <- formula_list(x, pattern = "direct")
-	ls <- formula_list(x, pattern = "sequential")
-	lp <- formula_list(x, pattern = "parallel")
+	ld <- list_of_formulas(x, pattern = "direct")
+	ls <- list_of_formulas(x, pattern = "sequential")
+	lp <- list_of_formulas(x, pattern = "parallel")
 	expect_length(ld, 5)
 	expect_equal(length(ls), length(lp))
 
 	# Printing
 	expect_output(print(ld), "mpg")
-	expect_output(print(new_formula_list()), "[0]")
+	expect_output(print(new_list_of_formulas()), "[0]")
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(ld) |>
 			print() |>
@@ -58,7 +70,7 @@ test_that("inputs are correct", {
 	expect_s3_class({
 		rx(Surv(stop_cv, status_cv) ~ X(lf_rest_zn) + X(bpm_rest_zn) + X(hf_rest_zn) + X(lf_stress_zn) + X(bpm_stress_zn) + X(hf_stress_zn) + M(rdr_msi_bl)) |>
 		fmls()
-	}, "formula_list")
+	}, "list_of_formulas")
 
 })
 
@@ -68,14 +80,14 @@ test_that("mediation creates appropriate lists", {
 	x <- Surv(stop, status) ~ X(primary) + X(secondary) + M(mediator)
 	t <- tx(x)
 	f <- rx(t)
-	lof <- formula_list(f)
+	lof <- list_of_formulas(f)
 	expect_length(lof, 5)
 
 	# Mediation with covariates
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(exposure) + M(mediator) + covariate
 	t <- tx(x)
 	f <- rx(t)
-	lof <- formula_list(f)
+	lof <- list_of_formulas(f)
 	expect_length(lof, 5)
 
 })
@@ -87,9 +99,9 @@ test_that("generic formulas can be put together to create a list of formulas", {
 	f3 <- hp ~ gear + qsec
 	fl <- list(f1, f2, f3)
 
-	lof <- formula_list(fl)
+	lof <- list_of_formulas(fl)
 	expect_length(lof, 3)
-	expect_length(term(lof), 8)
+	expect_length(term_archetype(lof), 8)
 	expect_length(attr(lof, "script"), 1)
 })
 

@@ -1,15 +1,15 @@
-# Terms ------------------------------------------------------------------------
+# term_archetype ---------------------------------------------------------------
 
-#' Term records
+#' term_archetype records
 #'
 #' @description
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param x An object of the following types that can be coerced to a `term`
-#'   object. If it is an object that contains multiple terms, such as `formula`,
-#'   the parameters are pluralized and should be contained via a list of
-#'   formulas. See details for further explanation.
+#' @param x An object of the following types that can be coerced to a
+#'   `term_archetype` object. If it is an object that contains multiple terms,
+#'   such as `formula`, the parameters are pluralized and should be contained
+#'   via a list of formulas. See details for further explanation.
 #'
 #'   * `character`
 #'
@@ -19,18 +19,18 @@
 #'
 #'   * `data.frame`
 #'
-#' @param side States the side of the formula the variable belongs on:
+#' @param side states the side of the formula the variable belongs on:
 #'
-#'   * __left__: For variables that are intended to be dependent
+#'   * __left__: for variables that are intended to be dependent
 #'
-#'   * __right__: For variables that are intended to be independent
+#'   * __right__: for variables that are intended to be independent
 #'
-#'   * __between__: For variables that are in between other variables on a
+#'   * __between__: for variables that are in between other variables on a
 #'   pathway
 #'
-#'   * __unknown__: For variables that have unknown sides
+#'   * __unknown__: for variables that have unknown sides
 #'
-#'   * __meta__: For variables that are intended to explain relationships
+#'   * __meta__: for variables that are intended to explain relationships
 #'   between other variables, e.g. _strata_ or _conditioning_ variables
 #'
 #' @param role Specific roles the variable plays within the formula. These are
@@ -38,45 +38,45 @@
 #'   how a formula is interpreted. The options for roles are as below:
 #'
 #'   * __exposure__: predictor variable that serves as a primary or key
-#'   variable in the \eqn{Exposure -> Outcome} relationship
+#'   variable in the \eqn{exposure -> outcome} relationship
 #'
 #'   * __outcome__: outcome/dependent variable that serves as an individual
-#'   variable in the \eqn{Exposure -> Outcome} relationship
+#'   variable in the \eqn{exposure -> outcome} relationship
 #'
 #'   * __covariate__: predictor variable that is used to adjust/control for an
-#'   additional primary variable, such as \eqn{Outcome <- Exposure + Covariate}
+#'   additional primary variable, such as \eqn{outcome <- exposure + covariate}
 #'
 #'   * __predictor__: predictor variable that is non-specific but decidedly on
 #'   the right-hand side of an equation
 #'
 #'   * __mediator__: predictor variable that is thought to be a causal
-#'   intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
+#'   interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
 #'
 #'   * __confounder__: predictor variable that is thought to be a confounder of
-#'   the causal relationship in the \eqn{Exposure <- Confounder -> Outcome}
+#'   the causal relationship in the \eqn{exposure <- confounder -> outcome}
 #'   pathway
 #'
 #'   * __unknown__: default role of a variable that has not yet been assigned a
-#'   place, such as a potential intermediary object
+#'   place, such as a potential interm_archetypeediary object
 #'
 #' @param group Grouping variable name for independent variables for modeling
 #'   terms together
 #'
-#' @param operation Modification of the term to be applied when combining with
+#' @param operation Modification of the term_archetype to be applied when combining with
 #'   data
 #'
 #' @param label Display-quality label describing the variable
 #'
 #' @param description Option for further descriptions or definitions needed for
-#'   the term, potentially part of a data dictionary
+#'   the term_archetype, potentially part of a data dictionary
 #'
 #' @param distribution If its associated with a data vector, describes the
-#'   distribution pattern of the original term
+#'   distribution pattern of the original term_archetype
 #'
 #' @param class Class of the variable itself, either expected or measured, such
 #'   as `character` or `numeric` or `factor`
 #'
-#' @param type The type of variable, either categorical (qualitative) or
+#' @param type Type of variable, either categorical (qualitative) or
 #'   continuous (quantitative)
 #'
 #' @param subtype How the variable itself is more specifically subcategorized,
@@ -94,15 +94,15 @@
 #'
 #' This applies for all others plural objects and arguments.
 #'
-#' @name term
+#' @name terms
 #' @export
-term <- function(x = unspecified(), ...) {
-	UseMethod("term", object = x)
+term_archetype <- function(x = unspecified(), ...) {
+	UseMethod("term_archetype", object = x)
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.character <- function(x,
+term_archetype.character <- function(x,
 						   side = character(),
 						   role = character(),
 						   group = character(),
@@ -116,19 +116,19 @@ term.character <- function(x,
 						   ...) {
 
 
-	# Early break
+	# early break
 	if (length(x) == 0) {
 		message(
 			paste0(
-				"No `",
+				"no `",
 				class(x)[1],
-				"` object was provided, resulting in a [0] length `term` object."
+				"` object was provided, resulting in a [0] length `term_archetype` object."
 			)
 		)
 		return(new_term())
 	}
 
-	# Missing values
+	# missing values
 	if (length(side) == 0)
 		side <- NA
 	if (length(role) == 0)
@@ -150,7 +150,7 @@ term.character <- function(x,
 	if (length(status) == 0)
 		status <- NA
 
-	# Casting
+	# casting
 	x <- vec_cast(x, character())
 	side <- vec_cast(side, character())
 	role <- vec_cast(role, character())
@@ -164,7 +164,7 @@ term.character <- function(x,
 	status <- vec_cast(status, character())
 
 	new_term(
-		term = x,
+		terms = x,
 		side = side,
 		role = role,
 		group = group,
@@ -178,9 +178,9 @@ term.character <- function(x,
 	)
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.formula <- function(x,
+term_archetype.formula <- function(x,
 						role = list(),
 						group = list(),
 						label = list(),
@@ -190,19 +190,19 @@ term.formula <- function(x,
 						subtype = list(),
 						...) {
 
-	# Early break
+	# early break
 	if (length(x) == 0) {
 		message(
 			paste0(
-				"No `",
+				"no `",
 				class(x)[1],
-				"` object was provided, resulting in a [0] length `term` object."
+				"` object was provided, resulting in a [0] length `term_archetype` object."
 			)
 		)
 		return(new_term())
 	}
 
-	# Validate
+	# validate
 	validate_class(role, "list")
 	validate_class(group, "list")
 	validate_class(label, "list")
@@ -218,13 +218,13 @@ term.formula <- function(x,
 	types <- formula_args_to_list(type)
 	subtypes <- formula_args_to_list(subtype)
 
-	# All terms are needed to build term record
+	# all terms are needed to build term_archetype record
 	left <- lhs(x)
 	right <- rhs(x, tidy = TRUE)
 	all <- c(left, right)
 	n <- length(all)
 
-	# The roles and operations need to be identified (on which term they apply)
+	# the roles and operations need to be identified (on which term_archetype they apply)
 	right_ops <-
 		rhs(x, tidy = FALSE) |>
 		paste(collapse = " + ") |>
@@ -247,22 +247,11 @@ term.formula <- function(x,
 			}
 		}()
 
-	# Check to see if it is a "role" or a data transformation
-	which_ops <- vapply(right_ops,
-						FUN.VALUE = TRUE,
-						function(.x) {
-							.y <-
-								try(getFromNamespace(.x, c("base", "stats", "utils", "methods")), silent = TRUE)
-							if (class(.y) == "try-error") {
-								.y <- FALSE
-							} else if (class(.y) == "function") {
-								.y <- TRUE
-							}
-						})
-	data_ops <- right_ops[which_ops]
+	# check to see if it is a "role" or a data transformation
+	which_ops <- right_ops %in% c("X", "M")
+	role_ops <- right_ops[which_ops]
+	data_ops <- right_ops[!which_ops]
 
-	# Roles, with default of LHS as `outcome` and RHS as `unknown`
-	role_ops <- right_ops[!which_ops]
 
 	other <- right[!(right %in% names(role_ops))]
 	other_ops <- rep("predictor", length(other))
@@ -273,7 +262,7 @@ term.formula <- function(x,
 	names(left_ops) <- left
 	left_ops <- as.list(left_ops)
 
-	role_ops <- c(roles, role_ops, left_ops, other_ops)
+	role_ops <- c(role_ops, left_ops, other_ops)
 
 	for (i in seq_along(role_ops)) {
 		if (role_ops[[i]] == "X") {
@@ -285,11 +274,11 @@ term.formula <- function(x,
 		}
 	}
 
-	# Create terms
+	# create terms
 	term_list <- list()
 
 	for (i in 1:n) {
-		# Make parameters
+		# make parameters
 		t <- all[i]
 		side <- if (t %in% left) {
 			"left"
@@ -297,36 +286,36 @@ term.formula <- function(x,
 			"right"
 		}
 
-		# Data transforms
+		# data transforms
 		op <- if (t %in% names(data_ops)) {
 			data_ops[[t]]
 		} else {
 			NA
 		}
 
-		# Roles
+		# roles
 		role <- if (t %in% names(role_ops)) {
 			role_ops[[t]]
 		} else {
 			NA
 		}
 
-		# Groups
+		# groups
 		grp <- if (t %in% names(groups)) {
 			groups[[t]]
 		} else {
 			NA
 		}
 
-		# Labels
+		# labels
 		lab <- if (t %in% names(labels)) {
 			labels[[t]]
 		} else {
 			NA
 		}
 
-		# Place into term list after casting appropriate classes
-		term_list[[i]] <- term(
+		# place into term_archetype list after casting appropriate classes
+		term_list[[i]] <- term_archetype(
 			x = vec_cast(t, character()),
 			side = vec_cast(side, character()),
 			role = vec_cast(role, character()),
@@ -336,33 +325,33 @@ term.formula <- function(x,
 		)
 	}
 
-	# Return as a record of terms
+	# return as a record of terms
 	term_list |>
-		vec_list_cast(to = term())
+		vec_list_cast(to = term_archetype())
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.data.frame <- function(x, ...) {
-	# Early break
+term_archetype.data.frame <- function(x, ...) {
+	# early break
 	if (length(x) == 0) {
 		message(
 			paste0(
-				"No `",
+				"no `",
 				class(x)[1],
-				"` object was provided, resulting in a [0] length `term` object."
+				"` object was provided, resulting in a [0] length `term_archetype` object."
 			)
 		)
 		return(new_term())
 	}
 
-	# TODO
-	message("Not currently implemented")
+	# todo
+	message("not currently implemented")
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.lm <- function(x,
+term_archetype.lm <- function(x,
 					role = list(),
 					group = list(),
 					label = list(),
@@ -373,11 +362,11 @@ term.lm <- function(x,
 					...) {
 
 
-	# Obtain original formula
+	# obtain original formula
 	f <- stats::formula(x)
 
-	# Generate terms
-	term.formula(
+	# generate terms
+	term_archetype.formula(
 		f,
 		role = role,
 		group = group,
@@ -390,9 +379,9 @@ term.lm <- function(x,
 
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.glm <- function(x,
+term_archetype.glm <- function(x,
 					 role = list(),
 					 group = list(),
 					 label = list(),
@@ -402,11 +391,11 @@ term.glm <- function(x,
 					 subtype = list(),
 					 ...) {
 
-	# Obtain original formula
+	# obtain original formula
 	f <- stats::formula(x)
 
-	# Generate terms
-	term.formula(
+	# generate terms
+	term_archetype.formula(
 		f,
 		role = role,
 		group = group,
@@ -419,9 +408,9 @@ term.glm <- function(x,
 
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.model_fit <- function(x,
+term_archetype.model_fit <- function(x,
 						   role = list(),
 						   group = list(),
 						   label = list(),
@@ -432,27 +421,74 @@ term.model_fit <- function(x,
 						   ...) {
 
 
-	# Acceptable model types
+	# acceptable model types
 	model_types <- c("lm", "glm")
 
-	# Get model fit and pass to appropriate term dispatcher
+	# get model fit and pass to appropriate term_archetype dispatcher
 	m <- x$fit
 	if (class(m) %in% model_types) {
-		term(m)
+		term_archetype(m)
 	}
 
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.rx <- function(x, ...) {
-	# Early break
+term_archetype.formula_archetype <- function(x, ...) {
+	# early break
 	if (length(x) == 0) {
 		message(
 			paste0(
-				"No `",
+				"no `",
 				class(x)[1],
-				"` object was provided, resulting in a [0] length `term` object."
+				"` object was provided, resulting in a [0] length `term_archetype` object."
+			)
+		)
+		return(new_term())
+	}
+
+	# Return to terms
+	x |>
+		stats::as.formula() |>
+		term_archetype.formula()
+
+}
+
+#' @rdname terms
+#' @export
+term_archetype.formula_script <- function(x, ...) {
+	# early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"no `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_archetype` object."
+			)
+		)
+		return(new_term())
+	}
+
+	# Return to terms
+	x |>
+		vec_data() |>
+		{\(.x) {
+			c(.x$left[[1]], .x$right[[1]], .x$meta[[1]])
+		}}()
+
+
+}
+
+#' @rdname terms
+#' @export
+term_archetype.list_of_formulas <- function(x, ...) {
+	# early break
+	if (length(x) == 0) {
+		message(
+			paste0(
+				"no `",
+				class(x)[1],
+				"` object was provided, resulting in a [0] length `term_archetype` object."
 			)
 		)
 		return(new_term())
@@ -461,28 +497,10 @@ term.rx <- function(x, ...) {
 	attr(x, "terms")
 }
 
-#' @rdname term
+#' @rdname terms
 #' @export
-term.formula_list <- function(x, ...) {
-	# Early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"No `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term` object."
-			)
-		)
-		return(new_term())
-	}
-
-	attr(x, "terms")
-}
-
-#' @rdname term
-#' @export
-term.default <- function(x = unspecified(), ...) {
-	# Early break
+term_archetype.default <- function(x = unspecified(), ...) {
+	# early break
 	if (length(x) == 0) {
 		return(new_term())
 	}
@@ -495,28 +513,28 @@ term.default <- function(x = unspecified(), ...) {
 }
 
 
-#' @rdname term
+#' @rdname terms
 #' @export
-tx = term
+tx = term_archetype
 
-# Record Definition ------------------------------------------------------------
+# Record definition ------------------------------------------------------------
 
-#' record of formula terms
+#' record of formula term_archetype
 #' @keywords internal
 #' @noRd
-new_term <- function(term = character(),
-                     side = character(),
-                     role = character(),
-                     group = character(),
-                     operation = character(),
-                     label = character(),
-                     description = character(),
-                     distribution = character(),
-                     type = character(),
-                     subtype = character(),
+new_term <- function(terms = character(),
+					 side = character(),
+					 role = character(),
+					 group = character(),
+					 operation = character(),
+					 label = character(),
+					 description = character(),
+					 distribution = character(),
+					 type = character(),
+					 subtype = character(),
 					 status = character()) {
 
-  vec_assert(term, ptype = character())
+  vec_assert(terms, ptype = character())
   vec_assert(side, ptype = character())
   vec_assert(role, ptype = character())
   vec_assert(group, ptype = character())
@@ -530,7 +548,7 @@ new_term <- function(term = character(),
 
   new_rcrd(
   	list(
-  		"term" = term,
+  		"terms" = terms,
   		"side" = side,
   		"role" = role,
   		"group" = group,
@@ -542,55 +560,55 @@ new_term <- function(term = character(),
   		"subtype" = subtype,
   		"status" = status
   	),
-  	class = "term"
+  	class = "term_archetype"
   )
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("term", "rcrds_rcrd"))
+methods::setOldClass(c("term_archetype", "rcrds_rcrd"))
 
 
 # Casting and coercion ---------------------------------------------------------
 
-### term() ###
+### term_archetype() ###
 
 #' @export
-vec_ptype2.term.term <- function(x, y, ...) {
+vec_ptype2.term_archetype.term_archetype <- function(x, y, ...) {
   x
 }
 
 #' @export
-vec_cast.term.term <- function(x, to, ...) {
+vec_cast.term_archetype.term_archetype <- function(x, to, ...) {
   x
 }
 
 ### character() ###
 
 #' @export
-vec_ptype2.term.character <- function(x, y, ...) {
-  # `x` is term
+vec_ptype2.term_archetype.character <- function(x, y, ...) {
+  # `x` is term_archetype
   # `y` is character
   y
 }
 
 #' @export
-vec_ptype2.character.term <- function(x, y, ...) {
+vec_ptype2.character.term_archetype <- function(x, y, ...) {
   # `x` is character
-  # `y` is term
+  # `y` is term_archetype
   x
 }
 
 #' @export
-vec_cast.term.character <- function(x, to, ...) {
-  # Order is flipped, such that `x` is character
+vec_cast.term_archetype.character <- function(x, to, ...) {
+  # order is flipped, such that `x` is character
   attributes(x) <- NULL
   x[[1]]
 }
 
 #' @export
-vec_cast.character.term <- function(x, to, ...) {
-  # Order is flipped, such that `x` is term
+vec_cast.character.term_archetype <- function(x, to, ...) {
+  # order is flipped, such that `x` is term_archetype
   attributes(x) <- NULL
   x[[1]]
 }
@@ -598,42 +616,42 @@ vec_cast.character.term <- function(x, to, ...) {
 ### list_of() ###
 
 #' @export
-vec_ptype2.rcrds_list_of.term <- function(x, y, ...) {
+vec_ptype2.rcrds_list_of.term_archetype <- function(x, y, ...) {
   x
 }
 
 #' @export
-vec_ptype2.term.rcrds_list_of <- function(x, y, ...) {
+vec_ptype2.term_archetype.rcrds_list_of <- function(x, y, ...) {
   y
 }
 
 #' @export
-vec_cast.rcrds_list_of.term <- function(x, to, ...) {
-  tl <- as.list(x) # Convert to list
-  lot <- new_list_of(tl, ptype = term()) # make new list of
-  lot # return list of terms
+vec_cast.rcrds_list_of.term_archetype <- function(x, to, ...) {
+  tl <- as.list(x) # convert to list
+  lot <- new_list_of(tl, ptype = term_archetype()) # make new list of
+  lot # return list of term_archetype
 }
 
 #' @export
-vec_cast.term.rcrds_list_of <- function(x, to, ...) {
-  t <- vec_list_cast(x, term()) # Convert to a flattened record
-  t # Return record of terms
+vec_cast.term_archetype.rcrds_list_of <- function(x, to, ...) {
+  t <- vec_list_cast(x, term_archetype()) # convert to a flattened record
+  t # return record of term_archetype
 }
 
-# Arithmetic -------------------------------------------------------------------
+# arithmetic -------------------------------------------------------------------
 
 #' @export
-vec_arith.term <- function(op, x, y, ...) {
-  UseMethod("vec_arith.term", y)
+vec_arith.term_archetype <- function(op, x, y, ...) {
+  UseMethod("vec_arith.term_archetype", y)
 }
 
 #' @export
-vec_arith.term.default <- function(op, x, y, ...) {
+vec_arith.term_archetype.default <- function(op, x, y, ...) {
   stop_incompatible_op(op, x, y)
 }
 
 #' @export
-vec_arith.term.term <- function(op, x, y, ...) {
+vec_arith.term_archetype.term_archetype <- function(op, x, y, ...) {
   switch(op,
     "+" = {
       c(x, y)
@@ -642,10 +660,10 @@ vec_arith.term.term <- function(op, x, y, ...) {
   )
 }
 
-# Output -----------------------------------------------------------------------
+# output -----------------------------------------------------------------------
 
 #' @export
-format.term <- function(x, ...) {
+format.term_archetype <- function(x, ...) {
 
 	tm <- vec_data(x)
 	fmt_tm <- character()
@@ -656,54 +674,54 @@ format.term <- function(x, ...) {
 		for (i in 1:nrow(tm)) {
 
 			if (tm$role[i] == "outcome") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, cli::col_yellow(t))
 			}
 
 			if (tm$role[i] == "predictor") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, t)
 			}
 
 			if (tm$role[i] == "exposure") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, cli::col_magenta(t))
 			}
 
 			if (tm$role[i] == "mediator") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, cli::col_cyan(t))
 			}
 
 			if (tm$role[i] == "covariate") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, cli::col_blue(t))
 			}
 
 			if (tm$role[i] == "strata") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, cli::col_br_yellow(t))
 			}
 
 			if (tm$role[i] == "unknown") {
-				t <- tm$term[i]
+				t <- tm$terms[i]
 				fmt_tm <- append(fmt_tm, t)
 			}
 
 		}
 	} else {
 		for (i in 1:nrow(tm)) {
-			fmt_tm <- append(fmt_tm, tm$term[i])
+			fmt_tm <- append(fmt_tm, tm$terms[i])
 		}
 	}
 
-	# Return
+	# return
 	fmt_tm
 
 }
 
 #' @export
-obj_print_data.term <- function(x, ...) {
+obj_print_data.term_archetype <- function(x, ...) {
 
 	if (vec_size(x) == 0) {
 		new_term()
@@ -715,11 +733,11 @@ obj_print_data.term <- function(x, ...) {
 }
 
 #' @export
-vec_ptype_full.term <- function(x, ...) {
-	"terms"
+vec_ptype_full.term_archetype <- function(x, ...) {
+	"term_archetype"
 }
 
 #' @export
-vec_ptype_abbr.term <- function(x, ...) {
+vec_ptype_abbr.term_archetype <- function(x, ...) {
 	"tm"
 }
