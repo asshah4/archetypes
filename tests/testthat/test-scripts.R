@@ -49,15 +49,15 @@ test_that("basic formula vector can be made and displayed", {
 
 test_that("prescribe() inputs are acceptable", {
 
-	# Groups
+	# tiers
 	t1 <- term_archetype(mpg ~ wt + hp + drat + qsec)
-	t2 <- term_archetype("gear", side = "right", group = "hardware")
-	t3 <- term_archetype("cyl", side = "right", group = "hardware")
+	t2 <- term_archetype("gear", side = "right", tier = "hardware")
+	t3 <- term_archetype("cyl", side = "right", tier = "hardware")
 	t4 <- c(t1, t2, t3)
 	expect_length(t4, 7)
 	f1 <- prescribe(t4)
-	groups <- list(gear + cyl ~ "hardware")
-	f2 <- prescribe(t4, group = groups)
+	tiers <- list(gear + cyl ~ "hardware")
+	f2 <- prescribe(t4, tier = tiers)
 	expect_equal(f1, f2)
 
 	t <- term_archetype(mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec))
@@ -69,7 +69,7 @@ test_that("prescribe() inputs are acceptable", {
 	f <- prescribe(x)
 	expect_error(prescribe("x"))
 
-	# Modifiers such as roles, labels, and groups are incorporated
+	# Modifiers such as roles, labels, and tiers are incorporated
 	f <- prescribe(x, label = list(hp ~ "Horsepower"))
 	expect_length(labels(f), 1) # Currently erroring
 
@@ -176,29 +176,47 @@ test_that("scripts can be re-expanded into formulas", {
 	# Direct
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear
 	t <- term_archetype(f)
-	x <- prescribe(t)
-	lof <- deconstruct_patterns(x, pattern = "direct")
-	tbl <- reconstruct_patterns(lof, t)
+	x <- prescribe(t, pattern = "direct")
+	lof <- construct_script(x)
 	expect_length(lof, 4)
-	expect_length(tbl, 7)
 
 	# Sequential
 	f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
-	t <- term_archetype(f, group = list(drat + qsec ~ "secondary"))
-	x <- prescribe(t)
-	lof <- deconstruct_patterns(x, pattern = "sequential")
-	tbl <- reconstruct_patterns(lof, t)
+	t <- term_archetype(f, tier = list(drat + qsec ~ "secondary"))
+	x <- prescribe(t, pattern = "sequential")
+	lof <- construct_script(x)
 	expect_length(lof, 8)
-	expect_length(tbl, 7)
 
 	# Parallel
 	f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
-	t <- term_archetype(f, group = list(qsec ~ "measurement"))
-	x <- prescribe(t)
-	lof <- deconstruct_patterns(x, pattern = "parallel")
-	tbl <- reconstruct_patterns(lof, t)
+	t <- term_archetype(f, tier = list(qsec ~ "measurement"))
+	x <- prescribe(t, pattern = "parallel")
+	lof <- construct_script(x)
 	expect_length(lof, 8)
-	expect_length(tbl, 7)
 
+
+})
+
+test_that("mediation creates appropriate lists", {
+
+	# Simple mediation
+	x <- Surv(stop, status) ~ X(primary) + X(secondary) + M(mediator)
+	t <- tm(x)
+	f <- rx(t)
+	lof <- construct_script(f)
+	expect_length(lof, 5)
+
+	# Mediation with covariates
+	x <- Surv(stop, status) + Surv(stop, censor) ~ X(exposure) + M(mediator) + covariate
+	t <- tm(x)
+	f <- rx(t, pattern = "direct")
+	lof <- construct_script(f)
+	expect_length(lof, 5)
+	f <- rx(t, pattern = "sequential")
+	lof <- construct_script(f)
+	expect_length(lof, 8)
+	f <- rx(t, pattern = "parallel")
+	lof <- construct_script(f)
+	expect_length(lof, 5)
 
 })

@@ -40,6 +40,27 @@ validate_empty <- function(x, fn) {
 	}
 }
 
+#' Validate if the models are part of an acceptable/supported type
+#' @keywords internal
+#' @noRd
+validate_models <- function(x) {
+
+	# Essentially, which items are supported by the term_archetype deconstructor
+	supported_classes <-
+		c("lm",
+		  "glm",
+		  "model_fit")
+
+	if (!any(class(x) %in% supported_classes)) {
+		stop("`model_archetype()` is not defined for a `",
+			 class(x)[1],
+			 "` object.",
+			 call. = FALSE)
+	}
+
+
+}
+
 #' Identification of formula and formula-adjacent objects
 #'
 #' @param x Confirmation of an object being of the following classes:

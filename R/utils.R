@@ -230,8 +230,8 @@ roles.list_of_formulas <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.term_archetype <- function(x, ...) {
-	vec_data(x) |>
+labels.term_archetype <- function(object, ...) {
+	vec_data(object) |>
 		{
 			\(.x) .x[, c("terms", "label")]
 		}() |>
@@ -243,33 +243,33 @@ labels.term_archetype <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.script <- function(x, ...) {
+labels.script <- function(object, ...) {
 
-	x |>
+	object |>
 		tm() |>
 		labels.term_archetype()
 }
 
 #' @rdname getters
 #' @export
-labels.list_of_formulas <- function(x, ...) {
-	attr(x, "terms") |>
+labels.list_of_formulas <- function(object, ...) {
+	attr(object, "terms") |>
 		labels.term_archetype()
 }
 
 
 #' @rdname getters
 #' @export
-groups <- function(x, ...) {
-	UseMethod("groups", object = x)
+tiers <- function(x, ...) {
+	UseMethod("tiers", object = x)
 }
 
 #' @rdname getters
 #' @export
-groups.term_archetype <- function(x, ...) {
+tiers.term_archetype <- function(x, ...) {
 	vec_data(x) |>
 		{
-			\(.x) .x[, c("terms", "group")]
+			\(.x) .x[, c("terms", "tier")]
 		}() |>
 		table_to_list() |>
 		{
@@ -279,11 +279,11 @@ groups.term_archetype <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-groups.script <- function(x, ...) {
+tiers.script <- function(x, ...) {
 	attr(x, "terms") |>
 		vec_data() |>
 		{
-			\(.x) .x[, c("terms", "group")]
+			\(.x) .x[, c("terms", "tier")]
 		}() |>
 		table_to_list() |>
 		{
@@ -293,13 +293,13 @@ groups.script <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-groups.list_of_formulas <- function(x, ...) {
+tiers.list_of_formulas <- function(x, ...) {
 	attr(x, "terms") |>
-		groups.term_archetype()
+		tiers.term_archetype()
 }
 
 
-# term_archetype Tools -------------------------------------------------------------------
+# Term Tools -------------------------------------------------------------------
 
 #' Set components of term_archetype
 #' @return A modified
@@ -324,18 +324,18 @@ set_roles <- function(x, roles, ...) {
 
 #' @rdname setters
 #' @export
-set_groups <- function(x, groups, ...) {
-	validate_class(groups, "list")
+set_tiers <- function(x, tiers, ...) {
+	validate_class(tiers, "list")
 
-	# Append groups
+	# Append tiers
 	grps <-
-		groups.term_archetype(x) |>
-		append(groups)
+		tiers.term_archetype(x) |>
+		append(tiers)
 
 	tm <- vec_data(x)
 
 	for (i in seq_along(grps)) {
-		tm$group[tm$terms == names(grps[i])] <- grps[[i]]
+		tm$tier[tm$terms == names(grps[i])] <- grps[[i]]
 	}
 
 	vec_restore(tm, to = term_archetype())

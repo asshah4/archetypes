@@ -9,10 +9,10 @@
 \alias{labels.term_archetype}
 \alias{labels.script}
 \alias{labels.list_of_formulas}
-\alias{groups}
-\alias{groups.term_archetype}
-\alias{groups.script}
-\alias{groups.list_of_formulas}
+\alias{tiers}
+\alias{tiers.term_archetype}
+\alias{tiers.script}
+\alias{tiers.list_of_formulas}
 \title{Retrieval functions for \code{forks} classes}
 \usage{
 roles(x, ...)
@@ -23,19 +23,19 @@ roles(x, ...)
 
 \method{roles}{list_of_formulas}(x, ...)
 
-\method{labels}{term_archetype}(x, ...)
+\method{labels}{term_archetype}(object, ...)
 
-\method{labels}{script}(x, ...)
+\method{labels}{script}(object, ...)
 
-\method{labels}{list_of_formulas}(x, ...)
+\method{labels}{list_of_formulas}(object, ...)
 
-groups(x, ...)
+tiers(x, ...)
 
-\method{groups}{term_archetype}(x, ...)
+\method{tiers}{term_archetype}(x, ...)
 
-\method{groups}{script}(x, ...)
+\method{tiers}{script}(x, ...)
 
-\method{groups}{list_of_formulas}(x, ...)
+\method{tiers}{list_of_formulas}(x, ...)
 }
 \description{
 Retrieval functions for \code{forks} classes

@@ -31,7 +31,9 @@ Suggests:
     testthat (>= 3.0.0),
     cli,
     knitr,
-    rmarkdown
+    rmarkdown,
+    parsnip,
+    tibble
 URL: https://github.com/asshah4/archetypes
 BugReports: https://github.com/asshah4/archetypes/issues
 Config/testthat/edition: 3

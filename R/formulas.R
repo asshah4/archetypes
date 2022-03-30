@@ -9,39 +9,44 @@ formula_archetype <- function(x = unspecified(), ...) {
 
 #' @rdname formula
 #' @export
-formula_archetype.formula <- function(x,
-									  tag = character(),
-									  ...) {
-
+formula_archetype.character <- function(x = character(),
+										outcomes = character(),
+										predictors = character(),
+										exposures = character(),
+										confounders = character(),
+										mediators = character(),
+										unknowns = character(),
+										parent = character(),
+										origin = character(),
+										pattern = character(),
+										stage = character(),
+										...) {
 
 	# Early Break if needed
-	mc <- match.call()
-	if (validate_empty(x, mc)) {
-		return(new_term())
+	if (validate_empty(x)) {
+		return(new_formula())
 	}
 
-	f <- deparse1(x)
-	t <- terms(x)
-	left <- lhs(x)
-	right <- rhs(x)
-
-	# Tag
-	if (length(tag) == 0) {
-		tag <-
-			paste0(
-				"F_DV",
-				length(attr(t, "response")),
-				"_IV",
-				length(attr(t, "term.labels")),
-				collapse = ""
-			)
-	}
+	# Recreate formula
+	f <- stats::as.formula(x)
+	left <- paste(lhs(f), collapse = " + ")
+	right <- paste(rhs(f), collapse = " + ")
+	f <- paste(left, right, sep = " ~ ")
 
 	new_formula(
-		fx = f,
-		left = list(left),
-		right = list(right),
-		tag = tag
+		formula = f,
+		left = left,
+		right = right,
+		outcomes = list(outcomes),
+		predictors = list(predictors),
+		exposures = list(exposures),
+		confounders = list(confounders),
+		mediators = list(mediators),
+		unknowns = list(unknowns),
+		parent = parent,
+		origin = origin,
+		pattern = pattern,
+		stage = stage
 	)
 
 }
@@ -51,18 +56,106 @@ formula_archetype.formula <- function(x,
 formula_archetype.term_archetype <- function(x, ...) {
 
 	# Early Break if needed
-	mc <- match.call()
-	if (validate_empty(x, mc)) {
-		return(new_term())
+	if (validate_empty(x)) {
+		return(new_formula())
 	}
 
-	f <-
-		paste(lhs(x), collapse = " + ") |>
-		paste(paste(rhs(x), collapse = " + "), sep = " ~ ") |>
-		stats::as.formula()
+	# Basic sides of a formula
+	left <- paste(lhs(x), collapse = " + ")
+	right <- paste(rhs(x), collapse = " + ")
+	f <- paste(left, right, sep = " ~ ")
+
+	# Underlying terms and their roles
+	rls <- roles(x)
+
+	# Roles
+	outcomes <- names(rls[rls == "outcome"])
+	predictors <- names(rls[rls == "predictor"])
+	exposures <- names(rls[rls == "exposure"])
+	confounders <- names(rls[rls == "confounder"])
+	mediators <- names(rls[rls == "mediator"])
+	unknowns <- names(rls[rls == "unknown"])
+
+	# Parent of this archetype (as is from terms)
+	parent <- f
+
+	if (length(outcomes) > 0 | length(exposures) > 0) {
+		stage <- "complex"
+	} else {
+		stage <- "simple"
+	}
 
 	# Return
-	formula_archetype.formula(f)
+	new_formula(
+		formula = f,
+		left = left,
+		right = right,
+		outcomes = list(outcomes),
+		predictors = list(predictors),
+		exposures = list(exposures),
+		confounders = list(confounders),
+		mediators = list(mediators),
+		unknowns = list(unknowns),
+		parent = f,
+		origin = class(x)[1],
+		pattern = "none",
+		stage = stage
+	)
+}
+
+
+#' @rdname formula
+#' @export
+formula_archetype.formula <- function(x, ...) {
+
+
+	# Early Break if needed
+	if (validate_empty(x)) {
+		return(new_formula())
+	}
+
+	# Underlying terms and their roles
+	t <- tm(x)
+	left <- paste(lhs(t), collapse = " + ")
+	right <- paste(rhs(t), collapse = " + ")
+	f <- paste(left, right, sep = " ~ ")
+
+	# Roles
+	rls <- roles(t)
+	outcomes <- names(rls[rls == "outcome"])
+	exposures <- names(rls[rls == "exposure"])
+	predictors <- names(rls[rls == "predictor"])
+	confounders <- names(rls[rls == "confounder"])
+	mediators <- names(rls[rls == "mediator"])
+	unknowns <- names(rls[rls == "unknown"])
+
+	# Parent of this archetype (as is from terms)
+	parent <- deparse1(x)
+
+	# Stage
+	if (length(outcomes) > 0 | length(exposures) > 0) {
+		stage <- "complex"
+	} else {
+		stage <- "simple"
+	}
+
+	# Return
+	new_formula(
+		formula = f,
+		left = left,
+		right = right,
+		outcomes = list(outcomes),
+		predictors = list(predictors),
+		exposures = list(exposures),
+		confounders = list(confounders),
+		mediators = list(mediators),
+		unknowns = list(unknowns),
+		parent = f,
+		origin = class(x)[1],
+		pattern = "none",
+		stage = stage
+	)
+
 }
 
 #' @rdname formula
@@ -83,29 +176,56 @@ formula_archetype.default <- function(x = unspecified(), ...) {
 
 #' @rdname formula
 #' @export
-fm = formula_archetype
+fmls = formula_archetype
 
 # Record definition ------------------------------------------------------------
 
 #' Record of formula archetypes
 #' @keywords internal
 #' @noRd
-new_formula <- function(fx = character(),
-						left = list(),
-						right = list(),
-						tag = character()) {
+new_formula <- function(formula = character(),
+						left = character(),
+						right = character(),
+						outcomes = list(),
+						predictors = list(),
+						exposures = list(),
+						confounders = list(),
+						mediators = list(),
+						unknowns = list(),
+						parent = character(),
+						origin = character(),
+						pattern = character(),
+						stage = character()) {
+
 	# Validation
-	vec_assert(fx, ptype = character())
-	vec_assert(tag, ptype = character())
-	vec_assert(left, ptype = list())
-	vec_assert(right, ptype = list())
+	vec_assert(formula, ptype = character())
+	vec_assert(left, ptype = character()) # A string, unabridged
+	vec_assert(right, ptype = character()) # A string, unabridged
+	vec_assert(outcomes, ptype = list())
+	vec_assert(predictors, ptype = list())
+	vec_assert(exposures, ptype = list())
+	vec_assert(mediators, ptype = list())
+	vec_assert(confounders, ptype = list())
+	vec_assert(unknowns, ptype = list())
+	vec_assert(parent, ptype = character())
+	vec_assert(origin, ptype = character())
+	vec_assert(pattern, ptype = character())
 
 	new_rcrd(
 		fields = list(
-			"formula" = fx,
+			"formula" = formula,
 			"left" = left,
 			"right" = right,
-			"tag" = tag
+			"outcomes" = outcomes,
+			"predictors" = predictors,
+			"exposures" = exposures,
+			"confounders" = confounders,
+			"mediators" = mediators,
+			"unknowns" = unknowns,
+			"parent" = parent,
+			"origin" = origin,
+			"pattern" = pattern,
+			"stage" = stage
 		),
 		class = "formula_archetype"
 	)
@@ -148,7 +268,7 @@ vec_ptype_full.formula_archetype <- function(x, ...) {
 
 #' @export
 vec_ptype_abbr.formula_archetype <- function(x, ...) {
-	"fm"
+	"fmls"
 }
 
 # Casting and coercion ---------------------------------------------------------
@@ -215,5 +335,5 @@ vec_cast.formula_archetype.formula_script <- function(x, to, ...) {
 #' @export
 formula.formula_archetype <- function(x, ...) {
 	format(x) |>
-		as.formula()
+		stats::as.formula()
 }

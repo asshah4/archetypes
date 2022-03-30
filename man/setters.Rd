@@ -3,13 +3,13 @@
 \name{setters}
 \alias{setters}
 \alias{set_roles}
-\alias{set_groups}
+\alias{set_tiers}
 \alias{set_labels}
 \title{Set components of term_archetype}
 \usage{
 set_roles(x, roles, ...)
 
-set_groups(x, groups, ...)
+set_tiers(x, tiers, ...)
 
 set_labels(x, labels, ...)
 }

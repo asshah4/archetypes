@@ -14,7 +14,7 @@ prescribe(x = unspecified(), ...)
 \method{prescribe}{formula}(
   x,
   role = list(),
-  group = list(),
+  tier = list(),
   label = list(),
   pattern = character(),
   ...
@@ -23,7 +23,7 @@ prescribe(x = unspecified(), ...)
 \method{prescribe}{term_archetype}(
   x,
   role = list(),
-  group = list(),
+  tier = list(),
   label = list(),
   pattern = character(),
   ...
@@ -45,27 +45,38 @@ rx(x = unspecified(), ...)
 of particular importance, as they serve as special terms that can effect
 how a formula is interpreted. The options for roles are as below:
 \itemize{
-\item \strong{exposure}: predictor variable that serves as a primary or key
-variable in the \eqn{exposure -> outcome} relationship
 \item \strong{outcome}: outcome/dependent variable that serves as an individual
-variable in the \eqn{exposure -> outcome} relationship
-\item \strong{covariate}: predictor variable that is used to adjust/control for an
-additional primary variable, such as \eqn{outcome <- exposure + covariate}
+variable in the \eqn{exposure -> outcome} relationship (DEFAULT for left
+sided variables)
 \item \strong{predictor}: predictor variable that is non-specific but decidedly on
-the right-hand side of an equation
-\item \strong{mediator}: predictor variable that is thought to be a causal
-interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
+the right-hand side of an equation (DEFAULT for right sided variables)
 \item \strong{confounder}: predictor variable that is thought to be a confounder of
 the causal relationship in the \eqn{exposure <- confounder -> outcome}
-pathway
+pathway, normally thought of as an adjustment or controlling variable
+\item \strong{exposure}: predictor variable that serves as a primary or key
+variable in the \eqn{exposure -> outcome} relationship
+\item \strong{mediator}: predictor variable that is thought to be a causal
+interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
 \item \strong{unknown}: default role of a variable that has not yet been assigned a
-place, such as a potential interm_archetypeediary object
+place, such as a potential intermediary object
 }}
 
-\item{group}{Grouping variable name for independent variables for modeling
+\item{tier}{Grouping variable name for independent variables for modeling
 terms together}
 
 \item{label}{Display-quality label describing the variable}
+
+\item{pattern}{This is the expansion pattern used to decide how the
+covariates will incorporated into the formulas. The options are
+\code{c("direct", "sequential", "parallel")}. See the details for further
+explanation.
+\itemize{
+\item \strong{direct}: the covariates will all be included in each formula
+\item \strong{sequential}: the covariates will be added sequentially, one by one, or
+by tiers, as indicated
+\item \strong{parallel}: the covariates or tiers of covariates will be placed in
+parallel
+}}
 }
 \value{
 An object of class \code{script}
@@ -90,6 +101,32 @@ key variable in the \eqn{Exposure ~ Outcome} relationship
 Formulas can be condensed by applying their specific role to individual terms
 as a function/wrapper. For example, \code{y ~ X(x1) + x2 + x3}. This would signify
 that \code{x1} has the specific role of an exposure.
+}
+
+\section{Patterns}{
+
+
+The expansion pattern allows for instructions on how the covariates should be
+included in different formulas. Below, assuming that \emph{x1}, \emph{x2}, and \emph{x3} are
+covariates...
+
+\deqn{y ~ x1 + x2 + x3}
+
+\strong{Direct}:
+
+\deqn{y ~ x1 + x2 + x3}
+
+\strong{Seqential}:
+
+\deqn{y ~ x1}
+\deqn{y ~ x1 + x2}
+\deqn{y ~ x1 + x2 + x3}
+
+\strong{Parallel}:
+
+\deqn{y ~ x1}
+\deqn{y ~ x2}
+\deqn{y ~ x3}
 }
 
 \section{Pluralized Arguments}{

@@ -25,45 +25,40 @@
 #'
 #'   * __right__: for variables that are intended to be independent
 #'
-#'   * __between__: for variables that are in between other variables on a
-#'   pathway
+#'   * __meta__: for variables that are intended to explain relationships
 #'
 #'   * __unknown__: for variables that have unknown sides
-#'
-#'   * __meta__: for variables that are intended to explain relationships
 #'   between other variables, e.g. _strata_ or _conditioning_ variables
 #'
 #' @param role Specific roles the variable plays within the formula. These are
 #'   of particular importance, as they serve as special terms that can effect
 #'   how a formula is interpreted. The options for roles are as below:
 #'
-#'   * __exposure__: predictor variable that serves as a primary or key
-#'   variable in the \eqn{exposure -> outcome} relationship
-#'
 #'   * __outcome__: outcome/dependent variable that serves as an individual
-#'   variable in the \eqn{exposure -> outcome} relationship
-#'
-#'   * __covariate__: predictor variable that is used to adjust/control for an
-#'   additional primary variable, such as \eqn{outcome <- exposure + covariate}
+#'   variable in the \eqn{exposure -> outcome} relationship (DEFAULT for left
+#'   sided variables)
 #'
 #'   * __predictor__: predictor variable that is non-specific but decidedly on
-#'   the right-hand side of an equation
+#'   the right-hand side of an equation (DEFAULT for right sided variables)
+#'
+#'   * __confounder__: predictor variable that is thought to be a confounder of
+#'   the causal relationship in the \eqn{exposure <- confounder -> outcome}
+#'   pathway, normally thought of as an adjustment or controlling variable
+#'
+#'   * __exposure__: predictor variable that serves as a primary or key
+#'   variable in the \eqn{exposure -> outcome} relationship
 #'
 #'   * __mediator__: predictor variable that is thought to be a causal
 #'   interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
 #'
-#'   * __confounder__: predictor variable that is thought to be a confounder of
-#'   the causal relationship in the \eqn{exposure <- confounder -> outcome}
-#'   pathway
-#'
 #'   * __unknown__: default role of a variable that has not yet been assigned a
-#'   place, such as a potential interm_archetypeediary object
+#'   place, such as a potential intermediary object
 #'
-#' @param group Grouping variable name for independent variables for modeling
+#' @param tier Grouping variable name for independent variables for modeling
 #'   terms together
 #'
-#' @param operation Modification of the term_archetype to be applied when combining with
-#'   data
+#' @param operation Modification of the term_archetype to be applied when
+#'   combining with data
 #'
 #' @param label Display-quality label describing the variable
 #'
@@ -105,7 +100,7 @@ term_archetype <- function(x = unspecified(), ...) {
 term_archetype.character <- function(x,
 						   side = character(),
 						   role = character(),
-						   group = character(),
+						   tier = character(),
 						   operation = character(),
 						   label = character(),
 						   description = character(),
@@ -116,8 +111,7 @@ term_archetype.character <- function(x,
 						   ...) {
 
 	# Early Break if needed
-	mc <- match.call()
-	if (validate_empty(x, mc)) {
+	if (validate_empty(x)) {
 		return(new_term())
 	}
 
@@ -126,8 +120,8 @@ term_archetype.character <- function(x,
 		side <- NA
 	if (length(role) == 0)
 		role <- "unknown"
-	if (length(group) == 0)
-		group <- NA
+	if (length(tier) == 0)
+		tier <- NA
 	if (length(operation) == 0)
 		operation <- NA
 	if (length(label) == 0)
@@ -147,7 +141,7 @@ term_archetype.character <- function(x,
 	x <- vec_cast(x, character())
 	side <- vec_cast(side, character())
 	role <- vec_cast(role, character())
-	group <- vec_cast(group, character())
+	tier <- vec_cast(tier, character())
 	operation <- vec_cast(operation, character())
 	label <- vec_cast(label, character())
 	description <- vec_cast(description, character())
@@ -160,7 +154,7 @@ term_archetype.character <- function(x,
 		terms = x,
 		side = side,
 		role = role,
-		group = group,
+		tier = tier,
 		operation = operation,
 		label = label,
 		description = description,
@@ -175,7 +169,7 @@ term_archetype.character <- function(x,
 #' @export
 term_archetype.formula <- function(x,
 						role = list(),
-						group = list(),
+						tier = list(),
 						label = list(),
 						description = list(),
 						distribution = list(),
@@ -191,27 +185,27 @@ term_archetype.formula <- function(x,
 
 	# validate
 	validate_class(role, "list")
-	validate_class(group, "list")
+	validate_class(tier, "list")
 	validate_class(label, "list")
 	validate_class(description, "list")
 	validate_class(distribution, "list")
 	validate_class(type, "list")
 	validate_class(subtype, "list")
 	roles <- formula_args_to_list(role)
-	groups <- formula_args_to_list(group)
+	tiers <- formula_args_to_list(tier)
 	labels <- formula_args_to_list(label)
 	descriptions <- formula_args_to_list(description)
 	distributions <- formula_args_to_list(distribution)
 	types <- formula_args_to_list(type)
 	subtypes <- formula_args_to_list(subtype)
 
-	# all terms are needed to build term_archetype record
+	# All terms are needed to build term_archetype record
 	left <- lhs(x)
 	right <- rhs(x, tidy = TRUE)
 	all <- c(left, right)
 	n <- length(all)
 
-	# the roles and operations need to be identified (on which term_archetype they apply)
+	# Roles and operations need to be identified (on which terms they apply)
 	right_ops <-
 		rhs(x, tidy = FALSE) |>
 		paste(collapse = " + ") |>
@@ -238,7 +232,6 @@ term_archetype.formula <- function(x,
 	which_ops <- right_ops %in% c("X", "M")
 	role_ops <- right_ops[which_ops]
 	data_ops <- right_ops[!which_ops]
-
 
 	other <- right[!(right %in% names(role_ops))]
 	other_ops <- rep("predictor", length(other))
@@ -273,28 +266,34 @@ term_archetype.formula <- function(x,
 			"right"
 		}
 
-		# data transforms
+		# Data transforms
 		op <- if (t %in% names(data_ops)) {
 			data_ops[[t]]
 		} else {
 			NA
 		}
 
-		# roles
+		# Roles
 		role <- if (t %in% names(role_ops)) {
 			role_ops[[t]]
 		} else {
 			NA
 		}
 
-		# groups
-		grp <- if (t %in% names(groups)) {
-			groups[[t]]
+		# Tiers
+		tier <- if (t %in% names(tiers) & t %in% right) {
+			tiers[[t]]
+		} else if (t %in% names(tiers) & t %in% left) {
+			message(
+				"The term `",
+				t,
+				"` cannot be given a tier as it is an outcome variable."
+			)
 		} else {
 			NA
 		}
 
-		# labels
+		# Labels
 		lab <- if (t %in% names(labels)) {
 			labels[[t]]
 		} else {
@@ -306,7 +305,7 @@ term_archetype.formula <- function(x,
 			x = vec_cast(t, character()),
 			side = vec_cast(side, character()),
 			role = vec_cast(role, character()),
-			group = vec_cast(grp, character()),
+			tier = vec_cast(tier, character()),
 			operation = vec_cast(op, character()),
 			label = vec_cast(lab, character())
 		)
@@ -334,7 +333,7 @@ term_archetype.data.frame <- function(x, ...) {
 #' @export
 term_archetype.lm <- function(x,
 					role = list(),
-					group = list(),
+					tier = list(),
 					label = list(),
 					description = list(),
 					distribution = list(),
@@ -355,7 +354,7 @@ term_archetype.lm <- function(x,
 	term_archetype.formula(
 		f,
 		role = role,
-		group = group,
+		tier = tier,
 		label = label,
 		description = description,
 		distribution = distribution,
@@ -369,7 +368,7 @@ term_archetype.lm <- function(x,
 #' @export
 term_archetype.glm <- function(x,
 					 role = list(),
-					 group = list(),
+					 tier = list(),
 					 label = list(),
 					 description = list(),
 					 distribution = list(),
@@ -390,7 +389,7 @@ term_archetype.glm <- function(x,
 	term_archetype.formula(
 		f,
 		role = role,
-		group = group,
+		tier = tier,
 		label = label,
 		description = description,
 		distribution = distribution,
@@ -404,7 +403,7 @@ term_archetype.glm <- function(x,
 #' @export
 term_archetype.model_fit <- function(x,
 						   role = list(),
-						   group = list(),
+						   tier = list(),
 						   label = list(),
 						   description = list(),
 						   distribution = list(),
@@ -504,7 +503,7 @@ tm = term_archetype
 new_term <- function(terms = character(),
 					 side = character(),
 					 role = character(),
-					 group = character(),
+					 tier = character(),
 					 operation = character(),
 					 label = character(),
 					 description = character(),
@@ -516,7 +515,7 @@ new_term <- function(terms = character(),
   vec_assert(terms, ptype = character())
   vec_assert(side, ptype = character())
   vec_assert(role, ptype = character())
-  vec_assert(group, ptype = character())
+  vec_assert(tier, ptype = character())
   vec_assert(operation, ptype = character())
   vec_assert(label, ptype = character())
   vec_assert(description, ptype = character())
@@ -530,7 +529,7 @@ new_term <- function(terms = character(),
   		"terms" = terms,
   		"side" = side,
   		"role" = role,
-  		"group" = group,
+  		"tier" = tier,
   		"operation" = operation,
   		"label" = label,
   		"description" = description,
@@ -626,29 +625,7 @@ formula.term_archetype <- function(x, ...) {
 		stats::as.formula()
 }
 
-# Arithmetic -------------------------------------------------------------------
-
-#' @export
-vec_arith.term_archetype <- function(op, x, y, ...) {
-  UseMethod("vec_arith.term_archetype", y)
-}
-
-#' @export
-vec_arith.term_archetype.default <- function(op, x, y, ...) {
-  stop_incompatible_op(op, x, y)
-}
-
-#' @export
-vec_arith.term_archetype.term_archetype <- function(op, x, y, ...) {
-  switch(op,
-    "+" = {
-      c(x, y)
-    },
-    stop_incompatible_op(op, x, y)
-  )
-}
-
-# output -----------------------------------------------------------------------
+# Output -----------------------------------------------------------------------
 
 #' @export
 format.term_archetype <- function(x, ...) {

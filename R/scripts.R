@@ -15,6 +15,19 @@
 #'
 #' @inheritParams terms
 #'
+#' @param pattern This is the expansion pattern used to decide how the
+#'   covariates will incorporated into the formulas. The options are
+#'   `c("direct", "sequential", "parallel")`. See the details for further
+#'   explanation.
+#'
+#'   * __direct__: the covariates will all be included in each formula
+#'
+#'   * __sequential__: the covariates will be added sequentially, one by one, or
+#'   by tiers, as indicated
+#'
+#'   * __parallel__: the covariates or tiers of covariates will be placed in
+#'   parallel
+
 #' @param ... Arguments to be passed to or from other methods
 #'
 #' @section Roles:
@@ -32,6 +45,30 @@
 #'
 #' @inheritSection terms Pluralized Arguments
 #'
+#' @section Patterns:
+#'
+#' The expansion pattern allows for instructions on how the covariates should be
+#' included in different formulas. Below, assuming that _x1_, _x2_, and _x3_ are
+#' covariates...
+#'
+#' \deqn{y ~ x1 + x2 + x3}
+#'
+#' __Direct__:
+#'
+#' \deqn{y ~ x1 + x2 + x3}
+#'
+#' __Seqential__:
+#'
+#' \deqn{y ~ x1}
+#' \deqn{y ~ x1 + x2}
+#' \deqn{y ~ x1 + x2 + x3}
+#'
+#' __Parallel__:
+#'
+#' \deqn{y ~ x1}
+#' \deqn{y ~ x2}
+#' \deqn{y ~ x3}
+#'
 #' @return An object of class `script`
 #' @name script
 #' @export
@@ -43,7 +80,7 @@ prescribe <- function(x = unspecified(), ...) {
 #' @export
 prescribe.formula <- function(x,
 							  role = list(),
-							  group = list(),
+							  tier = list(),
 							  label = list(),
 							  pattern = character(),
 							  ...) {
@@ -71,7 +108,7 @@ prescribe.formula <- function(x,
 	t <-
 		term_archetype(x) |>
 		set_roles(roles = formula_args_to_list(role)) |>
-		set_groups(groups = formula_args_to_list(group)) |>
+		set_tiers(tiers = formula_args_to_list(tier)) |>
 		set_labels(labels = formula_args_to_list(label))
 
 	# Formula
@@ -90,14 +127,13 @@ prescribe.formula <- function(x,
 #' @export
 prescribe.term_archetype <- function(x,
 									 role = list(),
-									 group = list(),
+									 tier = list(),
 									 label = list(),
 									 pattern = character(),
 									 ...) {
 
 	# Early Break if needed
-	mc <- match.call()
-	if (validate_empty(x, mc)) {
+	if (validate_empty(x)) {
 		return(new_term())
 	}
 
@@ -105,7 +141,7 @@ prescribe.term_archetype <- function(x,
 	t <-
 		x |>
 		set_roles(roles = formula_args_to_list(role)) |>
-		set_groups(groups = formula_args_to_list(group)) |>
+		set_tiers(tiers = formula_args_to_list(tier)) |>
 		set_labels(labels = formula_args_to_list(label))
 
 	# Check pattern
@@ -168,7 +204,7 @@ new_script <- function(formula = formula_archetype(),
 	if (vec_size(terms) == 0) {
 		terms <- term_archetype()
 	} else {
-		terms <- list(terms)
+		terms <- list_of(terms)
 	}
 
 	# Everything needs to be the same length

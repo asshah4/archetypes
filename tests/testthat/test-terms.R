@@ -118,7 +118,7 @@ test_that("terms can be generated from formulas", {
 	# Simple formula for term_archetypes to be broken down
 	ts <- term_archetype.formula(
 		x = mpg + wt ~ hp + cyl + gear,
-		group = list(cyl ~ "engine", gear ~ "engine"),
+		tier = list(cyl ~ "engine", gear ~ "engine"),
 		label = list(mpg ~ "Mileage")
 	)
 	expect_length(ts, 5)
@@ -127,7 +127,7 @@ test_that("terms can be generated from formulas", {
 	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + log(qsec)
 	t <- term_archetype(
 		x = f,
-		group = list(drat + qsec ~ "spec"),
+		tier = list(drat + qsec ~ "spec"),
 		label = list(mpg ~ "Mileage", wt ~ "Weight")
 	)
 	expect_length(t, 7)
@@ -136,10 +136,10 @@ test_that("terms can be generated from formulas", {
 	expect_s3_class(stats::formula(t), "formula")
 
 	t1 <- term_archetype(f)
-	t2 <- term_archetype(f, label = list(mpg ~ "Mileage"), group = list(qsec + drat ~ "speed"))
+	t2 <- term_archetype(f, label = list(mpg ~ "Mileage"), tier = list(qsec + drat ~ "speed"))
 	expect_equal(vec_size(t1), 7)
 	expect_equal(vec_size(t1), length(t1))
-	expect_length(groups.term_archetype(t2), 2)
+	expect_length(tiers(t2), 2)
 
 	# Adding roles and labels works
 	tm <-
@@ -173,5 +173,12 @@ test_that("terms can be made from a fitted model", {
 		t_parsnip <- term_archetype(m_parsnip)
 		expect_length(t_parsnip, 11)
 	}
+
+})
+
+test_that("terms can be hashed into a sequence", {
+
+	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat
+	x <- tm(f)
 
 })
