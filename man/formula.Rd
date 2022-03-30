@@ -4,17 +4,20 @@
 \alias{formula}
 \alias{formula_archetype}
 \alias{formula_archetype.formula}
+\alias{formula_archetype.term_archetype}
 \alias{formula_archetype.default}
-\alias{fx}
+\alias{fm}
 \title{Formula Archetype}
 \usage{
 formula_archetype(x = unspecified(), ...)
 
-\method{formula_archetype}{formula}(x, ...)
+\method{formula_archetype}{formula}(x, tag = character(), ...)
+
+\method{formula_archetype}{term_archetype}(x, ...)
 
 \method{formula_archetype}{default}(x = unspecified(), ...)
 
-fx(x = unspecified(), ...)
+fm(x = unspecified(), ...)
 }
 \description{
 Formula Archetype

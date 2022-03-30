@@ -115,16 +115,9 @@ term_archetype.character <- function(x,
 						   status = character(),
 						   ...) {
 
-
-	# early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"no `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_archetype` object."
-			)
-		)
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
 		return(new_term())
 	}
 
@@ -190,15 +183,9 @@ term_archetype.formula <- function(x,
 						subtype = list(),
 						...) {
 
-	# early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"no `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_archetype` object."
-			)
-		)
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
 		return(new_term())
 	}
 
@@ -333,19 +320,13 @@ term_archetype.formula <- function(x,
 #' @rdname terms
 #' @export
 term_archetype.data.frame <- function(x, ...) {
-	# early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"no `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_archetype` object."
-			)
-		)
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
 		return(new_term())
 	}
 
-	# todo
+	# TODO
 	message("not currently implemented")
 }
 
@@ -361,6 +342,11 @@ term_archetype.lm <- function(x,
 					subtype = list(),
 					...) {
 
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
+		return(new_term())
+	}
 
 	# obtain original formula
 	f <- stats::formula(x)
@@ -391,6 +377,12 @@ term_archetype.glm <- function(x,
 					 subtype = list(),
 					 ...) {
 
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
+		return(new_term())
+	}
+
 	# obtain original formula
 	f <- stats::formula(x)
 
@@ -420,6 +412,11 @@ term_archetype.model_fit <- function(x,
 						   subtype = list(),
 						   ...) {
 
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
+		return(new_term())
+	}
 
 	# acceptable model types
 	model_types <- c("lm", "glm")
@@ -435,15 +432,9 @@ term_archetype.model_fit <- function(x,
 #' @rdname terms
 #' @export
 term_archetype.formula_archetype <- function(x, ...) {
-	# early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"no `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_archetype` object."
-			)
-		)
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
 		return(new_term())
 	}
 
@@ -456,26 +447,14 @@ term_archetype.formula_archetype <- function(x, ...) {
 
 #' @rdname terms
 #' @export
-term_archetype.formula_script <- function(x, ...) {
-	# early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"no `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length `term_archetype` object."
-			)
-		)
+term_archetype.script <- function(x, ...) {
+	# Early Break if needed
+	if (validate_empty(x, fn = match.call())) {
 		return(new_term())
 	}
 
 	# Return to terms
-	x |>
-		vec_data() |>
-		{\(.x) {
-			c(.x$left[[1]], .x$right[[1]], .x$meta[[1]])
-		}}()
-
+	field(x, "terms")[[1]]
 
 }
 
@@ -500,12 +479,12 @@ term_archetype.list_of_formulas <- function(x, ...) {
 #' @rdname terms
 #' @export
 term_archetype.default <- function(x = unspecified(), ...) {
-	# early break
+	# Early break
 	if (length(x) == 0) {
 		return(new_term())
 	}
 
-	stop("`paths()` are not defined for a `",
+	stop("`term_archetype()` is not defined for a `",
 		 class(x)[1],
 		 "` object.",
 		 call. = FALSE)
@@ -515,7 +494,7 @@ term_archetype.default <- function(x = unspecified(), ...) {
 
 #' @rdname terms
 #' @export
-tx = term_archetype
+tm = term_archetype
 
 # Record definition ------------------------------------------------------------
 
@@ -638,7 +617,16 @@ vec_cast.term_archetype.rcrds_list_of <- function(x, to, ...) {
   t # return record of term_archetype
 }
 
-# arithmetic -------------------------------------------------------------------
+# Formulas
+
+#' @export
+formula.term_archetype <- function(x, ...) {
+	paste(lhs(x), collapse = " + ") |>
+		paste(paste(rhs(x), collapse = " + "), sep = " ~ ") |>
+		stats::as.formula()
+}
+
+# Arithmetic -------------------------------------------------------------------
 
 #' @export
 vec_arith.term_archetype <- function(op, x, y, ...) {

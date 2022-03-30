@@ -11,7 +11,7 @@ test_that("new term_archetypes can be made from character/atomic components", {
 		subtype = "continuous"
 	)
 
-	tx <- term_archetype(
+	tm <- term_archetype(
 		"X",
 		side = "right",
 		role = "exposure",
@@ -55,7 +55,7 @@ test_that("new term_archetypes can be made from character/atomic components", {
 		subtype = "dichotomous"
 	)
 
-	t <- c(ty, tx, tm, tc, ts)
+	t <- c(ty, tm, tm, tc, ts)
 
 	expect_length(t, 5)
 })
@@ -68,7 +68,7 @@ test_that("term_archetype() makes term_archetype object or errors", {
 	expect_message(term_archetype(data.frame()))
 
 	t1 <- term_archetype("y", side = "left", role = "outcome", label = "Dependent Variable")
-	t2 <- tx("x", side = "right", role = "exposure", label = "Independent Variable")
+	t2 <- tm("x", side = "right", role = "exposure", label = "Independent Variable")
 	expect_s3_class(t1, "term_archetype")
 	expect_true(is_term(t1))
 	expect_error(new_term("x"))
@@ -95,7 +95,7 @@ test_that("formatting is correct", {
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(vt) |>
 			print() |>
-			expect_output("<tx>")
+			expect_output("<tm>")
 	}
 
 })
@@ -132,6 +132,8 @@ test_that("terms can be generated from formulas", {
 	)
 	expect_length(t, 7)
 
+	# Reversing a term object into a formula
+	expect_s3_class(stats::formula(t), "formula")
 
 	t1 <- term_archetype(f)
 	t2 <- term_archetype(f, label = list(mpg ~ "Mileage"), group = list(qsec + drat ~ "speed"))

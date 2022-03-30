@@ -18,15 +18,15 @@ test_that("basic formula vector can be made and displayed", {
 	expect_length(rhs(f1), 5)
 	expect_length(lhs(f1), 2)
 
-	expect_silent(validate_class(f1, "formula_script"))
+	expect_silent(validate_class(f1, "script"))
 	expect_silent(validate_class(t, "term_archetype"))
-	expect_s3_class(f1, "formula_script")
+	expect_s3_class(f1, "script")
 	expect_equal(f1,
 				 prescribe(x = term_archetype(
 				 	f,
 				 	label = list(mpg ~ "Mileage", cyl ~ "Cylinders")
 				 )))
-	expect_s3_class(rx(f), "formula_script") # Until formal implementation is made
+	expect_s3_class(rx(f), "script") # Until formal implementation is made
 
 	# Vectorization
 	t1 <- term_archetype(mpg ~ wt)
@@ -38,7 +38,7 @@ test_that("basic formula vector can be made and displayed", {
 
 	# Printing
 	expect_output(print(f1), "[1]")
-	expect_output(print(new_formula()), "[0]")
+	expect_output(print(new_script()), "[0]")
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(f1) |>
 			print() |>
@@ -56,7 +56,7 @@ test_that("prescribe() inputs are acceptable", {
 	t4 <- c(t1, t2, t3)
 	expect_length(t4, 7)
 	f1 <- prescribe(t4)
-	groups <- list(hardware ~ c(wt), speed ~ c(drat, qsec))
+	groups <- list(gear + cyl ~ "hardware")
 	f2 <- prescribe(t4, group = groups)
 	expect_equal(f1, f2)
 
@@ -64,7 +64,7 @@ test_that("prescribe() inputs are acceptable", {
 	expect_length(lhs(rx(t)), 2)
 
 	# Using a formula directly
-	expect_length(prescribe(formula()), 0)
+	expect_message(prescribe(formula()))
 	x <- mpg + qsec ~ X(wt) + M(hp)
 	f <- prescribe(x)
 	expect_error(prescribe("x"))
@@ -79,14 +79,14 @@ test_that("complex survival formulas can be made", {
 
 	# Survival
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(primary) + secondary + tertiary
-	t <- tx(x)
+	t <- tm(x)
 	f1 <- rx(x)
 	f2 <- rx(t)
 	expect_equal(f1, f2)
 
 	# Mediation
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(primary) + M(secondary) + tertiary
-	t <- tx(x)
+	t <- tm(x)
 	f1 <- rx(x)
 	f2 <- rx(t)
 	expect_equal(f1, f2)
@@ -113,8 +113,8 @@ test_that("vctrs casting and coercion work appropriately", {
 
 	# character()
 	expect_type(as.character(f1), "character")
-	expect_type(vec_ptype2(prescribe(x = character()), character()), "character")
-	expect_type(vec_ptype2(character(), prescribe(x = character())), "character")
+	expect_type(vec_ptype2(rx(x = character()), character()), "character")
+	expect_type(vec_ptype2(character(), rx(x = character())), "character")
 
 	# Between terms and formulas
 	x <- mpg + qsec ~ X(wt) + M(hp)
@@ -126,7 +126,7 @@ test_that("vctrs casting and coercion work appropriately", {
 	expect_equal(f0, f1)
 
 	# Into formulas
-	expect_s3_class(stats::as.formula(f0), "formula")
+	expect_s3_class(stats::formula(f0), "formula")
 
 })
 
@@ -166,8 +166,39 @@ test_that("formula vectors can be modified in place", {
 	f2 <- prescribe(t[1:4])
 	f3 <- add(f2, t[5])
 	expect_equal(f1, f3)
-	expect_s3_class(update(f2, ~ gear), "formula_script")
+	expect_s3_class(update(f2, ~ gear), "script")
 
 
 })
 
+test_that("scripts can be re-expanded into formulas", {
+
+	# Direct
+	f <- mpg + wt ~ X(hp) + X(cyl) + gear
+	t <- term_archetype(f)
+	x <- prescribe(t)
+	lof <- deconstruct_patterns(x, pattern = "direct")
+	tbl <- reconstruct_patterns(lof, t)
+	expect_length(lof, 4)
+	expect_length(tbl, 7)
+
+	# Sequential
+	f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
+	t <- term_archetype(f, group = list(drat + qsec ~ "secondary"))
+	x <- prescribe(t)
+	lof <- deconstruct_patterns(x, pattern = "sequential")
+	tbl <- reconstruct_patterns(lof, t)
+	expect_length(lof, 8)
+	expect_length(tbl, 7)
+
+	# Parallel
+	f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
+	t <- term_archetype(f, group = list(qsec ~ "measurement"))
+	x <- prescribe(t)
+	lof <- deconstruct_patterns(x, pattern = "parallel")
+	tbl <- reconstruct_patterns(lof, t)
+	expect_length(lof, 8)
+	expect_length(tbl, 7)
+
+
+})

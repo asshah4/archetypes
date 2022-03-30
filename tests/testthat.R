@@ -1,4 +1,4 @@
 library(testthat)
-library(axe)
+library(archetypes)
 
-test_check("axe")
+test_check("archetypes")

@@ -20,6 +20,26 @@ validate_class <- function(x, what) {
 
 }
 
+#' Validate if an empty object is given to a function
+#' @keywords internal
+#' @noRd
+validate_empty <- function(x, fn) {
+	# x is the primary argument of the parent function
+	n <- length(x)
+
+	# Print message if needed
+	if (n == 0) {
+		message(
+			"An empty `",
+			class(x)[1],
+			"` was provided, resulting in a [0] length object."
+		)
+		return(TRUE)
+	} else {
+		return(FALSE)
+	}
+}
+
 #' Identification of formula and formula-adjacent objects
 #'
 #' @param x Confirmation of an object being of the following classes:
@@ -36,11 +56,11 @@ is_term <- function(x) {
 #' @rdname check
 #' @export
 is_script <- function(x) {
-	inherits(x, "rx")
+	inherits(x, "script")
 }
 
 #' @rdname check
 #' @export
 is_formula <- function(x) {
-	inherits(x, "formula")
+	inherits(x, "formula_archetype")
 }

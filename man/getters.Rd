@@ -4,14 +4,14 @@
 \alias{getters}
 \alias{roles}
 \alias{roles.term_archetype}
-\alias{roles.formula_script}
+\alias{roles.script}
 \alias{roles.list_of_formulas}
 \alias{labels.term_archetype}
-\alias{labels.formula_script}
+\alias{labels.script}
 \alias{labels.list_of_formulas}
 \alias{groups}
 \alias{groups.term_archetype}
-\alias{groups.formula_script}
+\alias{groups.script}
 \alias{groups.list_of_formulas}
 \title{Retrieval functions for \code{forks} classes}
 \usage{
@@ -19,13 +19,13 @@ roles(x, ...)
 
 \method{roles}{term_archetype}(x, ...)
 
-\method{roles}{formula_script}(x, ...)
+\method{roles}{script}(x, ...)
 
 \method{roles}{list_of_formulas}(x, ...)
 
 \method{labels}{term_archetype}(x, ...)
 
-\method{labels}{formula_script}(x, ...)
+\method{labels}{script}(x, ...)
 
 \method{labels}{list_of_formulas}(x, ...)
 
@@ -33,7 +33,7 @@ groups(x, ...)
 
 \method{groups}{term_archetype}(x, ...)
 
-\method{groups}{formula_script}(x, ...)
+\method{groups}{script}(x, ...)
 
 \method{groups}{list_of_formulas}(x, ...)
 }

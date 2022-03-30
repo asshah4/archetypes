@@ -1,7 +1,7 @@
-#' axe package
+#' archetypes package
 #'
 #' @docType package
-#' @aliases axe-package
+#' @aliases archetypes-package
 #' @keywords internal
 "_PACKAGE"
 
@@ -9,7 +9,7 @@
 #'
 #' @import vctrs
 #' @keywords internal
-#' @name axe-vctrs
+#' @name archetypes-vctrs
 NULL
 
 ## usethis namespace: start

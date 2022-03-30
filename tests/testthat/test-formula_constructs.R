@@ -1,25 +1,15 @@
-test_that("initialization of a list of formulas works", {
-
-	# Convert into a character list of length two
-	x <-
-		c(mpg ~ hp + am, wt ~ mpg + qsec) |>
-		lapply(FUN = function(.x) {formula_archetype(.x)})
-	lof <- new_list_of_formulas(x)
-	expect_s3_class(lof, "list_of_formulas")
-
-
-})
-
 test_that("simple list of prescribed formulas can be generated", {
 
 	# Method dispatch
-	expect_length(list_of_formulas(prescribe()), 0)
-	expect_error(list_of_formulas("error"))
+	expect_length(formula_construct(prescribe()), 0)
+	expect_message(formula_construct(prescribe()))
+	expect_error(formula_construct("error"))
 
 	# Super simple check
 	f <- mpg + wt ~ hp + cyl + gear
 	x <- rx(f)
-	fl <- fmls(x, pattern = "direct")
+	fl <- fmls(x)
+	expect_s3_class(fl, "formula_construct")
 
 	# General formula check
 	f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
@@ -27,32 +17,30 @@ test_that("simple list of prescribed formulas can be generated", {
 	groups <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
 	t <- term_archetype(f, label = labels, group = groups)
 	x <- prescribe(t)
-	ld <- list_of_formulas(x, pattern = "direct")
-	ls <- list_of_formulas(x, pattern = "sequential")
+	ld <- formula_construct(x, pattern = "direct")
+	ls <- formula_construct(x, pattern = "sequential")
 	lp <- fmls(x, pattern = "parallel") # Abbreviated/shortcut
 	expect_length(ld, 4)
 	expect_length(ls, 12)
-	expect_length(lp, 12)
-	expect_output(print(names(ld[1])), "x")
-	#expect_equal(attributes(ld)$roles$hp, "exposure")
-	#expect_equal(attributes(ld)$labels$hp, "Horsepower")
-	expect_match(names(ls)[1], "x_y1x1c0m0_seq")
+	expect_length(lp, 8)
 
 	# Mediation check
+	# TODO
 	f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat + qsec
 	labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
 	groups <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
 	t <- term_archetype(f, label = labels, group = groups)
 	x <- prescribe(t)
-	ld <- list_of_formulas(x, pattern = "direct")
-	ls <- list_of_formulas(x, pattern = "sequential")
-	lp <- list_of_formulas(x, pattern = "parallel")
+	ld <- formula_construct(x, pattern = "direct")
+	ls <- formula_construct(x, pattern = "sequential")
+	lp <- formula_construct(x, pattern = "parallel")
 	expect_length(ld, 5)
-	expect_equal(length(ls), length(lp))
+	expect_length(ls, 11)
+	expect_length(lp, 8)
 
 	# Printing
 	expect_output(print(ld), "mpg")
-	expect_output(print(new_list_of_formulas()), "[0]")
+	expect_output(print(new_formula_construct()), "[0]")
 	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
 		tibble::tibble(ld) |>
 			print() |>
@@ -64,13 +52,13 @@ test_that("simple list of prescribed formulas can be generated", {
 test_that("inputs are correct", {
 
 	f <- rx(y ~ x + M(m))
-	expect_s3_class(f, "rx")
+	expect_s3_class(f, "script")
 
 	# Long formulas may break names in pipe
 	expect_s3_class({
 		rx(Surv(stop_cv, status_cv) ~ X(lf_rest_zn) + X(bpm_rest_zn) + X(hf_rest_zn) + X(lf_stress_zn) + X(bpm_stress_zn) + X(hf_stress_zn) + M(rdr_msi_bl)) |>
 		fmls()
-	}, "list_of_formulas")
+	}, "formula_construct")
 
 })
 
@@ -80,14 +68,14 @@ test_that("mediation creates appropriate lists", {
 	x <- Surv(stop, status) ~ X(primary) + X(secondary) + M(mediator)
 	t <- tx(x)
 	f <- rx(t)
-	lof <- list_of_formulas(f)
+	lof <- formula_construct(f)
 	expect_length(lof, 5)
 
 	# Mediation with covariates
 	x <- Surv(stop, status) + Surv(stop, censor) ~ X(exposure) + M(mediator) + covariate
 	t <- tx(x)
 	f <- rx(t)
-	lof <- list_of_formulas(f)
+	lof <- formula_construct(f)
 	expect_length(lof, 5)
 
 })
@@ -99,7 +87,7 @@ test_that("generic formulas can be put together to create a list of formulas", {
 	f3 <- hp ~ gear + qsec
 	fl <- list(f1, f2, f3)
 
-	lof <- list_of_formulas(fl)
+	lof <- formula_construct(fl)
 	expect_length(lof, 3)
 	expect_length(term_archetype(lof), 8)
 	expect_length(attr(lof, "script"), 1)

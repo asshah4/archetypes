@@ -174,19 +174,19 @@ lhs.formula <- function(x, tidy = FALSE, ...) {
 
 #' @rdname sides
 #' @export
-rhs.formula_script <- function(x, ...) {
+rhs.script <- function(x, ...) {
 
 	x |>
-		tx() |>
+		tm() |>
 		rhs()
 }
 
 #' @rdname sides
 #' @export
-lhs.formula_script <- function(x, ...) {
+lhs.script <- function(x, ...) {
 
 	x |>
-		tx() |>
+		tm() |>
 		lhs()
 }
 
@@ -200,6 +200,7 @@ roles <- function(x, ...) {
 }
 
 #' @rdname getters
+#' @export
 roles.term_archetype <- function(x, ...) {
 	vec_data(x) |>
 		{
@@ -209,7 +210,8 @@ roles.term_archetype <- function(x, ...) {
 }
 
 #' @rdname getters
-roles.formula_script <- function(x, ...) {
+#' @export
+roles.script <- function(x, ...) {
 	attr(x, "term_archetype") |>
 		vec_data() |>
 		{
@@ -241,10 +243,10 @@ labels.term_archetype <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-labels.formula_script <- function(x, ...) {
+labels.script <- function(x, ...) {
 
 	x |>
-		tx() |>
+		tm() |>
 		labels.term_archetype()
 }
 
@@ -263,6 +265,7 @@ groups <- function(x, ...) {
 }
 
 #' @rdname getters
+#' @export
 groups.term_archetype <- function(x, ...) {
 	vec_data(x) |>
 		{
@@ -275,7 +278,8 @@ groups.term_archetype <- function(x, ...) {
 }
 
 #' @rdname getters
-groups.formula_script <- function(x, ...) {
+#' @export
+groups.script <- function(x, ...) {
 	attr(x, "terms") |>
 		vec_data() |>
 		{
@@ -373,7 +377,7 @@ update.term_archetype <- function(object, parameters, ...) {
 
 #' @rdname updates
 #' @export
-update.formula_script <- function(object, parameters, ...) {
+update.script <- function(object, parameters, ...) {
 
 	t <- term_archetype(object)
 
@@ -439,7 +443,7 @@ add <- function(object, ...) {
 
 #' @rdname updates
 #' @export
-add.formula_script <- function(object, parameters, ...) {
+add.script <- function(object, parameters, ...) {
 
 	obj <- term_archetype(object)
 

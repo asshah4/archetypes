@@ -2,12 +2,9 @@
 % Please edit documentation in R/tables.R
 \name{rebuild}
 \alias{rebuild}
-\alias{rebuild.formula_list}
 \title{Rebuild a formula-based object as a data frame}
 \usage{
 rebuild(x, ...)
-
-\method{rebuild}{formula_list}(x, ...)
 }
 \value{
 A \code{data.frame} object that is an explosion of the underlying object,

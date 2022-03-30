@@ -8,8 +8,8 @@
 \alias{lhs.term_archetype}
 \alias{rhs.formula}
 \alias{lhs.formula}
-\alias{rhs.formula_script}
-\alias{lhs.formula_script}
+\alias{rhs.script}
+\alias{lhs.script}
 \title{Tools for working with formula-like objects}
 \usage{
 lhs(x, ...)
@@ -24,9 +24,9 @@ rhs(x, ...)
 
 \method{lhs}{formula}(x, tidy = FALSE, ...)
 
-\method{rhs}{formula_script}(x, ...)
+\method{rhs}{script}(x, ...)
 
-\method{lhs}{formula_script}(x, ...)
+\method{lhs}{script}(x, ...)
 }
 \arguments{
 \item{tidy}{Logical value to decide if operations should be removed from the

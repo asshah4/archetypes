@@ -32,25 +32,39 @@
 #'
 #' @inheritSection terms Pluralized Arguments
 #'
-#' @return An object of class `formula_script`
-#' @name formula_script
+#' @return An object of class `script`
+#' @name script
 #' @export
 prescribe <- function(x = unspecified(), ...) {
 	UseMethod("prescribe", object = x)
 }
 
-#' @rdname formula_script
+#' @rdname script
 #' @export
 prescribe.formula <- function(x,
 							  role = list(),
 							  group = list(),
 							  label = list(),
+							  pattern = character(),
 							  ...) {
 
-	# Break early if zero length
-	if (length(x) == 0) {
-		return(new_script())
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
+		return(new_term())
 	}
+
+	# Check pattern
+	if (length(pattern) == 0) {
+		pattern <- "direct"
+	}
+	if (!pattern %in% c("direct", "sequential", "parallel")) {
+		stop("The pattern ",
+			 deparse(pattern),
+			 " is not yet supported.",
+			 call. = FALSE)
+	}
+
 
 	# terms list (nested for field length equivalence)
 	# Updated attributes/components internally
@@ -60,51 +74,31 @@ prescribe.formula <- function(x,
 		set_groups(groups = formula_args_to_list(group)) |>
 		set_labels(labels = formula_args_to_list(label))
 
-	# Create simplified formula
-	tm <- vec_data(t)
-
-	# Obtain sides for formula
-	left <-
-		tm[tm$side == "left", ] |>
-		vec_restore(to = term_archetype()) |>
-		list()
-	right <-
-		tm[tm$side == "right", ] |>
-		vec_restore(to = term_archetype()) |>
-		list()
-	meta <-
-		tm[tm$side == "meta", ] |>
-		vec_restore(to = term_archetype()) |>
-		list()
+	# Formula
+	f <- formula_archetype(t)
 
 	# Return
 	new_script(
-		left = left,
-		right = right,
-		meta = meta
+		formula = f,
+		terms = t,
+		pattern = pattern
 	)
+
 }
 
-#' @rdname formula_script
+#' @rdname script
 #' @export
 prescribe.term_archetype <- function(x,
 									 role = list(),
 									 group = list(),
 									 label = list(),
+									 pattern = character(),
 									 ...) {
 
-
-	# Early break
-	if (length(x) == 0) {
-		message(
-			paste0(
-				"No `",
-				class(x)[1],
-				"` object was provided, resulting in a [0] length ",
-				"`prescribe` object."
-			)
-		)
-		return(new_script())
+	# Early Break if needed
+	mc <- match.call()
+	if (validate_empty(x, mc)) {
+		return(new_term())
 	}
 
 	# Updated attributes/components internally
@@ -114,33 +108,31 @@ prescribe.term_archetype <- function(x,
 		set_groups(groups = formula_args_to_list(group)) |>
 		set_labels(labels = formula_args_to_list(label))
 
-	# Create simplified formula
-	tm <- vec_data(t)
+	# Check pattern
+	if (length(pattern) == 0) {
+		pattern <- "direct"
+	}
+	if (!pattern %in% c("direct", "sequential", "parallel")) {
+		stop("The pattern ",
+			 deparse(pattern),
+			 " is not yet supported.",
+			 call. = FALSE)
+	}
 
-	# Obtain sides for formula
-	left <-
-		tm[tm$side == "left", ] |>
-		vec_restore(to = term_archetype()) |>
-		list()
-	right <-
-		tm[tm$side == "right", ] |>
-		vec_restore(to = term_archetype()) |>
-		list()
-	meta <-
-		tm[tm$side == "meta", ] |>
-		vec_restore(to = term_archetype()) |>
-		list()
+	# Formula
+	f <- formula_archetype(t)
+
 
 	# Return
 	new_script(
-		left = left,
-		right = right,
-		meta = meta
+		formula = f,
+		terms = t,
+		pattern = pattern
 	)
 }
 
 
-#' @rdname formula_script
+#' @rdname script
 #' @export
 prescribe.default <- function(x = unspecified(), ...) {
 	# Early break if not viable method dispatch
@@ -154,7 +146,7 @@ prescribe.default <- function(x = unspecified(), ...) {
 	}
 }
 
-#' @rdname formula_script
+#' @rdname script
 #' @export
 rx = prescribe
 
@@ -163,49 +155,50 @@ rx = prescribe
 #' Formula vector
 #' @keywords internal
 #' @noRd
-new_script <- function(left = list(),
-						right = list(),
-						meta = list()) {
+new_script <- function(formula = formula_archetype(),
+					   terms = term_archetype(),
+					   pattern = character()) {
 
 	# Validation of types
-	vec_assert(left, ptype = list())
-	vec_assert(right, ptype = list())
-	vec_assert(meta, ptype = list())
+	vec_assert(terms, ptype = term_archetype())
+	vec_assert(formula, ptype = formula_archetype())
+	vec_assert(pattern, ptype = character())
 
-	# Each of these should be wrapped in a list to allow equal lengths
+	# Bend terms into a list
+	if (vec_size(terms) == 0) {
+		terms <- term_archetype()
+	} else {
+		terms <- list(terms)
+	}
+
+	# Everything needs to be the same length
 	new_rcrd(
 		fields = list(
-			"left" = left,
-			"right" = right,
-			"meta" = meta
+			"formula" = formula,
+			"terms" = terms,
+			"pattern" = pattern
 		),
-		class = "formula_script"
+		class = "script"
 	)
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c("formula_script", "vctrs_vctr"))
+methods::setOldClass(c("script", "vctrs_vctr"))
 
 # Output -----------------------------------------------------------------------
 
 #' @export
-format.formula_script <- function(x, ...) {
+format.script <- function(x, ...) {
 
 
 	# Character representation of formula
 	if (vec_size(x) == 0) {
 		fmt <- new_script()
 	} else {
-
-		fd <- vec_data(x)
-		left <- fd$left[[1]]
-		right <- fd$right[[1]]
-
 		fmt <-
-			paste(left, collapse = " + ") |>
-			paste(paste(right, collapse = " + "), sep = " ~ ")
-
+			field(x, "formula") |>
+			format()
 	}
 
 	# Return
@@ -214,21 +207,21 @@ format.formula_script <- function(x, ...) {
 }
 
 #' @export
-obj_print_data.formula_script <- function(x, ...) {
+obj_print_data.script <- function(x, ...) {
 
 	# Colorful printing
 	if (vec_size(x) == 0) {
 		fmt <- new_script()
 	} else {
 
-		fd <- vec_data(x)
-		left <- fd$left[[1]]
-		right <- fd$right[[1]]
+		t <- field(x, "terms")[[1]]
+		tm <- vec_data(t)
+		left <- vec_restore(tm[tm$side == "left", ], tm())
+		right <- vec_restore(tm[tm$side == "right", ], tm())
 
 		fmt <-
 			paste(format(left), collapse = " + ") |>
-			paste(paste(format(right), collapse = " + "), sep = " ~ ") |>
-			vec_cast(character())
+			paste(paste(format(right), collapse = " + "), sep = " ~ ")
 
 		# Depending on length
 		if (length(x) > 1) {
@@ -241,23 +234,23 @@ obj_print_data.formula_script <- function(x, ...) {
 }
 
 #' @export
-vec_ptype_full.formula_script <- function(x, ...) {
+vec_ptype_full.script <- function(x, ...) {
 	"script"
 }
 
 #' @export
-vec_ptype_abbr.formula_script <- function(x, ...) {
+vec_ptype_abbr.script <- function(x, ...) {
 	"rx"
 }
 
 # Casting and coercion ---------------------------------------------------------
 
 # Arithmetic
-vec_arith.formula_script <- function(op, x, y, ...) {
-	UseMethod("vec_arith.formula_script", y)
+vec_arith.script <- function(op, x, y, ...) {
+	UseMethod("vec_arith.script", y)
 }
 
-vec_arith.formula_script.default <- function(op, x, y, ...) {
+vec_arith.script.default <- function(op, x, y, ...) {
 	stop_incompatible_op(op, x, y)
 }
 
@@ -265,53 +258,53 @@ vec_arith.formula_script.default <- function(op, x, y, ...) {
 ### self
 
 #' @export
-vec_ptype2.formula_script.formula_script <- function(x, y, ...) {
+vec_ptype2.script.script <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.formula_script.formula_script <- function(x, to, ...) {
+vec_cast.script.script <- function(x, to, ...) {
 	x
 }
 
 ### characters
 
 #' @export
-vec_ptype2.formula_script.character <- function(x, y, ...) {
+vec_ptype2.script.character <- function(x, y, ...) {
 	y
 }
 
 #' @export
-vec_ptype2.character.formula_script <- function(x, y, ...) {
+vec_ptype2.character.script <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.character.formula_script <- function(x, to, ...) {
+vec_cast.character.script <- function(x, to, ...) {
 	format(x) # Returns a character class by default
 }
 
 ### term_archetype
 
 #' @export
-vec_ptype2.formula_script.term_archetype <- function(x, y, ...) {
+vec_ptype2.script.term_archetype <- function(x, y, ...) {
 	y
 }
 
 #' @export
-vec_ptype2.term_archetype.formula_script <- function(x, y, ...) {
+vec_ptype2.term_archetype.script <- function(x, y, ...) {
 	x
 }
 
 #' @export
-vec_cast.term_archetype.formula_script <- function(x, to, ...) {
-	term_archetype.formula_script(x)
+vec_cast.term_archetype.script <- function(x, to, ...) {
+	term_archetype.script(x)
 }
 
 ### base formula
 
 #' @export
-formula.formula_script <- function(x, ...) {
+formula.script <- function(x, ...) {
 	format(x) |>
-		as.formula()
+		stats::as.formula()
 }

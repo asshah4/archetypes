@@ -10,10 +10,10 @@
 \alias{term_archetype.glm}
 \alias{term_archetype.model_fit}
 \alias{term_archetype.formula_archetype}
-\alias{term_archetype.formula_script}
+\alias{term_archetype.script}
 \alias{term_archetype.list_of_formulas}
 \alias{term_archetype.default}
-\alias{tx}
+\alias{tm}
 \title{term_archetype records}
 \usage{
 term_archetype(x = unspecified(), ...)
@@ -85,13 +85,13 @@ term_archetype(x = unspecified(), ...)
 
 \method{term_archetype}{formula_archetype}(x, ...)
 
-\method{term_archetype}{formula_script}(x, ...)
+\method{term_archetype}{script}(x, ...)
 
 \method{term_archetype}{list_of_formulas}(x, ...)
 
 \method{term_archetype}{default}(x = unspecified(), ...)
 
-tx(x = unspecified(), ...)
+tm(x = unspecified(), ...)
 }
 \arguments{
 \item{x}{An object of the following types that can be coerced to a

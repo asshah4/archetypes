@@ -3,19 +3,19 @@
 \name{updates}
 \alias{updates}
 \alias{update.term_archetype}
-\alias{update.formula_script}
+\alias{update.script}
 \alias{add}
-\alias{add.formula_script}
+\alias{add.script}
 \alias{add.term_archetype}
 \title{Update Prescriptions}
 \usage{
 \method{update}{term_archetype}(object, parameters, ...)
 
-\method{update}{formula_script}(object, parameters, ...)
+\method{update}{script}(object, parameters, ...)
 
 add(object, ...)
 
-\method{add}{formula_script}(object, parameters, ...)
+\method{add}{script}(object, parameters, ...)
 
 \method{add}{term_archetype}(object, parameters, ...)
 }
