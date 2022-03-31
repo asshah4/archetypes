@@ -1,124 +1,120 @@
 # nocov start
 
 new_meter <- function(x) {
-	stopifnot(is.double(x))
-	new_vctr(x, class = "forks_meter")
+  stopifnot(is.double(x))
+  new_vctr(x, class = "forks_meter")
 }
 
 format.forks_meter <- function(x, ...) {
-	paste0(format(vec_data(x)), " m")
+  paste0(format(vec_data(x)), " m")
 }
 
 meter <- function(x) {
-	x <- vec_cast(x, double())
-	new_meter(x)
+  x <- vec_cast(x, double())
+  new_meter(x)
 }
 
 
 vec_arith.forks_meter <- function(op, x, y, ...) {
-	UseMethod("vec_arith.forks_meter", y)
+  UseMethod("vec_arith.forks_meter", y)
 }
 vec_arith.forks_meter.default <- function(op, x, y, ...) {
-	stop_incompatible_op(op, x, y)
+  stop_incompatible_op(op, x, y)
 }
 
 vec_arith.forks_meter.forks_meter <- function(op, x, y, ...) {
-	switch(
-		op,
-		"+" = ,
-		"-" = new_meter(vec_arith_base(op, x, y)),
-		"/" = vec_arith_base(op, x, y),
-		stop_incompatible_op(op, x, y)
-	)
+  switch(op,
+    "+" = ,
+    "-" = new_meter(vec_arith_base(op, x, y)),
+    "/" = vec_arith_base(op, x, y),
+    stop_incompatible_op(op, x, y)
+  )
 }
 
 
 vec_arith.forks_meter.numeric <- function(op, x, y, ...) {
-	switch(
-		op,
-		"/" = ,
-		"*" = new_meter(vec_arith_base(op, x, y)),
-		stop_incompatible_op(op, x, y)
-	)
+  switch(op,
+    "/" = ,
+    "*" = new_meter(vec_arith_base(op, x, y)),
+    stop_incompatible_op(op, x, y)
+  )
 }
 
 vec_arith.numeric.forks_meter <- function(op, x, y, ...) {
-	switch(
-		op,
-		"*" = new_meter(vec_arith_base(op, x, y)),
-		stop_incompatible_op(op, x, y)
-	)
+  switch(op,
+    "*" = new_meter(vec_arith_base(op, x, y)),
+    stop_incompatible_op(op, x, y)
+  )
 }
 
 
 vec_arith.forks_meter.MISSING <- function(op, x, y, ...) {
-	switch(op,
-				 `-` = x * -1,
-				 `+` = x,
-				 stop_incompatible_op(op, x, y)
-	)
+  switch(op,
+    `-` = x * -1,
+    `+` = x,
+    stop_incompatible_op(op, x, y)
+  )
 }
 
 #' Deprecated deparser
 old_deparser <- function(...) {
-	# Initial deparsing of variables
-	outcomes <-
-		gsub(" ", "", unlist(strsplit(deparse(f[[2]]), "\ \\+\ ")))
-	predictors <- labels(stats::terms(f))
-	exposures <- grep("X\\(", predictors, value = TRUE)
-	fixed <- grep("F\\(", predictors, value = TRUE)
+  # Initial deparsing of variables
+  outcomes <-
+    gsub(" ", "", unlist(strsplit(deparse(f[[2]]), "\ \\+\ ")))
+  predictors <- labels(stats::terms(f))
+  exposures <- grep("X\\(", predictors, value = TRUE)
+  fixed <- grep("F\\(", predictors, value = TRUE)
 
-	# Confounders need to be identified
-	confounders <- grep("C\\(", predictors, value = TRUE)
-	confounders <- gsub("\\)", "", gsub("C\\(", "", confounders))
+  # Confounders need to be identified
+  confounders <- grep("C\\(", predictors, value = TRUE)
+  confounders <- gsub("\\)", "", gsub("C\\(", "", confounders))
 
-	# Covariates should not contain any additional labels
-	covariates <- setdiff(labels(stats::terms(f)), c(fixed, exposures))
-	covariates <- gsub("\\)", "", gsub("C\\(", "", covariates))
+  # Covariates should not contain any additional labels
+  covariates <- setdiff(labels(stats::terms(f)), c(fixed, exposures))
+  covariates <- gsub("\\)", "", gsub("C\\(", "", covariates))
 
-	# exposures should be cleaned from original modifiers if present, or nulled
-	if (length(exposures) > 0) {
-		exposures <-
-			gsub("\\)$", "", gsub("X\\(", "", exposures)) %>%
-			paste(outcomes, ., sep = " ~ ") %>%
-			lapply(., stats::formula) %>%
-			lapply(., stats::terms) %>%
-			lapply(., labels) %>%
-			unique() %>%
-			unlist()
-	} else if (length(exposures) == 0) {
-		exposures <- NULL
-	}
+  # exposures should be cleaned from original modifiers if present, or nulled
+  if (length(exposures) > 0) {
+    exposures <-
+      gsub("\\)$", "", gsub("X\\(", "", exposures)) %>%
+      paste(outcomes, ., sep = " ~ ") %>%
+      lapply(., stats::formula) %>%
+      lapply(., stats::terms) %>%
+      lapply(., labels) %>%
+      unique() %>%
+      unlist()
+  } else if (length(exposures) == 0) {
+    exposures <- NULL
+  }
 
-	# Fixed variables may included mixed effect objects or objects with
-	# parenthesis. They should be modified to maintain the original structure.
-	if (length(fixed) > 0) {
-		fixed <- gsub("\\)$", "", gsub("F\\(", "", fixed))
-		fixed[grepl("\\|", fixed)] <-
-			gsub("\\(", "", gsub("\\)", "", grep("\\|", fixed, value = TRUE)))
-		fixed[grepl("\\|", fixed)] <-
-			paste0("(", fixed[grepl("\\|", fixed)], ")")
-	} else if (length(fixed) == 0) {
-		fixed <- NULL
-	}
+  # Fixed variables may included mixed effect objects or objects with
+  # parenthesis. They should be modified to maintain the original structure.
+  if (length(fixed) > 0) {
+    fixed <- gsub("\\)$", "", gsub("F\\(", "", fixed))
+    fixed[grepl("\\|", fixed)] <-
+      gsub("\\(", "", gsub("\\)", "", grep("\\|", fixed, value = TRUE)))
+    fixed[grepl("\\|", fixed)] <-
+      paste0("(", fixed[grepl("\\|", fixed)], ")")
+  } else if (length(fixed) == 0) {
+    fixed <- NULL
+  }
 
-	# Reset the covariates and ensure fixed variables are primary/upfront
-	covariates <- setdiff(covariates, c(fixed, exposures))
-	predictors <- c(exposures, covariates, fixed)
-	if (all(covariates == predictors)) {
-		covariates <- NULL
-	}
+  # Reset the covariates and ensure fixed variables are primary/upfront
+  covariates <- setdiff(covariates, c(fixed, exposures))
+  predictors <- c(exposures, covariates, fixed)
+  if (all(covariates == predictors)) {
+    covariates <- NULL
+  }
 
-	# Return labeled list
-	list(
-		outcomes = outcomes,
-		predictors = predictors,
-		exposures = exposures,
-		covariates = covariates,
-		fixed = fixed,
-		confounders = confounders
-	)
-
+  # Return labeled list
+  list(
+    outcomes = outcomes,
+    predictors = predictors,
+    exposures = exposures,
+    covariates = covariates,
+    fixed = fixed,
+    confounders = confounders
+  )
 }
 
 #' Divide a Formula into Parts
@@ -140,36 +136,34 @@ old_deparser <- function(...) {
 #' @rdname math
 #' @export
 divide <- function(x, side, ...) {
+  validate_class(x, "rx")
 
-	validate_class(x, "rx")
+  # Terms
+  lhs <- get_lhs(x)
+  rhs <- get_rhs(x)
 
-	# Terms
-	lhs <- get_lhs(x)
-	rhs <- get_rhs(x)
+  # Reconstitute left
+  if (side == "lhs") {
+    flist <-
+      paste(rhs, collapse = " + ") %>%
+      paste(lhs, ., sep = " ~ ") %>%
+      lapply(., formula) %>%
+      lapply(., give_env) %>%
+      lapply(., rx)
+  }
 
-	# Reconstitute left
-	if (side == "lhs") {
-		flist <-
-			paste(rhs, collapse = " + ") %>%
-			paste(lhs, ., sep = " ~ ") %>%
-			lapply(., formula) %>%
-			lapply(., give_env) %>%
-			lapply(., rx)
-	}
+  # Reconstitute right
+  if (side == "rhs") {
+    flist <-
+      paste(lhs, collapse = " + ") %>%
+      paste(., rhs, sep = " ~ ") %>%
+      lapply(., formula) %>%
+      lapply(., give_env) %>%
+      lapply(., rx)
+  }
 
-	# Reconstitute right
-	if (side == "rhs") {
-		flist <-
-			paste(lhs, collapse = " + ") %>%
-			paste(., rhs, sep = " ~ ") %>%
-			lapply(., formula) %>%
-			lapply(., give_env) %>%
-			lapply(., rx)
-	}
-
-	# Return
-	flist
-
+  # Return
+  flist
 }
 
 

@@ -28,33 +28,30 @@
 #' @name lists_tbls
 #' @export
 list_to_table <- function(x, id = "terms", val = "ops", ...) {
-
-	tbl <- as.data.frame(cbind(names(x), unlist(unname(x))))
-	colnames(tbl) <- c(id, val)
-	tbl
-
+  tbl <- as.data.frame(cbind(names(x), unlist(unname(x))))
+  colnames(tbl) <- c(id, val)
+  tbl
 }
 
 #' @rdname lists_tbls
 #' @export
 table_to_list <- function(x, id = "terms", ...) {
+  validate_class(x, "data.frame")
 
-	validate_class(x, "data.frame")
-
-	if (ncol(x) == 2) {
-		tbl <- x
-		nms <- tbl[[id]]
-		val <- tbl[[which(!colnames(tbl) %in% id)]]
-		names(val) <- nms
-		return(as.list(val))
-	} else if (ncol(x) == 1) {
-		tbl <- x
-		return(as.list(tbl))
-	} else {
-		stop("table_to_list() requires there to be a data.frame of either 1 or 2 columns.",
-				 call. = FALSE)
-	}
-
+  if (ncol(x) == 2) {
+    tbl <- x
+    nms <- tbl[[id]]
+    val <- tbl[[which(!colnames(tbl) %in% id)]]
+    names(val) <- nms
+    return(as.list(val))
+  } else if (ncol(x) == 1) {
+    tbl <- x
+    return(as.list(tbl))
+  } else {
+    stop("table_to_list() requires there to be a data.frame of either 1 or 2 columns.",
+      call. = FALSE
+    )
+  }
 }
 
 #' Handling of list-formula arguments
@@ -64,37 +61,35 @@ table_to_list <- function(x, id = "terms", ...) {
 #' @keywords internal
 #' @noRd
 formula_args_to_list <- function(x, ...) {
+  validate_class(x, "list")
 
-	validate_class(x, "list")
+  pl <- list()
 
-	pl <- list()
+  for (i in seq_along(x)) {
 
-	for (i in seq_along(x)) {
+    # term_archetype (left)
+    f <- x[[i]]
 
-		# term_archetype (left)
-		f <- x[[i]]
+    if (class(f[[2]]) == "character" | class(f[[2]]) == "name") {
+      t <- as.character(f[[2]])
+    } else if (class(f[[2]]) == "call") {
+      t <- as.character(f[[2]])[-1]
+    }
 
-		if (class(f[[2]]) == "character" | class(f[[2]]) == "name") {
-			t <- as.character(f[[2]])
-		} else if (class(f[[2]]) == "call") {
-			t <- as.character(f[[2]])[-1]
-		}
+    # Descriptor (right)
+    if (class(f[[3]]) == "character" | class(f[[3]]) == "name") {
+      d <- as.character(f[[3]])
+    } else if (class(f[[3]]) == "call") {
+      d <- as.character(f[[3]])[-1]
+    }
 
-		# Descriptor (right)
-		if (class(f[[3]]) == "character" | class(f[[3]]) == "name") {
-			d <- as.character(f[[3]])
-		} else if (class(f[[3]]) == "call") {
-			d <- as.character(f[[3]])[-1]
-		}
+    y <- rep(d, length(t))
+    names(y) <- t
+    pl <- append(pl, y)
+  }
 
-		y <- rep(d, length(t))
-		names(y) <- t
-		pl <- append(pl, y)
-
-	}
-
-	# Return paired/named list
-	pl
+  # Return paired/named list
+  pl
 }
 
 # Formula Tools ----------------------------------------------------------------
@@ -103,27 +98,27 @@ formula_args_to_list <- function(x, ...) {
 #' @name sides
 #' @export
 lhs <- function(x, ...) {
-	UseMethod("lhs", object = x)
+  UseMethod("lhs", object = x)
 }
 
 #' @rdname sides
 #' @export
 rhs <- function(x, ...) {
-	UseMethod("rhs", object = x)
+  UseMethod("rhs", object = x)
 }
 
 #' @rdname sides
 #' @export
 rhs.term_archetype <- function(x, ...) {
-	tm <- vec_data(x)
-	tm$terms[tm$side == "right"]
+  tm <- vec_data(x)
+  tm$terms[tm$side == "right"]
 }
 
 #' @rdname sides
 #' @export
 lhs.term_archetype <- function(x, ...) {
-	tm <- vec_data(x)
-	tm$terms[tm$side == "left"]
+  tm <- vec_data(x)
+  tm$terms[tm$side == "left"]
 }
 
 #' @rdname sides
@@ -131,63 +126,66 @@ lhs.term_archetype <- function(x, ...) {
 #'   terms. If `FALSE`, then the operations will remain included.
 #' @export
 rhs.formula <- function(x, tidy = FALSE, ...) {
+  if (length(x) == 2) {
+    pos <- 2
+  }
+  if (length(x) == 3) {
+    pos <- 3
+  }
 
-	if (length(x) == 2) {pos <- 2}
-	if (length(x) == 3) {pos <- 3}
-
-	if (tidy) {
-		x[[pos]] |>
-			deparse1() |>
-			{\(.x) paste("~", .x)}() |>
-			stats::as.formula() |>
-			all.vars(functions = FALSE, unique = FALSE)
-	} else {
-		labels(stats::terms(x))
-	}
+  if (tidy) {
+    x[[pos]] |>
+      deparse1() |>
+      {
+        \(.x) paste("~", .x)
+      }() |>
+      stats::as.formula() |>
+      all.vars(functions = FALSE, unique = FALSE)
+  } else {
+    labels(stats::terms(x))
+  }
 }
 
 #' @rdname sides
 #' @export
 lhs.formula <- function(x, tidy = FALSE, ...) {
+  if (length(x) == 2) {
+    return(character())
+  }
 
-	if (length(x) == 2) {
-		return(character())
-	}
+  # Shift over to simplify evaluation
+  y <-
+    x[[2]] |>
+    deparse1() |>
+    {
+      \(.x) paste("~", .x)
+    }() |>
+    stats::as.formula()
 
-	# Shift over to simplify evaluation
-	y <-
-		x[[2]] |>
-		deparse1() |>
-		{\(.x) paste("~", .x)}() |>
-		stats::as.formula()
+  if (tidy) {
+    left <- all.vars(y, functions = FALSE, unique = FALSE)
+  } else {
+    left <- labels(stats::terms(y))
+  }
 
-	if (tidy) {
-		left <- all.vars(y, functions = FALSE, unique = FALSE)
-	} else {
-		left <- labels(stats::terms(y))
-	}
-
-	# Return
-	left
-
+  # Return
+  left
 }
 
 #' @rdname sides
 #' @export
 rhs.script <- function(x, ...) {
-
-	x |>
-		tm() |>
-		rhs()
+  x |>
+    tm() |>
+    rhs()
 }
 
 #' @rdname sides
 #' @export
 lhs.script <- function(x, ...) {
-
-	x |>
-		tm() |>
-		lhs()
+  x |>
+    tm() |>
+    lhs()
 }
 
 # Getters ----
@@ -196,106 +194,105 @@ lhs.script <- function(x, ...) {
 #' @name getters
 #' @export
 roles <- function(x, ...) {
-	UseMethod("roles", object = x)
+  UseMethod("roles", object = x)
 }
 
 #' @rdname getters
 #' @export
 roles.term_archetype <- function(x, ...) {
-	vec_data(x) |>
-		{
-			\(.x) .x[, c("terms", "role")]
-		}() |>
-		table_to_list()
+  vec_data(x) |>
+    {
+      \(.x) .x[, c("terms", "role")]
+    }() |>
+    table_to_list()
 }
 
 #' @rdname getters
 #' @export
 roles.script <- function(x, ...) {
-	attr(x, "term_archetype") |>
-		vec_data() |>
-		{
-			\(.x) .x[, c("terms", "role")]
-		}() |>
-		table_to_list()
+  attr(x, "term_archetype") |>
+    vec_data() |>
+    {
+      \(.x) .x[, c("terms", "role")]
+    }() |>
+    table_to_list()
 }
 
 #' @rdname getters
 #' @export
 roles.list_of_formulas <- function(x, ...) {
-	attr(x, "terms") |>
-		roles.term_archetype()
+  attr(x, "terms") |>
+    roles.term_archetype()
 }
 
 
 #' @rdname getters
 #' @export
 labels.term_archetype <- function(object, ...) {
-	vec_data(object) |>
-		{
-			\(.x) .x[, c("terms", "label")]
-		}() |>
-		table_to_list() |>
-		{
-			\(.x) .x[!is.na(.x)]
-		}()
+  vec_data(object) |>
+    {
+      \(.x) .x[, c("terms", "label")]
+    }() |>
+    table_to_list() |>
+    {
+      \(.x) .x[!is.na(.x)]
+    }()
 }
 
 #' @rdname getters
 #' @export
 labels.script <- function(object, ...) {
-
-	object |>
-		tm() |>
-		labels.term_archetype()
+  object |>
+    tm() |>
+    labels.term_archetype()
 }
 
 #' @rdname getters
 #' @export
 labels.list_of_formulas <- function(object, ...) {
-	attr(object, "terms") |>
-		labels.term_archetype()
+  attr(object, "terms") |>
+    labels.term_archetype()
 }
 
 
 #' @rdname getters
 #' @export
 tiers <- function(x, ...) {
-	UseMethod("tiers", object = x)
+  UseMethod("tiers", object = x)
 }
 
 #' @rdname getters
 #' @export
 tiers.term_archetype <- function(x, ...) {
-	vec_data(x) |>
-		{
-			\(.x) .x[, c("terms", "tier")]
-		}() |>
-		table_to_list() |>
-		{
-			\(.x) .x[!is.na(.x)]
-		}()
+  vec_data(x) |>
+    {
+      \(.x) .x[, c("terms", "tier")]
+    }() |>
+    table_to_list() |>
+    {
+      \(.x) .x[!is.na(.x)]
+    }()
 }
 
 #' @rdname getters
 #' @export
 tiers.script <- function(x, ...) {
-	attr(x, "terms") |>
-		vec_data() |>
-		{
-			\(.x) .x[, c("terms", "tier")]
-		}() |>
-		table_to_list() |>
-		{
-			\(.x) .x[!is.na(.x)]
-		}()
+  attr(x, "terms") |>
+    vec_data() |>
+    {
+      \(.x) .x[, c("terms", "tier")]
+    }() |>
+    table_to_list() |>
+    {
+      \(.x) .x[!is.na(.x)]
+    }()
 }
 
 #' @rdname getters
 #' @export
 tiers.list_of_formulas <- function(x, ...) {
-	attr(x, "terms") |>
-		tiers.term_archetype()
+  attr(x, "terms") |>
+    tiers.term_archetype()
 }
 
 
@@ -306,60 +303,56 @@ tiers.list_of_formulas <- function(x, ...) {
 #' @name setters
 #' @export
 set_roles <- function(x, roles, ...) {
+  validate_class(roles, "list")
 
-	validate_class(roles, "list")
+  # Update and append roles
+  rls <- append(roles.term_archetype(x), roles)
 
-	# Update and append roles
-	rls <- append(roles.term_archetype(x), roles)
+  # Save the most "recent" updated label and erase prior if duplicate
+  tm <- vec_data(x)
+  for (i in seq_along(rls)) {
+    tm$role[tm$terms == names(rls[i])] <- rls[[i]]
+  }
 
-	# Save the most "recent" updated label and erase prior if duplicate
-	tm <- vec_data(x)
-	for (i in seq_along(rls)) {
-		tm$role[tm$terms == names(rls[i])] <- rls[[i]]
-	}
-
-	vec_restore(tm, to = term_archetype())
-
+  vec_restore(tm, to = term_archetype())
 }
 
 #' @rdname setters
 #' @export
 set_tiers <- function(x, tiers, ...) {
-	validate_class(tiers, "list")
+  validate_class(tiers, "list")
 
-	# Append tiers
-	grps <-
-		tiers.term_archetype(x) |>
-		append(tiers)
+  # Append tiers
+  grps <-
+    tiers.term_archetype(x) |>
+    append(tiers)
 
-	tm <- vec_data(x)
+  tm <- vec_data(x)
 
-	for (i in seq_along(grps)) {
-		tm$tier[tm$terms == names(grps[i])] <- grps[[i]]
-	}
+  for (i in seq_along(grps)) {
+    tm$tier[tm$terms == names(grps[i])] <- grps[[i]]
+  }
 
-	vec_restore(tm, to = term_archetype())
+  vec_restore(tm, to = term_archetype())
 }
 
 #' @rdname setters
 #' @export
 set_labels <- function(x, labels, ...) {
+  validate_class(labels, "list")
 
-	validate_class(labels, "list")
+  # Update and append labels
+  labs <-
+    labels.term_archetype(x) |>
+    append(labels)
 
-	# Update and append labels
-	labs <-
-		labels.term_archetype(x) |>
-		append(labels)
+  # Save the most "recent" updated label and erase prior if duplicate
+  tm <- vec_data(x)
+  for (i in seq_along(labs)) {
+    tm$label[tm$terms == names(labs[i])] <- labs[[i]]
+  }
 
-	# Save the most "recent" updated label and erase prior if duplicate
-	tm <- vec_data(x)
-	for (i in seq_along(labs)) {
-		tm$label[tm$terms == names(labs[i])] <- labs[[i]]
-	}
-
-	vec_restore(tm, to = term_archetype())
-
+  vec_restore(tm, to = term_archetype())
 }
 
 # Updating Functions -----------------------------------------------------------
@@ -372,112 +365,115 @@ set_labels <- function(x, labels, ...) {
 #' @name updates
 #' @export
 update.term_archetype <- function(object, parameters, ...) {
-	object
+  object
 }
 
 #' @rdname updates
 #' @export
 update.script <- function(object, parameters, ...) {
+  t <- term_archetype(object)
 
-	t <- term_archetype(object)
+  if (class(parameters) == "formula") {
 
-	if (class(parameters) == "formula") {
+    ### LHS
+    all_left <- lhs(parameters, tidy = TRUE)
+    plus_left <- lhs(parameters, tidy = FALSE)
 
-		### LHS
-		all_left <- lhs(parameters, tidy = TRUE)
-		plus_left <- lhs(parameters, tidy = FALSE)
+    # Add
+    if (length(plus_left) > 0) {
+      for (i in seq_along(plus_left)) {
+        .t <- term_archetype(x = plus_left[i], role = "outcome", side = "left")
+        t <- c(t, .t)
+      }
+    }
 
-		# Add
-		if (length(plus_left) > 0) {
-			for (i in seq_along(plus_left)) {
-				.t <- term_archetype(x = plus_left[i], role = "outcome", side = "left")
-				t <- c(t, .t)
-			}
-		}
+    # Subtract
+    minus_left <- setdiff(all_left, plus_left)
 
-		# Subtract
-		minus_left <- setdiff(all_left, plus_left)
+    tm <- vec_data(t)
+    left <-
+      tm[tm$side == "left" & !(tm$terms %in% minus_left), ] |>
+      vec_restore(term_archetype())
 
-		tm <- vec_data(t)
-		left <-
-			tm[tm$side == "left" & !(tm$terms %in% minus_left), ] |>
-			vec_restore(term_archetype())
+    ### RHS
+    all_right <- rhs(parameters, tidy = TRUE)
+    plus_right <- rhs(parameters, tidy = FALSE)
 
-		### RHS
-		all_right <- rhs(parameters, tidy = TRUE)
-		plus_right <- rhs(parameters, tidy = FALSE)
+    # Add
+    if (length(plus_right) > 0) {
+      .t <-
+        paste(plus_right, collapse = " + ") |>
+        {
+          \(.x) paste("~", .x)
+        }() |>
+        stats::as.formula() |>
+        term_archetype()
 
-		# Add
-		if (length(plus_right) > 0) {
-			.t <-
-				paste(plus_right, collapse = " + ") |>
-				{\(.x) paste("~", .x)}() |>
-				stats::as.formula() |>
-				term_archetype()
+      t <- c(t, .t)
+    }
 
-			t <- c(t, .t)
-		}
+    # Subtract
+    minus_right <- setdiff(all_right, plus_right)
 
-		# Subtract
-		minus_right <- setdiff(all_right, plus_right)
+    tm <- vec_data(t)
+    right <-
+      tm[tm$side == "right" & !(tm$terms %in% minus_right), ] |>
+      vec_restore(term_archetype())
 
-		tm <- vec_data(t)
-		right <-
-			tm[tm$side == "right" & !(tm$terms %in% minus_right),] |>
-			vec_restore(term_archetype())
+    # Combine both sides
+    t <- c(left, right)
+  }
 
-		# Combine both sides
-		t <- c(left, right)
-
-	}
-
-	# Return
-	prescribe(t)
+  # Return
+  prescribe(t)
 }
 
 #' @rdname updates
 #' @export
 add <- function(object, ...) {
-	UseMethod("add", object = object)
+  UseMethod("add", object = object)
 }
 
 #' @rdname updates
 #' @export
 add.script <- function(object, parameters, ...) {
+  obj <- term_archetype(object)
 
-	obj <- term_archetype(object)
+  switch(class(parameters)[1],
+    term_archetype = {
+      f <-
+        obj |>
+        {
+          \(.x) c(.x, parameters)
+        }() |>
+        prescribe()
+    },
+    formula = {
+      f <-
+        term_archetype(parameters) |>
+        {
+          \(.x) c(obj, .x)
+        }() |>
+        prescribe()
+    }
+  )
 
-	switch(
-		class(parameters)[1],
-		term_archetype = {
-			f <-
-				obj |>
-				{\(.x) c(.x, parameters)}() |>
-				prescribe()
-		},
-		formula = {
-			f <-
-				term_archetype(parameters) |>
-				{\(.x) c(obj, .x)}() |>
-				prescribe()
-		}
-	)
-
-	# Return
-	f
+  # Return
+  f
 }
 
 #' @rdname updates
 #' @export
 add.term_archetype <- function(object, parameters, ...) {
+  validate_class(parameters, "term_archetype")
 
-	validate_class(parameters, "term_archetype")
-
-	# Find the "older" term_archetype that is a duplicate
-	c(object, parameters) |>
-		vec_data() |>
-		{\(.x) {
-			.x[!duplicated(.x$terms, fromLast = TRUE)]
-		}}() |>
-		vec_restore(to = term_archetype())
+  # Find the "older" term_archetype that is a duplicate
+  c(object, parameters) |>
+    vec_data() |>
+    {
+      \(.x) {
+        .x[!duplicated(.x$terms, fromLast = TRUE)]
+      }
+    }() |>
+    vec_restore(to = term_archetype())
 }

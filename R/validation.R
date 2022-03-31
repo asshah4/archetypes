@@ -2,42 +2,42 @@
 #' @keywords internal
 #' @noRd
 validate_class <- function(x, what) {
+  if (!inherits(x, what)) {
+    stop(
+      deparse(substitute(x)),
+      " needs to inherit from `",
+      paste("c(", paste(what, collapse = ", "),
+        ")",
+        sep = ""
+      ),
+      "`, but is of class `",
+      class(x),
+      "`.",
+      call. = FALSE
+    )
+  }
 
-	if (!inherits(x, what)) {
-		stop(
-			deparse(substitute(x)),
-			" needs to inherit from `",
-			paste("c(", paste(what, collapse = ", "),
-						")", sep = ""),
-			"`, but is of class `",
-			class(x),
-			"`.",
-			call. = FALSE
-		)
-	}
-
-	invisible(TRUE)
-
+  invisible(TRUE)
 }
 
 #' Validate if an empty object is given to a function
 #' @keywords internal
 #' @noRd
 validate_empty <- function(x, fn) {
-	# x is the primary argument of the parent function
-	n <- length(x)
+  # x is the primary argument of the parent function
+  n <- length(x)
 
-	# Print message if needed
-	if (n == 0) {
-		message(
-			"An empty `",
-			class(x)[1],
-			"` was provided, resulting in a [0] length object."
-		)
-		return(TRUE)
-	} else {
-		return(FALSE)
-	}
+  # Print message if needed
+  if (n == 0) {
+    message(
+      "An empty `",
+      class(x)[1],
+      "` was provided, resulting in a [0] length object."
+    )
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
 }
 
 #' Validate if the models are part of an acceptable/supported type
@@ -45,20 +45,21 @@ validate_empty <- function(x, fn) {
 #' @noRd
 validate_models <- function(x) {
 
-	# Essentially, which items are supported by the term_archetype deconstructor
-	supported_classes <-
-		c("lm",
-		  "glm",
-		  "model_fit")
+  # Essentially, which items are supported by the term_archetype deconstructor
+  supported_classes <-
+    c(
+      "lm",
+      "glm",
+      "model_fit"
+    )
 
-	if (!any(class(x) %in% supported_classes)) {
-		stop("`model_archetype()` is not defined for a `",
-			 class(x)[1],
-			 "` object.",
-			 call. = FALSE)
-	}
-
-
+  if (!any(class(x) %in% supported_classes)) {
+    stop("`model_archetype()` is not defined for a `",
+      class(x)[1],
+      "` object.",
+      call. = FALSE
+    )
+  }
 }
 
 #' Identification of formula and formula-adjacent objects
@@ -71,17 +72,17 @@ validate_models <- function(x) {
 #' @name check
 #' @export
 is_term <- function(x) {
-	inherits(x, "term_archetype")
+  inherits(x, "term_archetype")
 }
 
 #' @rdname check
 #' @export
 is_script <- function(x) {
-	inherits(x, "script")
+  inherits(x, "script")
 }
 
 #' @rdname check
 #' @export
 is_formula <- function(x) {
-	inherits(x, "formula_archetype")
+  inherits(x, "formula_archetype")
 }
