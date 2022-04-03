@@ -16,10 +16,10 @@ formula_archetype.character <- function(x = character(),
                                         confounders = character(),
                                         mediators = character(),
                                         unknowns = character(),
-                                        parent = character(),
-                                        origin = character(),
+                                        family = character(),
+                                        source = character(),
                                         pattern = character(),
-                                        stage = character(),
+                                        level = character(),
                                         ...) {
 
   # Early Break if needed
@@ -43,10 +43,10 @@ formula_archetype.character <- function(x = character(),
     confounders = list(confounders),
     mediators = list(mediators),
     unknowns = list(unknowns),
-    parent = parent,
-    origin = origin,
+    family = family,
+    source = class(x)[1],
     pattern = pattern,
-    stage = stage
+    level = level
   )
 }
 
@@ -75,14 +75,11 @@ formula_archetype.term_archetype <- function(x, ...) {
   mediators <- names(rls[rls == "mediator"])
   unknowns <- names(rls[rls == "unknown"])
 
-  # Parent of this archetype (as is from terms)
-  parent <- f
+  # family of this archetype (as is from terms)
+  family <- f
 
-  if (length(outcomes) > 0 | length(exposures) > 0) {
-    stage <- "complex"
-  } else {
-    stage <- "simple"
-  }
+  # Term type/family
+  lvl <- check_complexity(x)
 
   # Return
   new_formula(
@@ -95,10 +92,10 @@ formula_archetype.term_archetype <- function(x, ...) {
     confounders = list(confounders),
     mediators = list(mediators),
     unknowns = list(unknowns),
-    parent = f,
-    origin = class(x)[1],
+    family = f,
+    source = class(x)[1],
     pattern = "none",
-    stage = stage
+    level = lvl
   )
 }
 
@@ -128,15 +125,11 @@ formula_archetype.formula <- function(x, ...) {
   mediators <- names(rls[rls == "mediator"])
   unknowns <- names(rls[rls == "unknown"])
 
-  # Parent of this archetype (as is from terms)
-  parent <- deparse1(x)
+  # family of this archetype (as is from terms)
+  family <- deparse1(x)
 
-  # Stage
-  if (length(outcomes) > 0 | length(exposures) > 0) {
-    stage <- "complex"
-  } else {
-    stage <- "simple"
-  }
+  # Level
+  lvl <- check_complexity(t)
 
   # Return
   new_formula(
@@ -149,10 +142,10 @@ formula_archetype.formula <- function(x, ...) {
     confounders = list(confounders),
     mediators = list(mediators),
     unknowns = list(unknowns),
-    parent = f,
-    origin = class(x)[1],
+    family = f,
+    source = class(x)[1],
     pattern = "none",
-    stage = stage
+    level = lvl
   )
 }
 
@@ -190,10 +183,10 @@ new_formula <- function(formula = character(),
                         confounders = list(),
                         mediators = list(),
                         unknowns = list(),
-                        parent = character(),
-                        origin = character(),
+                        family = character(),
+                        source = character(),
                         pattern = character(),
-                        stage = character()) {
+                        level = character()) {
 
   # Validation
   vec_assert(formula, ptype = character())
@@ -205,8 +198,8 @@ new_formula <- function(formula = character(),
   vec_assert(mediators, ptype = list())
   vec_assert(confounders, ptype = list())
   vec_assert(unknowns, ptype = list())
-  vec_assert(parent, ptype = character())
-  vec_assert(origin, ptype = character())
+  vec_assert(family, ptype = character())
+  vec_assert(source, ptype = character())
   vec_assert(pattern, ptype = character())
 
   new_rcrd(
@@ -220,10 +213,10 @@ new_formula <- function(formula = character(),
       "confounders" = confounders,
       "mediators" = mediators,
       "unknowns" = unknowns,
-      "parent" = parent,
-      "origin" = origin,
+      "family" = family,
+      "source" = source,
       "pattern" = pattern,
-      "stage" = stage
+      "level" = level
     ),
     class = "formula_archetype"
   )

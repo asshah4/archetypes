@@ -20,10 +20,10 @@ formula_archetype(x = unspecified(), ...)
   confounders = character(),
   mediators = character(),
   unknowns = character(),
-  parent = character(),
-  origin = character(),
+  family = character(),
+  source = character(),
   pattern = character(),
-  stage = character(),
+  level = character(),
   ...
 )
 
