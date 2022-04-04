@@ -112,7 +112,12 @@ prescribe.formula <- function(x,
     set_labels(labels = formula_args_to_list(label))
 
   # Formula
-  f <- formula_archetype(t)
+  f <- formula_archetype(
+    x = t,
+    family = character(),
+    source = character(),
+    pattern = pattern
+  )
 
   # Return
   new_script(
@@ -133,7 +138,7 @@ prescribe.term_archetype <- function(x,
 
   # Early Break if needed
   if (validate_empty(x)) {
-    return(new_term())
+    return(new_script())
   }
 
   # Updated attributes/components internally
@@ -156,8 +161,12 @@ prescribe.term_archetype <- function(x,
   }
 
   # Formula
-  f <- formula_archetype(t)
-
+  f <- formula_archetype(
+    x = t,
+    family = character(),
+    source = character(),
+    pattern = pattern
+  )
 
   # Return
   new_script(
@@ -231,13 +240,14 @@ format.script <- function(x, ...) {
 
   # Character representation of formula
   if (vec_size(x) == 0) {
-    fmt <- new_script()
+    return()
   } else {
     fmt <-
-      field(x, "formula") |>
-      format()
+      sapply(x, FUN = function(.x) {
+        field(.x, "formula") |>
+          format()
+      })
   }
-
   # Return
   fmt
 }

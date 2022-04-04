@@ -7,7 +7,7 @@ test_that("custom formuals can be initialized", {
   expect_s3_class(x, "formula_archetype")
 
   # Formula
-  f <- mpg ~ wt + hp
+  f <- mpg ~ wt + hp + S(cyl)
   x <- formula_archetype(f)
   expect_s3_class(x, "formula_archetype")
 })
@@ -17,4 +17,5 @@ test_that("casting and coercion can occur", {
   t <- tm(f)
   x <- rx(t, pattern = "sequential")
   lof <- construct_script(x)
+  expect_length(lof, 16)
 })

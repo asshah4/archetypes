@@ -3,126 +3,59 @@
 #' Formula Archetype
 #' @name formula
 #' @export
-formula_archetype <- function(x = unspecified(), ...) {
-  UseMethod("formula_archetype", object = x)
-}
-
-#' @rdname formula
-#' @export
-formula_archetype.character <- function(x = character(),
-                                        outcomes = character(),
-                                        predictors = character(),
-                                        exposures = character(),
-                                        confounders = character(),
-                                        mediators = character(),
-                                        unknowns = character(),
-                                        family = character(),
-                                        source = character(),
-                                        pattern = character(),
-                                        level = character(),
-                                        ...) {
+formula_archetype <- function(x = unspecified(),
+                              role = list(),
+                              tier = list(),
+                              label = list(),
+                              family = character(),
+                              source = character(),
+                              pattern = character(),
+                              ...) {
 
   # Early Break if needed
-  if (validate_empty(x)) {
+  if (length(x) == 0) {
     return(new_formula())
   }
 
-  # Recreate formula
-  t <- tm(stats::as.formula(x))
-  f <- paste(
-    paste(lhs(t), collapse = " + "),
-    paste(rhs(t), collapse = " + "),
-    sep = " ~ "
-  )
+  # Usable classes
+  acceptable_classes <-
+    c("character",
+      "formula",
+      "term_archetype",
+      "formula_archetype",
+      "script")
 
-  new_formula(
-    formula = f,
-    left = list(lhs(t)),
-    right = list(rhs(t)),
-    outcomes = list(outcomes),
-    predictors = list(predictors),
-    exposures = list(exposures),
-    confounders = list(confounders),
-    mediators = list(mediators),
-    unknowns = list(unknowns),
-    family = family,
-    source = class(x)[1],
-    pattern = "none",
-    level = check_complexity(t)
-  )
-}
-
-#' @rdname formula
-#' @export
-formula_archetype.term_archetype <- function(x, ...) {
-
-  # Early Break if needed
-  if (validate_empty(x)) {
-    return(new_formula())
+  if (!any(acceptable_classes %in% class(x))) {
+    stop("`formula_archetype()` is not defined for a `",
+         class(x)[1],
+         "` object.",
+         call. = FALSE)
   }
 
-  # Basic sides of a formula
-  f <- paste(
-    paste(lhs(x), collapse = " + "),
-    paste(rhs(x), collapse = " + "),
-    sep = " ~ "
-  )
+
+  # Generate rough-draft of terms
+  if ("character" %in% class(x)) {
+    y <- tm(stats::formula(x))
+  } else if ("formula" %in% class(x)) {
+    y <- tm(x)
+  } else if ("script" %in% class(x)) {
+    y <- tm(x)
+    pattern <- field(x, "pattern")
+  } else if ("term_archetype" %in% class(x)) {
+    y <- x
+  }
+
+  # Create terms
+  t <-
+    y |>
+    set_roles(roles = formula_args_to_list(role)) |>
+    set_tiers(tiers = formula_args_to_list(tier)) |>
+    set_labels(labels = formula_args_to_list(label))
+
+  # Formulas
+  f <- deparse1(stats::formula(t))
 
   # Underlying terms and their roles
-  rls <- roles(x)
-
-  # Roles
-  outcomes <- names(rls[rls == "outcome"])
-  predictors <- names(rls[rls == "predictor"])
-  exposures <- names(rls[rls == "exposure"])
-  confounders <- names(rls[rls == "confounder"])
-  mediators <- names(rls[rls == "mediator"])
-  unknowns <- names(rls[rls == "unknown"])
-
-  # family of this archetype (as is from terms)
-  family <- f
-
-  # Term type/family
-  lvl <- check_complexity(x)
-
-  # Return
-  new_formula(
-    formula = f,
-    left = list(lhs(x)),
-    right = list(rhs(x)),
-    outcomes = list(outcomes),
-    predictors = list(predictors),
-    exposures = list(exposures),
-    confounders = list(confounders),
-    mediators = list(mediators),
-    unknowns = list(unknowns),
-    family = f,
-    source = class(x)[1],
-    pattern = "none",
-    level = lvl
-  )
-}
-
-
-#' @rdname formula
-#' @export
-formula_archetype.formula <- function(x, ...) {
-
-
-  # Early Break if needed
-  if (validate_empty(x)) {
-    return(new_formula())
-  }
-
-  # Underlying terms and their roles
-  t <- tm(x)
-  f <- paste(
-    paste(lhs(t), collapse = " + "),
-    paste(rhs(t), collapse = " + "),
-    sep = " ~ "
-  )
-
-  # Roles
   rls <- roles(t)
   outcomes <- names(rls[rls == "outcome"])
   exposures <- names(rls[rls == "exposure"])
@@ -130,14 +63,16 @@ formula_archetype.formula <- function(x, ...) {
   confounders <- names(rls[rls == "confounder"])
   mediators <- names(rls[rls == "mediator"])
   unknowns <- names(rls[rls == "unknown"])
+  strata <- names(rls[rls == "strata"])
 
-  # family of this archetype (as is from formula)
-  family <- deparse1(x)
+  # Family
+  family <- f
 
-  # Level
-  lvl <- check_complexity(t)
+  # Check patterns
+  if (length(pattern) == 0) {
+    pattern <- NA_character_
+  }
 
-  # Return
   new_formula(
     formula = f,
     left = list(lhs(t)),
@@ -148,32 +83,17 @@ formula_archetype.formula <- function(x, ...) {
     confounders = list(confounders),
     mediators = list(mediators),
     unknowns = list(unknowns),
-    family = f,
+    strata = ifelse(length(strata) == 0, NA_character_, strata),
+    family = family,
     source = class(x)[1],
-    pattern = "none",
-    level = lvl
+    pattern = pattern,
+    status = check_complexity(t)
   )
 }
 
 #' @rdname formula
 #' @export
-formula_archetype.default <- function(x = unspecified(), ...) {
-  # Early break
-  if (length(x) == 0) {
-    return(new_formula())
-  }
-
-  stop("`formula_archetype()` is not defined for a `",
-    class(x)[1],
-    "` object.",
-    call. = FALSE
-  )
-}
-
-
-#' @rdname formula
-#' @export
-fmls <- formula_archetype
+fmls = formula_archetype
 
 # Record definition ------------------------------------------------------------
 
@@ -189,10 +109,11 @@ new_formula <- function(formula = character(),
                         confounders = list(),
                         mediators = list(),
                         unknowns = list(),
+                        strata = character(),
                         family = character(),
                         source = character(),
                         pattern = character(),
-                        level = character()) {
+                        status = character()) {
 
   # Validation
   vec_assert(formula, ptype = character())
@@ -204,9 +125,11 @@ new_formula <- function(formula = character(),
   vec_assert(mediators, ptype = list())
   vec_assert(confounders, ptype = list())
   vec_assert(unknowns, ptype = list())
+  vec_assert(strata, ptype = character())
   vec_assert(family, ptype = character())
   vec_assert(source, ptype = character())
   vec_assert(pattern, ptype = character())
+  vec_assert(status, ptype = character())
 
   new_rcrd(
     fields = list(
@@ -219,10 +142,11 @@ new_formula <- function(formula = character(),
       "confounders" = confounders,
       "mediators" = mediators,
       "unknowns" = unknowns,
+      "strata" = strata,
       "family" = family,
       "source" = source,
       "pattern" = pattern,
-      "level" = level
+      "status" = status
     ),
     class = "formula_archetype"
   )

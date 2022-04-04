@@ -3,37 +3,30 @@
 \name{formula}
 \alias{formula}
 \alias{formula_archetype}
-\alias{formula_archetype.character}
-\alias{formula_archetype.term_archetype}
-\alias{formula_archetype.formula}
-\alias{formula_archetype.default}
 \alias{fmls}
 \title{Formula Archetype}
 \usage{
-formula_archetype(x = unspecified(), ...)
-
-\method{formula_archetype}{character}(
-  x = character(),
-  outcomes = character(),
-  predictors = character(),
-  exposures = character(),
-  confounders = character(),
-  mediators = character(),
-  unknowns = character(),
+formula_archetype(
+  x = unspecified(),
+  role = list(),
+  tier = list(),
+  label = list(),
   family = character(),
   source = character(),
   pattern = character(),
-  level = character(),
   ...
 )
 
-\method{formula_archetype}{term_archetype}(x, ...)
-
-\method{formula_archetype}{formula}(x, ...)
-
-\method{formula_archetype}{default}(x = unspecified(), ...)
-
-fmls(x = unspecified(), ...)
+fmls(
+  x = unspecified(),
+  role = list(),
+  tier = list(),
+  label = list(),
+  family = character(),
+  source = character(),
+  pattern = character(),
+  ...
+)
 }
 \description{
 Formula Archetype

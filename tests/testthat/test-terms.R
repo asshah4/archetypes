@@ -136,12 +136,17 @@ test_that("terms can be generated from formulas", {
   expect_equal(vec_size(t1), length(t1))
   expect_length(tiers(t2), 2)
 
-  # Adding roles and labels works
+  # Adding roles and labels works, including strata
+  f <- mpg ~ X(hp) + M(gear) + drat + S(cyl)
   tm <-
     term_archetype(f, label = list(gear ~ "Gears")) |>
     vec_data()
-  expect_equal(tm$role[tm$terms == "cyl"], "mediator")
+  expect_equal(tm$role[tm$terms == "gear"], "mediator")
   expect_equal(tm$label[tm$terms == "gear"], "Gears")
+  expect_equal(tm$side[tm$terms == "cyl"], "meta")
+  expect_equal(tm$role[tm$terms == "cyl"], "strata")
+
+
 })
 
 test_that("terms can be made from a fitted model", {
@@ -168,7 +173,3 @@ test_that("terms can be made from a fitted model", {
   }
 })
 
-test_that("terms can be hashed into a sequence", {
-  f <- mpg + wt ~ X(hp) + M(cyl) + gear + drat
-  x <- tm(f)
-})

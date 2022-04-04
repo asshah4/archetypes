@@ -23,7 +23,7 @@ validate_class <- function(x, what) {
 #' Validate if an empty object is given to a function
 #' @keywords internal
 #' @noRd
-validate_empty <- function(x, fn) {
+validate_empty <- function(x) {
   # x is the primary argument of the parent function
   n <- length(x)
 

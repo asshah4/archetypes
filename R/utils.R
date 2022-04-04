@@ -318,7 +318,7 @@ set_roles <- function(x, roles, ...) {
   validate_class(roles, "list")
 
   # Update and append roles
-  rls <- append(roles.term_archetype(x), roles)
+  rls <- append(roles(x), roles)
 
   # Save the most "recent" updated label and erase prior if duplicate
   tm <- vec_data(x)

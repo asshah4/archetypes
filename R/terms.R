@@ -188,8 +188,7 @@ term_archetype.formula <- function(x,
                                    ...) {
 
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
@@ -239,7 +238,7 @@ term_archetype.formula <- function(x,
     }()
 
   # check to see if it is a "role" or a data transformation
-  which_ops <- right_ops %in% c("X", "M")
+  which_ops <- right_ops %in% c("X", "M", "S")
   role_ops <- right_ops[which_ops]
   data_ops <- right_ops[!which_ops]
 
@@ -262,6 +261,10 @@ term_archetype.formula <- function(x,
     if (role_ops[[i]] == "M") {
       role_ops[[i]] <- "mediator"
     }
+
+    if (role_ops[[i]] == "S") {
+      role_ops[[i]] <- "strata"
+    }
   }
 
   # create terms
@@ -270,7 +273,11 @@ term_archetype.formula <- function(x,
   for (i in 1:n) {
     # make parameters
     t <- all[i]
-    side <- if (t %in% left) {
+
+    # Sides and meta terms
+    side <- if (t %in% names(role_ops[role_ops == "strata"])) {
+      "meta"
+    } else if (t %in% left) {
       "left"
     } else if (t %in% right) {
       "right"
@@ -289,6 +296,7 @@ term_archetype.formula <- function(x,
     } else {
       NA
     }
+
 
     # Tiers
     tier <- if (t %in% names(tiers) & t %in% right) {
@@ -329,9 +337,9 @@ term_archetype.formula <- function(x,
 #' @rdname terms
 #' @export
 term_archetype.data.frame <- function(x, ...) {
+
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
@@ -352,8 +360,7 @@ term_archetype.lm <- function(x,
                               ...) {
 
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
@@ -419,8 +426,7 @@ term_archetype.model_fit <- function(x,
                                      ...) {
 
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
@@ -438,8 +444,7 @@ term_archetype.model_fit <- function(x,
 #' @export
 term_archetype.formula_archetype <- function(x, ...) {
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
@@ -453,7 +458,7 @@ term_archetype.formula_archetype <- function(x, ...) {
 #' @export
 term_archetype.script <- function(x, ...) {
   # Early Break if needed
-  if (validate_empty(x, fn = match.call())) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
