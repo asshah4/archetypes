@@ -22,6 +22,11 @@ model_archetype.lm <- function(x = unspecified(),
                                term_roles = list(),
                                ...) {
 
+  # Early Break if needed
+  if (validate_empty(x)) {
+    return(new_model())
+  }
+
   # Wrap model
   m <- list(x)
 

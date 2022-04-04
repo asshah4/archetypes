@@ -28,15 +28,17 @@ formula_archetype.character <- function(x = character(),
   }
 
   # Recreate formula
-  f <- stats::as.formula(x)
-  left <- paste(lhs(f), collapse = " + ")
-  right <- paste(rhs(f), collapse = " + ")
-  f <- paste(left, right, sep = " ~ ")
+  t <- tm(stats::as.formula(x))
+  f <- paste(
+    paste(lhs(t), collapse = " + "),
+    paste(rhs(t), collapse = " + "),
+    sep = " ~ "
+  )
 
   new_formula(
     formula = f,
-    left = left,
-    right = right,
+    left = list(lhs(t)),
+    right = list(rhs(t)),
     outcomes = list(outcomes),
     predictors = list(predictors),
     exposures = list(exposures),
@@ -45,8 +47,8 @@ formula_archetype.character <- function(x = character(),
     unknowns = list(unknowns),
     family = family,
     source = class(x)[1],
-    pattern = pattern,
-    level = level
+    pattern = "none",
+    level = check_complexity(t)
   )
 }
 
@@ -60,9 +62,11 @@ formula_archetype.term_archetype <- function(x, ...) {
   }
 
   # Basic sides of a formula
-  left <- paste(lhs(x), collapse = " + ")
-  right <- paste(rhs(x), collapse = " + ")
-  f <- paste(left, right, sep = " ~ ")
+  f <- paste(
+    paste(lhs(x), collapse = " + "),
+    paste(rhs(x), collapse = " + "),
+    sep = " ~ "
+  )
 
   # Underlying terms and their roles
   rls <- roles(x)
@@ -84,8 +88,8 @@ formula_archetype.term_archetype <- function(x, ...) {
   # Return
   new_formula(
     formula = f,
-    left = left,
-    right = right,
+    left = list(lhs(x)),
+    right = list(rhs(x)),
     outcomes = list(outcomes),
     predictors = list(predictors),
     exposures = list(exposures),
@@ -112,9 +116,11 @@ formula_archetype.formula <- function(x, ...) {
 
   # Underlying terms and their roles
   t <- tm(x)
-  left <- paste(lhs(t), collapse = " + ")
-  right <- paste(rhs(t), collapse = " + ")
-  f <- paste(left, right, sep = " ~ ")
+  f <- paste(
+    paste(lhs(t), collapse = " + "),
+    paste(rhs(t), collapse = " + "),
+    sep = " ~ "
+  )
 
   # Roles
   rls <- roles(t)
@@ -125,7 +131,7 @@ formula_archetype.formula <- function(x, ...) {
   mediators <- names(rls[rls == "mediator"])
   unknowns <- names(rls[rls == "unknown"])
 
-  # family of this archetype (as is from terms)
+  # family of this archetype (as is from formula)
   family <- deparse1(x)
 
   # Level
@@ -134,8 +140,8 @@ formula_archetype.formula <- function(x, ...) {
   # Return
   new_formula(
     formula = f,
-    left = left,
-    right = right,
+    left = list(lhs(t)),
+    right = list(rhs(t)),
     outcomes = list(outcomes),
     predictors = list(predictors),
     exposures = list(exposures),
@@ -175,8 +181,8 @@ fmls <- formula_archetype
 #' @keywords internal
 #' @noRd
 new_formula <- function(formula = character(),
-                        left = character(),
-                        right = character(),
+                        left = list(),
+                        right = list(),
                         outcomes = list(),
                         predictors = list(),
                         exposures = list(),
@@ -190,8 +196,8 @@ new_formula <- function(formula = character(),
 
   # Validation
   vec_assert(formula, ptype = character())
-  vec_assert(left, ptype = character()) # A string, unabridged
-  vec_assert(right, ptype = character()) # A string, unabridged
+  vec_assert(left, ptype = list()) # A string, unabridged
+  vec_assert(right, ptype = list()) # A string, unabridged
   vec_assert(outcomes, ptype = list())
   vec_assert(predictors, ptype = list())
   vec_assert(exposures, ptype = list())

@@ -386,8 +386,7 @@ term_archetype.glm <- function(x,
                                ...) {
 
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
+  if (validate_empty(x)) {
     return(new_term())
   }
 
@@ -634,55 +633,55 @@ formula.term_archetype <- function(x, ...) {
 #' @export
 format.term_archetype <- function(x, ...) {
   tm <- vec_data(x)
-  fmt_tm <- character()
+  fmt <- character()
 
   if (vec_size(x) == 0) {
-    fmt_tm <- new_term()
+    fmt <- new_term()
   } else if (has_cli() & vec_size(x) > 0) {
     for (i in 1:nrow(tm)) {
       if (tm$role[i] == "outcome") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, cli::col_yellow(t))
+        fmt <- append(fmt, cli::col_yellow(t))
       }
 
       if (tm$role[i] == "predictor") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, t)
+        fmt <- append(fmt, t)
       }
 
       if (tm$role[i] == "exposure") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, cli::col_magenta(t))
+        fmt <- append(fmt, cli::col_magenta(t))
       }
 
       if (tm$role[i] == "mediator") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, cli::col_cyan(t))
+        fmt <- append(fmt, cli::col_cyan(t))
       }
 
       if (tm$role[i] == "covariate") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, cli::col_blue(t))
+        fmt <- append(fmt, cli::col_blue(t))
       }
 
       if (tm$role[i] == "strata") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, cli::col_br_yellow(t))
+        fmt <- append(fmt, cli::col_br_yellow(t))
       }
 
       if (tm$role[i] == "unknown") {
         t <- tm$terms[i]
-        fmt_tm <- append(fmt_tm, t)
+        fmt <- append(fmt, t)
       }
     }
   } else {
     for (i in 1:nrow(tm)) {
-      fmt_tm <- append(fmt_tm, tm$terms[i])
+      fmt <- append(fmt, tm$terms[i])
     }
   }
 
   # return
-  fmt_tm
+  fmt
 }
 
 #' @export

@@ -122,6 +122,18 @@ lhs.term_archetype <- function(x, ...) {
 }
 
 #' @rdname sides
+#' @export
+rhs.formula_archetype <- function(x, ...) {
+  vec_data(x)$right[[1]]
+}
+
+#' @rdname sides
+#' @export
+lhs.formula_archetype <- function(x, ...) {
+  vec_data(x)$left[[1]]
+}
+
+#' @rdname sides
 #' @param tidy Logical value to decide if operations should be removed from the
 #'   terms. If `FALSE`, then the operations will remain included.
 #' @export

@@ -6,6 +6,8 @@
 \alias{rhs}
 \alias{rhs.term_archetype}
 \alias{lhs.term_archetype}
+\alias{rhs.formula_archetype}
+\alias{lhs.formula_archetype}
 \alias{rhs.formula}
 \alias{lhs.formula}
 \alias{rhs.script}
@@ -19,6 +21,10 @@ rhs(x, ...)
 \method{rhs}{term_archetype}(x, ...)
 
 \method{lhs}{term_archetype}(x, ...)
+
+\method{rhs}{formula_archetype}(x, ...)
+
+\method{lhs}{formula_archetype}(x, ...)
 
 \method{rhs}{formula}(x, tidy = FALSE, ...)
 

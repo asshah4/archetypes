@@ -86,9 +86,8 @@ prescribe.formula <- function(x,
                               ...) {
 
   # Early Break if needed
-  mc <- match.call()
-  if (validate_empty(x, mc)) {
-    return(new_term())
+  if (validate_empty(x)) {
+    return(new_script())
   }
 
   # Check pattern
@@ -250,21 +249,28 @@ obj_print_data.script <- function(x, ...) {
   if (vec_size(x) == 0) {
     fmt <- new_script()
   } else {
-    t <- field(x, "terms")[[1]]
-    tm <- vec_data(t)
-    left <- vec_restore(tm[tm$side == "left", ], tm())
-    right <- vec_restore(tm[tm$side == "right", ], tm())
-
     fmt <-
-      paste(format(left), collapse = " + ") |>
-      paste(paste(format(right), collapse = " + "), sep = " ~ ")
+      sapply(
+        x,
+        FUN = function(.x) {
+          t <- field(.x, "terms")[[1]]
+          tm <- vec_data(t)
+          left <- vec_restore(tm[tm$side == "left", ], to = tm())
+          right <- vec_restore(tm[tm$side == "right", ], to = tm())
 
-    # Depending on length
-    if (length(x) > 1) {
-      cat(fmt, sep = "\n")
-    } else {
-      cat(fmt)
-    }
+          f <-
+            paste(format(left), collapse = " + ") |>
+            paste(paste(format(right), collapse = " + "), sep = " ~ ")
+
+          f
+        }
+      )
+  }
+
+  if (length(fmt) > 1) {
+    cat(format(fmt), sep = "\n")
+  } else {
+    cat(format(fmt))
   }
 }
 

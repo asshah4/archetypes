@@ -158,10 +158,9 @@ construct_script <- function(rx) {
       confounders = vt$terms[vt$roles == "confounder"],
       mediators = vt$terms[vt$roles == "mediator"],
       unknowns = vt$terms[vt$roles == "unknown"],
-      parent = as.character(rx),
+      family = as.character(rx),
       origin = "script",
-      pattern = pattern,
-      stage = "simple"
+      pattern = pattern
     )
 
     fa <- append(fa, f)
