@@ -44,3 +44,14 @@ test_that("mediation creates appropriate lists", {
   lof <- construct_script(f)
   expect_length(lof, 5)
 })
+
+test_that("strata can be made appropriately", {
+
+  f <- mpg ~ X(wt) + hp + qsec + S(cyl)
+  labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
+  tiers <- list(qsec ~ "speed", wt ~ "hardware")
+  t <- tm(f, label = labels, tier = tiers)
+  x <- rx(t, pattern = "sequential")
+  lof <- construct_script(x)
+  expect_length(lof, 3)
+})

@@ -11,7 +11,6 @@
 \alias{term_archetype.model_fit}
 \alias{term_archetype.formula_archetype}
 \alias{term_archetype.script}
-\alias{term_archetype.list_of_formulas}
 \alias{term_archetype.default}
 \alias{tm}
 \title{term_archetype records}
@@ -23,13 +22,12 @@ term_archetype(x = unspecified(), ...)
   side = character(),
   role = character(),
   tier = character(),
-  operation = character(),
   label = character(),
   description = character(),
   distribution = character(),
+  operation = character(),
   type = character(),
   subtype = character(),
-  status = character(),
   ...
 )
 
@@ -87,8 +85,6 @@ term_archetype(x = unspecified(), ...)
 
 \method{term_archetype}{script}(x, ...)
 
-\method{term_archetype}{list_of_formulas}(x, ...)
-
 \method{term_archetype}{default}(x = unspecified(), ...)
 
 tm(x = unspecified(), ...)
@@ -110,35 +106,32 @@ via a list of formulas. See details for further explanation.
 \item \strong{left}: for variables that are intended to be dependent
 \item \strong{right}: for variables that are intended to be independent
 \item \strong{meta}: for variables that are intended to explain relationships
-\item \strong{unknown}: for variables that have unknown sides
-between other variables, e.g. \emph{strata} or \emph{conditioning} variables
+\item \strong{unknown}: for variables that have unknown or undetermined sides, such
+as unknown position between other variables (e.g. potential mediators,
+conditioning variables, etc)
 }}
 
 \item{role}{Specific roles the variable plays within the formula. These are
 of particular importance, as they serve as special terms that can effect
-how a formula is interpreted. The options for roles are as below:
+how a formula is interpreted. Please see the \emph{Roles} section below for
+further details. The options for roles are as below:
 \itemize{
 \item \strong{outcome}: outcome/dependent variable that serves as an individual
-variable in the \eqn{exposure -> outcome} relationship (DEFAULT for left
-sided variables)
-\item \strong{predictor}: predictor variable that is non-specific but decidedly on
-the right-hand side of an equation (DEFAULT for right sided variables)
+variable in the \eqn{exposure -> outcome} relationship (DEFAULT for LHS variables)
+\item \strong{predictor}: predictors of the outcomes (DEFAULT for RHS variables)
+\item \strong{exposure}: predictor variable that serves as a primary or key
+variable in the \eqn{exposure -> outcome} relationship
 \item \strong{confounder}: predictor variable that is thought to be a confounder of
 the causal relationship in the \eqn{exposure <- confounder -> outcome}
 pathway, normally thought of as an adjustment or controlling variable
-\item \strong{exposure}: predictor variable that serves as a primary or key
-variable in the \eqn{exposure -> outcome} relationship
 \item \strong{mediator}: predictor variable that is thought to be a causal
 interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
 \item \strong{unknown}: default role of a variable that has not yet been assigned a
 place, such as a potential intermediary object
 }}
 
-\item{tier}{Grouping variable name for independent variables for modeling
-terms together}
-
-\item{operation}{Modification of the term_archetype to be applied when
-combining with data}
+\item{tier}{Grouping variable names for covariates or \strong{confounders} for
+modeling terms together}
 
 \item{label}{Display-quality label describing the variable}
 
@@ -147,6 +140,9 @@ the term_archetype, potentially part of a data dictionary}
 
 \item{distribution}{If its associated with a data vector, describes the
 distribution pattern of the original term_archetype}
+
+\item{operation}{Modification of the term to be applied when
+combining with data}
 
 \item{type}{Type of variable, either categorical (qualitative) or
 continuous (quantitative)}
@@ -169,8 +165,27 @@ wrapped within a \code{list()}.
 
 For example, for the \strong{role} argument, it would be written:
 
-\code{role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "covariate")}
+\code{role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "confounder")}
 
 This applies for all others plural objects and arguments.
+}
+
+\section{Roles}{
+
+
+Specific roles the variable plays within the formula. These are of particular
+importance, as they serve as special terms that can effect how a formula is
+interpreted. The specialized options for roles are as below:
+\itemize{
+\item \strong{exposure} or \code{X(...)}
+\item \strong{outcome} or \code{O(...)} or placement of variable on LHS of formula
+\item \strong{confounder} or \code{C(...)}
+\item \strong{mediator} or \code{M(...)}
+\item \strong{strata} or \code{S(...)}
+}
+
+Formulas can be condensed by applying their specific role to individual terms
+as a function/wrapper. For example, \code{y ~ X(x1) + x2 + x3}. This would signify
+that \code{x1} has the specific role of an exposure.
 }
 

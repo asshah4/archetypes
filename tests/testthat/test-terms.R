@@ -173,3 +173,4 @@ test_that("terms can be made from a fitted model", {
   }
 })
 
+

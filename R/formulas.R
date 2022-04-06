@@ -7,9 +7,10 @@ formula_archetype <- function(x = unspecified(),
                               role = list(),
                               tier = list(),
                               label = list(),
-                              family = character(),
-                              source = character(),
+                              strata = character(),
                               pattern = character(),
+                              lineage = list(),
+                              order = integer(),
                               ...) {
 
   # Early Break if needed
@@ -36,6 +37,9 @@ formula_archetype <- function(x = unspecified(),
   # Generate rough-draft of terms
   if ("character" %in% class(x)) {
     y <- tm(stats::formula(x))
+    if (length(strata) > 0) {
+      y <- add_strata(y, strata)
+    }
   } else if ("formula" %in% class(x)) {
     y <- tm(x)
   } else if ("script" %in% class(x)) {
@@ -56,38 +60,72 @@ formula_archetype <- function(x = unspecified(),
   f <- deparse1(stats::formula(t))
 
   # Underlying terms and their roles
-  rls <- roles(t)
-  outcomes <- names(rls[rls == "outcome"])
-  exposures <- names(rls[rls == "exposure"])
-  predictors <- names(rls[rls == "predictor"])
-  confounders <- names(rls[rls == "confounder"])
-  mediators <- names(rls[rls == "mediator"])
-  unknowns <- names(rls[rls == "unknown"])
-  strata <- names(rls[rls == "strata"])
 
-  # Family
-  family <- f
+  # Strata
+  if (length(strata) == 0) {
+    strata <- NA_character_
+  }
 
-  # Check patterns
+  # Pattern
   if (length(pattern) == 0) {
     pattern <- NA_character_
   }
 
+  #############
+  ### ORDER ###
+  #############
+
+    # ZEROETH
+      # Only single term object
+    # FIRST
+      # Does not follow rules of roles
+      # LHS = 1
+      # RHS = 1
+    # SECOND
+      # Follows rules of roles
+      # LHS = 1
+      # RHS = exposure + confounder
+      # RHS = mediator (no confounders allowed)
+      # RHS =/= outcome
+    # THIRD
+      # Does not follow rules of roles
+      # LHS = 1
+      # RHS > 1 exposure
+      # RHS > 1 mediator
+      # RHS = exposure + mediator
+    # FOURTH
+      # LHS > 1
+  vt <- vec_data(t)
+  rls <- roles(t)
+  outcome <- names(rls[rls == "outcome"])
+  predictor <- names(rls[rls == "predictor"])
+  exposure <- names(rls[rls == "exposure"])
+  confounder <- names(rls[rls == "confounder"])
+  mediator <- names(rls[rls == "mediator"])
+  unknown <- names(rls[rls == "unknown"])
+  strata <- names(rls[rls == "strata"])
+  out <- length(outcome)
+  exp <- length(exposure)
+  prd <- length(c(confounder, predictor))
+  med <- length(mediator)
+  unk <- length(unknown)
+
+  # This will check the complexity and break down of the formulas
+  # Rules are...
+
+
+  # Lineage
+
   new_formula(
     formula = f,
-    left = list(lhs(t)),
-    right = list(rhs(t)),
-    outcomes = list(outcomes),
-    predictors = list(predictors),
-    exposures = list(exposures),
-    confounders = list(confounders),
-    mediators = list(mediators),
-    unknowns = list(unknowns),
-    strata = ifelse(length(strata) == 0, NA_character_, strata),
-    family = family,
-    source = class(x)[1],
-    pattern = pattern,
-    status = check_complexity(t)
+    outcome = outcome,
+    exposure = list(exposure),
+    confounder = list(confounder),
+    mediator = list(mediator),
+    unknown = list(unknown),
+    strata = strata,
+    order = order,
+    lineage = lineage
   )
 }
 
@@ -101,52 +139,37 @@ fmls = formula_archetype
 #' @keywords internal
 #' @noRd
 new_formula <- function(formula = character(),
-                        left = list(),
-                        right = list(),
-                        outcomes = list(),
-                        predictors = list(),
-                        exposures = list(),
-                        confounders = list(),
-                        mediators = list(),
-                        unknowns = list(),
+                        outcome = character(),
+                        exposure = list(),
+                        confounder = list(),
+                        mediator = list(),
+                        unknown = list(),
                         strata = character(),
-                        family = character(),
-                        source = character(),
-                        pattern = character(),
-                        status = character()) {
+                        order = integer(),
+                        lineage = list()) {
 
-  # Validation
+  # Validation will depend
   vec_assert(formula, ptype = character())
-  vec_assert(left, ptype = list()) # A string, unabridged
-  vec_assert(right, ptype = list()) # A string, unabridged
-  vec_assert(outcomes, ptype = list())
-  vec_assert(predictors, ptype = list())
-  vec_assert(exposures, ptype = list())
-  vec_assert(mediators, ptype = list())
-  vec_assert(confounders, ptype = list())
-  vec_assert(unknowns, ptype = list())
+  vec_assert(outcome, ptype = character())
+  vec_assert(exposure, ptype = list())
+  vec_assert(confounder, ptype = list())
+  vec_assert(mediator, ptype = list())
+  vec_assert(unknown, ptype = list())
   vec_assert(strata, ptype = character())
-  vec_assert(family, ptype = character())
-  vec_assert(source, ptype = character())
-  vec_assert(pattern, ptype = character())
-  vec_assert(status, ptype = character())
+  vec_assert(order, ptype = integer())
+  vec_assert(lineage, ptype = list())
 
   new_rcrd(
     fields = list(
       "formula" = formula,
-      "left" = left,
-      "right" = right,
-      "outcomes" = outcomes,
-      "predictors" = predictors,
-      "exposures" = exposures,
-      "confounders" = confounders,
-      "mediators" = mediators,
-      "unknowns" = unknowns,
+      "outcome" = outcome,
+      "exposure" = exposure,
+      "confounder" = confounder,
+      "mediator" = mediator,
+      "unknown" = unknown,
       "strata" = strata,
-      "family" = family,
-      "source" = source,
-      "pattern" = pattern,
-      "status" = status
+      "order" = order,
+      "lineage" = lineage
     ),
     class = "formula_archetype"
   )

@@ -67,19 +67,18 @@ validate_models <- function(x) {
 #' @noRd
 check_complexity <- function(x) {
 
-
   validate_class(x, "term_archetype")
   y <- vec_data(x)
-  out <- y$role[y$role == "outcome"]
-  exp <- y$role[y$role == "exposure"]
-  prd <- y$role[y$role == "predictor"]
-  med <- y$role[y$role == "mediator"]
+  out <- c(y$terms[y$role == "outcome"], y$terms[y$role == "dependent"])
+  exp <- y$terms[y$role == "exposure"]
+  ind <- y$terms[y$role == "independent"]
+  med <- y$terms[y$role == "mediator"]
 
   # Complexity levels:
     # "unit" = a 1:1 relationship, one LHS and one RHS term
     # "simple" = may have covariates or additional terms, but only 1 outcome
     # "complex" = may still have multiple outcomes or predictors
-  if (nrow(y) == 2 & length(y$side[c("left", "right") %in% y$side]) == 2) {
+  if (length(y$side[y$side %in% c("left", "right")]) == 2) {
     z <- "unit"
   } else if (length(out) == 1 & length(exp) < 2) {
     z <- "simple"

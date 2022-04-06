@@ -11,9 +11,12 @@ formula_archetype(
   role = list(),
   tier = list(),
   label = list(),
+  strata = character(),
   family = character(),
   source = character(),
   pattern = character(),
+  lineage = list(),
+  order = integer(),
   ...
 )
 
@@ -22,9 +25,12 @@ fmls(
   role = list(),
   tier = list(),
   label = list(),
+  strata = character(),
   family = character(),
   source = character(),
   pattern = character(),
+  lineage = list(),
+  order = integer(),
   ...
 )
 }

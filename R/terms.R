@@ -27,38 +27,35 @@
 #'
 #'   * __meta__: for variables that are intended to explain relationships
 #'
-#'   * __unknown__: for variables that have unknown sides
-#'   between other variables, e.g. _strata_ or _conditioning_ variables
+#'   * __unknown__: for variables that have unknown or undetermined sides, such
+#'   as unknown position between other variables (e.g. potential mediators,
+#'   conditioning variables, etc)
 #'
 #' @param role Specific roles the variable plays within the formula. These are
 #'   of particular importance, as they serve as special terms that can effect
-#'   how a formula is interpreted. The options for roles are as below:
+#'   how a formula is interpreted. Please see the _Roles_ section below for
+#'   further details. The options for roles are as below:
 #'
 #'   * __outcome__: outcome/dependent variable that serves as an individual
-#'   variable in the \eqn{exposure -> outcome} relationship (DEFAULT for left
-#'   sided variables)
+#'   variable in the \eqn{exposure -> outcome} relationship (DEFAULT for LHS variables)
 #'
-#'   * __predictor__: predictor variable that is non-specific but decidedly on
-#'   the right-hand side of an equation (DEFAULT for right sided variables)
+#'   * __predictor__: predictors of the outcomes (DEFAULT for RHS variables)
+
+#'   * __exposure__: predictor variable that serves as a primary or key
+#'   variable in the \eqn{exposure -> outcome} relationship
 #'
 #'   * __confounder__: predictor variable that is thought to be a confounder of
 #'   the causal relationship in the \eqn{exposure <- confounder -> outcome}
 #'   pathway, normally thought of as an adjustment or controlling variable
 #'
-#'   * __exposure__: predictor variable that serves as a primary or key
-#'   variable in the \eqn{exposure -> outcome} relationship
-#'
 #'   * __mediator__: predictor variable that is thought to be a causal
 #'   interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
-#'
+
 #'   * __unknown__: default role of a variable that has not yet been assigned a
 #'   place, such as a potential intermediary object
 #'
-#' @param tier Grouping variable name for independent variables for modeling
-#'   terms together
-#'
-#' @param operation Modification of the term_archetype to be applied when
-#'   combining with data
+#' @param tier Grouping variable names for covariates or __confounders__ for
+#'   modeling terms together
 #'
 #' @param label Display-quality label describing the variable
 #'
@@ -77,6 +74,9 @@
 #' @param subtype How the variable itself is more specifically subcategorized,
 #'   e.g. ordinal, continuous, dichotomous, etc
 #'
+#' @param operation Modification of the term to be applied when
+#'   combining with data
+#'
 #' @section Pluralized Arguments:
 #'
 #' For the arguments that would be dispatched for objects that are plural, e.g.
@@ -85,9 +85,11 @@
 #'
 #' For example, for the __role__ argument, it would be written:
 #'
-#' `role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "covariate")`
+#' `role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "confounder")`
 #'
 #' This applies for all others plural objects and arguments.
+#'
+#' @inheritSection script Roles
 #'
 #' @name terms
 #' @export
@@ -101,13 +103,12 @@ term_archetype.character <- function(x,
                                      side = character(),
                                      role = character(),
                                      tier = character(),
-                                     operation = character(),
                                      label = character(),
                                      description = character(),
                                      distribution = character(),
+                                     operation = character(),
                                      type = character(),
                                      subtype = character(),
-                                     status = character(),
                                      ...) {
 
   # Early Break if needed
@@ -117,7 +118,7 @@ term_archetype.character <- function(x,
 
   # missing values
   if (length(side) == 0) {
-    side <- NA
+    side <- "unknown"
   }
   if (length(role) == 0) {
     role <- "unknown"
@@ -143,22 +144,18 @@ term_archetype.character <- function(x,
   if (length(subtype) == 0) {
     subtype <- NA
   }
-  if (length(status) == 0) {
-    status <- NA
-  }
 
-  # casting
+  # Casting
   x <- vec_cast(x, character())
   side <- vec_cast(side, character())
   role <- vec_cast(role, character())
   tier <- vec_cast(tier, character())
-  operation <- vec_cast(operation, character())
   label <- vec_cast(label, character())
   description <- vec_cast(description, character())
   distribution <- vec_cast(distribution, character())
   type <- vec_cast(type, character())
   subtype <- vec_cast(subtype, character())
-  status <- vec_cast(status, character())
+  operation <- vec_cast(operation, character())
 
   new_term(
     terms = x,
@@ -170,8 +167,7 @@ term_archetype.character <- function(x,
     description = description,
     distribution = distribution,
     type = type,
-    subtype = subtype,
-    status = status
+    subtype = subtype
   )
 }
 
@@ -238,7 +234,7 @@ term_archetype.formula <- function(x,
     }()
 
   # check to see if it is a "role" or a data transformation
-  which_ops <- right_ops %in% c("X", "M", "S")
+  which_ops <- right_ops %in% c("O", "X", "M", "C", "S")
   role_ops <- right_ops[which_ops]
   data_ops <- right_ops[!which_ops]
 
@@ -254,12 +250,19 @@ term_archetype.formula <- function(x,
   role_ops <- c(role_ops, left_ops, other_ops)
 
   for (i in seq_along(role_ops)) {
+    if (role_ops[[i]] == "O") {
+      role_ops[[i]] <- "outcome"
+    }
     if (role_ops[[i]] == "X") {
       role_ops[[i]] <- "exposure"
     }
 
     if (role_ops[[i]] == "M") {
       role_ops[[i]] <- "mediator"
+    }
+
+    if (role_ops[[i]] == "C") {
+      role_ops[[i]] <- "confounder"
     }
 
     if (role_ops[[i]] == "S") {
@@ -299,17 +302,18 @@ term_archetype.formula <- function(x,
 
 
     # Tiers
-    tier <- if (t %in% names(tiers) & t %in% right) {
-      tiers[[t]]
-    } else if (t %in% names(tiers) & t %in% left) {
-      message(
-        "The term `",
-        t,
-        "` cannot be given a tier as it is an outcome variable."
-      )
-    } else {
-      NA
-    }
+    tier <-
+      if (t %in% names(tiers) & t %in% names(role_ops[role_ops %in% c("exposure", "mediator", "strata", "outcome")])) {
+        message(
+          "The term `",
+          t,
+          "` cannot be given a tier as it is not an ordinary predictor."
+        )
+      } else if (t %in% names(tiers)) {
+        tiers[[t]]
+      } else {
+        NA
+      }
 
     # Labels
     lab <- if (t %in% names(labels)) {
@@ -319,7 +323,7 @@ term_archetype.formula <- function(x,
     }
 
     # place into term_archetype list after casting appropriate classes
-    term_list[[i]] <- term_archetype(
+    term_list[[i]] <- term_archetype.character(
       x = vec_cast(t, character()),
       side = vec_cast(side, character()),
       role = vec_cast(role, character()),
@@ -468,24 +472,6 @@ term_archetype.script <- function(x, ...) {
 
 #' @rdname terms
 #' @export
-term_archetype.list_of_formulas <- function(x, ...) {
-  # early break
-  if (length(x) == 0) {
-    message(
-      paste0(
-        "no `",
-        class(x)[1],
-        "` object was provided, resulting in a [0] length `term_archetype` object."
-      )
-    )
-    return(new_term())
-  }
-
-  attr(x, "terms")
-}
-
-#' @rdname terms
-#' @export
 term_archetype.default <- function(x = unspecified(), ...) {
   # Early break
   if (length(x) == 0) {
@@ -513,24 +499,30 @@ new_term <- function(terms = character(),
                      side = character(),
                      role = character(),
                      tier = character(),
-                     operation = character(),
                      label = character(),
                      description = character(),
                      distribution = character(),
+                     operation = character(),
                      type = character(),
                      subtype = character(),
-                     status = character()) {
+                     order = integer()) {
+  # Validation
   vec_assert(terms, ptype = character())
   vec_assert(side, ptype = character())
   vec_assert(role, ptype = character())
   vec_assert(tier, ptype = character())
-  vec_assert(operation, ptype = character())
   vec_assert(label, ptype = character())
   vec_assert(description, ptype = character())
   vec_assert(distribution, ptype = character())
+  vec_assert(operation, ptype = character())
   vec_assert(type, ptype = character())
   vec_assert(subtype, ptype = character())
-  vec_assert(status, ptype = character())
+  vec_assert(order, ptype = integer())
+
+  # Forced order
+  if (length(terms) > 0) {
+    order <- 0L
+  }
 
   new_rcrd(
     list(
@@ -538,13 +530,13 @@ new_term <- function(terms = character(),
       "side" = side,
       "role" = role,
       "tier" = tier,
-      "operation" = operation,
       "label" = label,
       "description" = description,
       "distribution" = distribution,
+      "operation" = operation,
       "type" = type,
       "subtype" = subtype,
-      "status" = status
+      "order" = order
     ),
     class = "term_archetype"
   )
@@ -554,6 +546,82 @@ new_term <- function(terms = character(),
 #' @noRd
 methods::setOldClass(c("term_archetype", "rcrds_rcrd"))
 
+# Output -----------------------------------------------------------------------
+
+#' @export
+format.term_archetype <- function(x, ...) {
+  tm <- vec_data(x)
+  fmt <- character()
+
+  if (vec_size(x) == 0) {
+    fmt <- new_term()
+  } else if (has_cli() & vec_size(x) > 0) {
+    for (i in 1:nrow(tm)) {
+      if (tm$role[i] == "outcome") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, cli::col_yellow(t))
+      }
+
+      if (tm$role[i] == "exposure") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, cli::col_magenta(t))
+      }
+
+      if (tm$role[i] == "mediator") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, cli::col_cyan(t))
+      }
+
+      if (tm$role[i] == "confounder") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, cli::col_blue(t))
+      }
+
+      if (tm$role[i] == "strata") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, cli::col_br_white(t))
+      }
+
+      if (tm$role[i] == "unknown") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, t)
+      }
+
+      if (tm$role[i] == "predictor") {
+        t <- tm$terms[i]
+        fmt <- append(fmt, t)
+      }
+    }
+  } else {
+    for (i in 1:nrow(tm)) {
+      fmt <- append(fmt, tm$terms[i])
+    }
+  }
+
+  # return
+  fmt
+}
+
+#' @export
+obj_print_data.term_archetype <- function(x, ...) {
+  if (vec_size(x) == 0) {
+    new_term()
+  } else if (vec_size(x) > 1) {
+    cat(format(x), sep = "\n")
+  } else {
+    cat(format(x))
+  }
+}
+
+#' @export
+vec_ptype_full.term_archetype <- function(x, ...) {
+  "term_archetype"
+}
+
+#' @export
+vec_ptype_abbr.term_archetype <- function(x, ...) {
+  "tm"
+}
 
 # Casting and coercion ---------------------------------------------------------
 
@@ -633,79 +701,3 @@ formula.term_archetype <- function(x, ...) {
     stats::as.formula()
 }
 
-# Output -----------------------------------------------------------------------
-
-#' @export
-format.term_archetype <- function(x, ...) {
-  tm <- vec_data(x)
-  fmt <- character()
-
-  if (vec_size(x) == 0) {
-    fmt <- new_term()
-  } else if (has_cli() & vec_size(x) > 0) {
-    for (i in 1:nrow(tm)) {
-      if (tm$role[i] == "outcome") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, cli::col_yellow(t))
-      }
-
-      if (tm$role[i] == "predictor") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, t)
-      }
-
-      if (tm$role[i] == "exposure") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, cli::col_magenta(t))
-      }
-
-      if (tm$role[i] == "mediator") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, cli::col_cyan(t))
-      }
-
-      if (tm$role[i] == "covariate") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, cli::col_blue(t))
-      }
-
-      if (tm$role[i] == "strata") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, cli::col_br_yellow(t))
-      }
-
-      if (tm$role[i] == "unknown") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, t)
-      }
-    }
-  } else {
-    for (i in 1:nrow(tm)) {
-      fmt <- append(fmt, tm$terms[i])
-    }
-  }
-
-  # return
-  fmt
-}
-
-#' @export
-obj_print_data.term_archetype <- function(x, ...) {
-  if (vec_size(x) == 0) {
-    new_term()
-  } else if (vec_size(x) > 1) {
-    cat(format(x), sep = "\n")
-  } else {
-    cat(format(x))
-  }
-}
-
-#' @export
-vec_ptype_full.term_archetype <- function(x, ...) {
-  "term_archetype"
-}
-
-#' @export
-vec_ptype_abbr.term_archetype <- function(x, ...) {
-  "tm"
-}

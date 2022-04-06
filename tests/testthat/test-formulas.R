@@ -1,3 +1,13 @@
+test_that("formulas can be made with appropriate roles and complexity", {
+
+  f <- y ~ X(x) + M(m) + c
+  t <- tm(f)
+  x <- rx(t)
+
+
+})
+
+
 test_that("custom formuals can be initialized", {
 
   # Terms
@@ -18,4 +28,19 @@ test_that("casting and coercion can occur", {
   x <- rx(t, pattern = "sequential")
   lof <- construct_script(x)
   expect_length(lof, 16)
+})
+
+test_that("appropriate family tracking occurs in strata", {
+  f <- mpg ~ X(wt) + hp + qsec + S(cyl)
+  labels <- list(mpg ~ "Mileage", hp ~ "Horsepower")
+  tiers <- list(qsec ~ "speed", wt ~ "hardware")
+  t <- tm(f, label = labels, tier = tiers)
+  x <- rx(t, pattern = "sequential")
+  fl <- construct_script(x)
+  expect_equal(field(fl, "stage")[1], "unit")
+  expect_equal(field(fl, "stage")[2], "simple")
+  expect_equal(field(fl, "formula")[1], "mpg ~ wt")
+  expect_equal(field(fl, "family")[1], field(fl, "family")[2])
+  expect_equal(field(fl, "source")[1], "script")
+  expect_equal(field(fl, "strata")[1], "cyl")
 })

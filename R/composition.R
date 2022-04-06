@@ -3,12 +3,12 @@
 #' This function uses the components of a `script` object to expand a list of
 #' formulas that can subsequently be used.
 #'
-#' @param rx A `script` object from the `prescribe()` or `rx()` functions
+#' @param s A `script` object from the `prescribe()` or `rx()` functions
 #' @export
-construct_script <- function(rx) {
-  validate_class(rx, "script")
-  pattern <- field(rx, "pattern")
-  t <- field(rx, "terms")[[1]]
+compose_script <- function(s) {
+  validate_class(s, "script")
+  pattern <- field(s, "pattern")
+  t <- field(s, "terms")[[1]]
   rls <- roles(t)
   tbl <- list_to_table(rls, id = "terms", val = "roles")
   tm <- vec_data(t)
@@ -16,15 +16,19 @@ construct_script <- function(rx) {
   # Variables of each type
   outcomes <- names(rls[rls == "outcome"])
   exposures <- names(rls[rls == "exposure"])
-  predictors <- names(rls[rls == "predictor"])
   confounders <- names(rls[rls == "confounder"])
   mediators <- names(rls[rls == "mediator"])
   unknowns <- names(rls[rls == "unknown"])
+  independent <- names(rls[rls == "independent"])
+  dependent <- names(rls[rls == "dependent"])
+  strata <- names(rls[rls == "strata"])
 
-  # Counts of each variable type
-  out <- length(outcomes)
+  # Outcomes are a mix of both specified outcomes and dependent variables
+  outcomes <- c(outcomes, dependent)
+
+  # Counts of each variable type to be potentially included
+  out <- length(outcomes) # Mix of response/outcome variables
   exp <- length(exposures)
-  prd <- length(predictors)
   con <- length(confounders)
   med <- length(mediators)
   unk <- length(unknowns)
@@ -42,7 +46,7 @@ construct_script <- function(rx) {
   }
 
   covariates <-
-    c(predictors, confounders) |>
+    c(independent, confounders) |>
     {
       \(.x) .x[!(.x %in% names(tier_list))]
     }() |>
@@ -150,16 +154,14 @@ construct_script <- function(rx) {
       all.vars()
     vt <- tbl[tbl$terms %in% v, ]
 
+    rl <- table_to_list(vt)
+
     f <- formula_archetype(
       x = i,
-      outcomes = vt$terms[vt$roles == "outcome"],
-      predictors = vt$terms[vt$roles == "predictor"],
-      exposures = vt$terms[vt$roles == "exposure"],
-      confounders = vt$terms[vt$roles == "confounder"],
-      mediators = vt$terms[vt$roles == "mediator"],
-      unknowns = vt$terms[vt$roles == "unknown"],
+      role = list_to_formula_args(rl),
+      strata = strata,
       family = as.character(rx),
-      origin = "script",
+      source = "script",
       pattern = pattern
     )
 
@@ -225,4 +227,92 @@ pattern_switch <- function(formula_list,
 
   # Return
   formula_list
+}
+
+#' Identify order or complexity of a set of terms or formula
+#' @export
+decipher <- function(t) {
+  validate_class(t, "term_archetype")
+
+  #############
+  ### ORDER ###
+  #############
+  order <- integer()
+
+    # ZEROETH
+      # Only single term object
+    # FIRST
+      # Does not follow rules of roles
+      # LHS = 1
+      # RHS = 1
+    # SECOND
+      # Follows rules of roles
+      # LHS = 1
+      # RHS = exposure + confounder
+      # RHS = mediator (no confounders allowed)
+      # RHS =/= outcome
+    # THIRD
+      # Does not follow rules of roles
+      # LHS = 1
+      # RHS > 1 exposure
+      # RHS > 1 mediator
+      # RHS = exposure + mediator
+    # FOURTH
+      # LHS > 1
+
+  vt <- vec_data(t)
+  rls <- roles(t)
+  outcome <- names(rls[rls == "outcome"])
+  predictor <- names(rls[rls == "predictor"])
+  exposure <- names(rls[rls == "exposure"])
+  confounder <- names(rls[rls == "confounder"])
+  mediator <- names(rls[rls == "mediator"])
+  unknown <- names(rls[rls == "unknown"])
+  strata <- names(rls[rls == "strata"])
+
+  # Number of variables
+  out <- length(outcome)
+  exp <- length(exposure)
+  prd <- length(c(confounder, predictor))
+  med <- length(mediator)
+  unk <- length(unknown)
+
+  # Number of left and right terms
+  left <- sum(out)
+  right <- sum(exp, prd, med, unk)
+
+  # Zeroeth order
+  if (length(t) == 1) {
+    order <- 0L
+  }
+
+  # First order
+  if (left == 1 & right == 1) {
+    order <- 1L
+  }
+
+  # Second order
+  if (left == 1 & right >= 1) {
+
+    if (med > 0 & right = 1) {
+      order <- 2L
+    }
+
+    if (exp > 0 & med == 0) {
+      order <- 2L
+    }
+
+    if (exp == 0 & med == 0 & prd > 1) {
+      order <- 2L
+    }
+
+  }
+
+  # Third order
+
+  # Fourth order
+  if (left > 1) {
+    order <- 4L
+  }
+
 }

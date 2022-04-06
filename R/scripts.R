@@ -34,10 +34,17 @@
 #'
 #' Specific roles the variable plays within the formula. These are of particular
 #' importance, as they serve as special terms that can effect how a formula is
-#' interpreted. The options for roles are as below:
+#' interpreted. The specialized options for roles are as below:
 #'
-#' * __exposure__ or `X(...)`: a predictor variable that serves as a primary or
-#' key variable in the \eqn{Exposure ~ Outcome} relationship
+#' * __exposure__ or `X(...)`
+#'
+#' * __outcome__ or `O(...)` or placement of variable on LHS of formula
+#'
+#' * __confounder__ or `C(...)`
+#'
+#' * __mediator__ or `M(...)`
+#'
+#' * __strata__ or `S(...)`
 #'
 #' Formulas can be condensed by applying their specific role to individual terms
 #' as a function/wrapper. For example, `y ~ X(x1) + x2 + x3`. This would signify
@@ -161,17 +168,12 @@ prescribe.term_archetype <- function(x,
   }
 
   # Formula
-  f <- formula_archetype(
-    x = t,
-    family = character(),
-    source = character(),
-    pattern = pattern
-  )
+  f <- deparse1(stats::formula(t))
 
   # Return
   new_script(
-    formula = f,
     terms = t,
+    formula = f,
     pattern = pattern
   )
 }
@@ -201,20 +203,23 @@ rx <- prescribe
 #' Formula vector
 #' @keywords internal
 #' @noRd
-new_script <- function(formula = formula_archetype(),
-                       terms = term_archetype(),
-                       pattern = character()) {
+new_script <- function(terms = term_archetype(),
+                       formula = character(),
+                       pattern = character(),
+                       order = integer()) {
 
   # Validation of types
   vec_assert(terms, ptype = term_archetype())
-  vec_assert(formula, ptype = formula_archetype())
+  vec_assert(formula, ptype = character())
   vec_assert(pattern, ptype = character())
+  vec_assert(order, ptype = integer())
 
   # Bend terms into a list
   if (vec_size(terms) == 0) {
     terms <- term_archetype()
   } else {
     terms <- list_of(terms)
+    order <- 4L
   }
 
   # Everything needs to be the same length
@@ -222,7 +227,8 @@ new_script <- function(formula = formula_archetype(),
     fields = list(
       "formula" = formula,
       "terms" = terms,
-      "pattern" = pattern
+      "pattern" = pattern,
+      "order" = order
     ),
     class = "script"
   )

@@ -58,7 +58,6 @@ table_to_list <- function(x, id = "terms", ...) {
 #' Stylistic choice to make arguments entered in the form of a list, with each
 #' entry being a formula. The LHS will always be the terms, and the RHS will
 #' always be the non-terms item (e.g. group, label, role, etc).
-#' @keywords internal
 #' @noRd
 formula_args_to_list <- function(x, ...) {
   validate_class(x, "list")
@@ -90,6 +89,23 @@ formula_args_to_list <- function(x, ...) {
 
   # Return paired/named list
   pl
+}
+
+#' Handling of named lists (to convert back into arguments for formulas)
+#' @noRd
+list_to_formula_args <- function(x, ...) {
+  validate_class(x, "list")
+
+  fl <- list()
+  for (i in seq_along(x)) {
+    f <-
+      paste0(names(x)[i], " ~ ", '"', unname(x)[i], '"') |>
+      stats::formula()
+    fl <- append(fl, f)
+  }
+
+  # Returned list of formula arguments
+  fl
 }
 
 # Formula Tools ----------------------------------------------------------------
@@ -321,17 +337,18 @@ set_roles <- function(x, roles, ...) {
   rls <- append(roles(x), roles)
 
   # Save the most "recent" updated label and erase prior if duplicate
-  tm <- vec_data(x)
+  t <- vec_data(x)
   for (i in seq_along(rls)) {
-    tm$role[tm$terms == names(rls[i])] <- rls[[i]]
+    t$role[t$terms == names(rls[i])] <- rls[[i]]
   }
 
-  vec_restore(tm, to = term_archetype())
+  vec_restore(t, to = term_archetype())
 }
 
 #' @rdname setters
 #' @export
 set_tiers <- function(x, tiers, ...) {
+  validate_class(x, "term_archetype")
   validate_class(tiers, "list")
 
   # Append tiers
@@ -339,18 +356,19 @@ set_tiers <- function(x, tiers, ...) {
     tiers.term_archetype(x) |>
     append(tiers)
 
-  tm <- vec_data(x)
+  t <- vec_data(x)
 
   for (i in seq_along(grps)) {
-    tm$tier[tm$terms == names(grps[i])] <- grps[[i]]
+    t$tier[t$terms == names(grps[i])] <- grps[[i]]
   }
 
-  vec_restore(tm, to = term_archetype())
+  vec_restore(t, to = term_archetype())
 }
 
 #' @rdname setters
 #' @export
 set_labels <- function(x, labels, ...) {
+  validate_class(x, "term_archetype")
   validate_class(labels, "list")
 
   # Update and append labels
@@ -359,12 +377,29 @@ set_labels <- function(x, labels, ...) {
     append(labels)
 
   # Save the most "recent" updated label and erase prior if duplicate
-  tm <- vec_data(x)
+  t <- vec_data(x)
   for (i in seq_along(labs)) {
-    tm$label[tm$terms == names(labs[i])] <- labs[[i]]
+    t$label[t$terms == names(labs[i])] <- labs[[i]]
   }
 
-  vec_restore(tm, to = term_archetype())
+  vec_restore(t, to = term_archetype())
+}
+
+#' @rdname setters
+#' @export
+add_strata <- function(x, strata, ...) {
+  validate_class(x, "term_archetype")
+  validate_class(strata, "character")
+
+  strata_term <- term_archetype.character(
+    x = strata,
+    side = "meta",
+    role = "strata",
+    ...
+  )
+
+  # Return in combination
+  c(x, strata_term)
 }
 
 # Updating Functions -----------------------------------------------------------

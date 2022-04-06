@@ -5,6 +5,7 @@
 \alias{set_roles}
 \alias{set_tiers}
 \alias{set_labels}
+\alias{add_strata}
 \title{Set components of term_archetype}
 \usage{
 set_roles(x, roles, ...)
@@ -12,6 +13,8 @@ set_roles(x, roles, ...)
 set_tiers(x, tiers, ...)
 
 set_labels(x, labels, ...)
+
+add_strata(x, strata, ...)
 }
 \value{
 A modified
