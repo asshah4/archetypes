@@ -1,6 +1,6 @@
 #' Decompose scripts into a level/order below, down to level 2 for formula
 #' @noRd
-decompose_roles <- function(s) {
+recompose_roles <- function(s) {
 
   # Validation, also can take more than one script at a time
   validate_class(s, "script")
@@ -118,86 +118,98 @@ decompose_patterns <- function(s) {
   # Validation, also can take more than one script at a time
   validate_class(s, "script")
 
-  t <- field(s, "terms")[[1]]
-  vt <- vec_data(t)
-  pattern <- field(s, "pattern")
-
-  # Roles
-  rls <- roles(t)
-  outcome <- names(rls[rls == "outcome"])
-  predictor <- names(rls[rls == "predictor"])
-  exposure <- names(rls[rls == "exposure"])
-  confounder <- names(rls[rls == "confounder"])
-  mediator <- names(rls[rls == "mediator"])
-
-  # Covariates and grouped variables that are not part of the main outcome and
-  # exposure relationships must be separated out
-  tier_list <- tiers(t)
-  tier_lvls <- as.character(unique(tier_list))
-  tier_vars <- character()
-  for (i in seq_along(tier_lvls)) {
-    tier_vars[i] <-
-      tier_list[tier_list == tier_lvls[i]] |>
-      names() |>
-      paste(collapse = " + ")
-  }
-
-  covariates <-
-    c(confounder, predictor) |>
-    {
-      \(.x) .x[!(.x %in% names(tier_list))]
-    }() |>
-    c(tier_vars)
-
   # Empty list for combinations for all combinations
   fl <- list()
 
-  switch(pattern,
-    direct = {
-      f <-
-        c(exposure, mediator, covariates) |>
-        paste(collapse = " + ") |>
-        {
-          \(.x) paste(outcome, .x, sep = " ~ ")
-        }()
+  for (i in seq_along(s)) {
+    t <- field(s[i], "terms")[[1]]
+    vt <- vec_data(t)
+    pattern <- field(s[i], "pattern")
 
-      fl <- append(fl, f)
-    },
-    sequential = {
-      for (n in 0:length(covariates)) {
-        f <-
-          c(exposure, mediator, covariates[0:n]) |>
-          paste0(collapse = " + ") |>
-          {
-            \(.x) paste(outcome, .x, sep = " ~ ")
-          }()
+    # Roles
+    rls <- roles(t)
+    outcome <- names(rls[rls == "outcome"])
+    predictor <- names(rls[rls == "predictor"])
+    exposure <- names(rls[rls == "exposure"])
+    confounder <- names(rls[rls == "confounder"])
+    mediator <- names(rls[rls == "mediator"])
 
-        fl <- append(fl, f)
-      }
-    },
-    parallel = {
-      # Modifier for covariates in mediation
-      if (is.null(covariates)) {
-        seq_covariates <- 1
-      } else {
-        seq_covariates <- seq_along(covariates)
-      }
-
-      for (n in seq_covariates) {
-        f <-
-          c(exposure, mediator, covariates[n]) |>
-          paste0(collapse = " + ") |>
-          {
-            \(.x) paste(outcome, .x, sep = " ~ ")
-          }()
-
-        fl <- append(fl, f)
-      }
+    # Covariates and grouped variables that are not part of the main outcome and
+    # exposure relationships must be separated out
+    tier_list <- tiers(t)
+    tier_lvls <- as.character(unique(tier_list))
+    tier_vars <- character()
+    for (i in seq_along(tier_lvls)) {
+      tier_vars[i] <-
+        tier_list[tier_list == tier_lvls[i]] |>
+        names() |>
+        paste(collapse = " + ")
     }
-  )
+
+    covariates <-
+      c(confounder, predictor) |>
+      {
+        \(.x) .x[!(.x %in% names(tier_list))]
+      }() |>
+      c(tier_vars)
+
+    # Define left and right
+    if (length(mediator) > 0) {
+      left <- mediator
+      right <- c(outcome, exposure)
+    }
+    if (length(mediator) == 0) {
+      left <- outcome
+      right <- c(exposure, mediator)
+    }
+
+    switch(pattern,
+      direct = {
+        f <-
+          c(right, covariates) |>
+          paste(collapse = " + ") |>
+          {
+            \(.x) paste(left, .x, sep = " ~ ")
+          }()
+
+        fl <- append(fl, f)
+      },
+      sequential = {
+        for (n in 0:length(covariates)) {
+          f <-
+            c(right, covariates[0:n]) |>
+            paste0(collapse = " + ") |>
+            {
+              \(.x) paste(left, .x, sep = " ~ ")
+            }()
+
+          fl <- append(fl, f)
+        }
+      },
+      parallel = {
+        # Modifier for covariates in mediation
+        if (is.null(covariates)) {
+          seq_covariates <- 1
+        } else {
+          seq_covariates <- seq_along(covariates)
+        }
+
+        for (n in seq_covariates) {
+          f <-
+            c(right, covariates[n]) |>
+            paste0(collapse = " + ") |>
+            {
+              \(.x) paste(left, .x, sep = " ~ ")
+            }()
+
+          fl <- append(fl, f)
+        }
+      }
+    )
+  }
 
   # Return
-  fl
+  unique(fl)
 }
 
 
@@ -246,7 +258,7 @@ decipher <- function(t) {
   strata <- names(rls[rls == "strata"])
 
   # Number of variables
-  out <- length(outcome)
+  out <- length(unique(outcome))
   exp <- length(exposure)
   prd <- length(c(confounder, predictor))
   med <- length(mediator)
@@ -255,7 +267,6 @@ decipher <- function(t) {
   # Number of left and right terms
   left <- sum(out)
   right <- sum(exp, prd, med, unk)
-
 
   # Zeroeth order
   if (length(t) == 1) {

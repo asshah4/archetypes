@@ -74,7 +74,7 @@ formula_archetype <- function(x = unspecified(),
   n <- decipher(t)
   s <- rx(t, pattern = pattern)
   for (i in 1:(n - 2)) {
-    s <- decompose_roles(s)
+    s <- recompose_roles(s)
   }
 
   # Turn each of these into formulas

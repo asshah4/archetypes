@@ -108,8 +108,10 @@ test_that("casting and coercion for different dispatches work", {
 
   # Formula archetypes
   s <- rx(mpg ~ X(wt) + M(cyl) + hp)
-  f <- fmls(s) # Not appropriately adding hte mediation class here
-  expect_error(f)
+  f <- fmls(s)
+  t <- tm(f)
+  expect_length(t, 5)
+  expect_equal(decipher(t), 3)
 
 })
 

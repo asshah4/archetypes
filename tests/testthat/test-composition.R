@@ -29,14 +29,14 @@ test_that("scripts can be decomposed appropriately", {
   t <- tm(y1 + y2 ~ X(x1) + X(x2) + C(c1) + C(c2))
   s4 <- rx(t)
   expect_equal(field(s4, "order"), 4)
-  s3 <- decompose_roles(s4)
+  s3 <- recompose_roles(s4)
   expect_length(s3, 3) # Third order decomposition
   expect_equal(format(s3[1]), "y1 + y2 ~ x1 + x2 + c1 + c2")
 
   # Third order/mediation
   t <- tm(y ~ X(x) + M(m) + c)
   s3 <- rx(t)
-  s2 <- decompose_roles(s3)
+  s2 <- recompose_roles(s3)
   expect_length(s2, 4) # Second order decomposition
   expect_equal(format(s2[2]), "y ~ x + c")
 
@@ -44,9 +44,9 @@ test_that("scripts can be decomposed appropriately", {
   f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
   t <- tm(f)
   x <- rx(t)
-  s1 <- decompose_roles(x)
+  s1 <- recompose_roles(x)
   expect_length(s1, 3)
-  s2 <- decompose_roles(s1)
+  s2 <- recompose_roles(s1)
   expect_length(s2, 7)
 
 })
@@ -81,25 +81,33 @@ test_that("mediation creates appropriate lists", {
   f <- Surv(stop, status) ~ X(primary) + X(secondary) + M(mediator)
   t <- tm(f)
   x <- rx(t)
-  sl <- decompose_roles(x)
+  sl <- recompose_roles(x)
   expect_length(sl, 5)
 
   # Mediation with covariates
   f <- Surv(stop, status) + Surv(stop, censor) ~ X(exposure) + M(mediator) + confounder + covariate + predictor
   t <- tm(f)
   x <- rx(t, pattern = "direct")
-  sl <- decompose_roles(x)
-  sp <- decompose_patterns(x)
+  sl <- recompose_roles(x)
+  fl <- decompose_patterns(sl)
   expect_length(sl, 3)
-  expect_length(sp, 2)
+  expect_length(fl, 3)
 
   x <- rx(t, pattern = "parallel")
-  sp <- decompose_patterns(x)
-  expect_length(sp, 6)
+  fl <- decompose_patterns(x)
+  expect_length(fl, 3)
 
   x <- rx(t, pattern = "sequential")
-  sp <- decompose_patterns(x)
-  expect_length(sp, 8)
+  fl <- decompose_patterns(x)
+  expect_length(fl, 4)
+
+  # Mediation complexity
+  s <- rx(mpg ~ X(wt) + M(cyl) + hp)
+  sl <- recompose_roles(s)
+  fl <- decompose_patterns(sl)
+  f <- fmls(s) # Not appropriately adding hte mediation class here
+  expect_equal(field(f, "formula")[4], "cyl ~ wt + hp")
+
 })
 
 test_that("strata can be made appropriately", {
@@ -109,7 +117,7 @@ test_that("strata can be made appropriately", {
   tiers <- list(qsec ~ "speed", wt ~ "hardware")
   t <- tm(f, label = labels, tier = tiers)
   x <- rx(t, pattern = "sequential")
-  sl <- decompose_roles(x)
+  sl <- recompose_roles(x)
   expect_length(sl, 1)
 })
 

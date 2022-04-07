@@ -465,13 +465,30 @@ term_archetype.formula_archetype <- function(x, ...) {
   }
 
   # Convert to basic terms
-  f <- field(x, "formula")
-  t <- term_archetype.formula(stats::formula(f))
+  tl <- term_archetype()
+  d <- vec_data(x)[c("outcome", "exposure", "confounder", "mediator", "unknown", "strata")]
 
-  # Roles
-  rls <- list(
-    outcome = field(x, "outcome")
-  )
+  for (i in seq_along(x)) {
+
+    f <- field(x[i], "formula")
+    t <-
+      stats::formula(f) |>
+      term_archetype.formula()
+
+    rl <-
+      d[i, ] |>
+      unlist() |>
+      stats::na.omit()
+
+    rls <- as.list(names(rl))
+    names(rls) <- unname(rl)
+
+    tl <- append(tl, set_roles(t, roles = rls))
+
+  }
+
+  # Return
+  unique(tl)
 
 }
 
