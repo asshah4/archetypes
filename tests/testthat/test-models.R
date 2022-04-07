@@ -72,10 +72,4 @@ test_that("list of models will dispatch appropriately", {
   ma <- model_archetype(x)
   expect_length(ma, 3)
 
-  # Scripts to be extended
-  f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
-  t <- term_archetype(f, tier = list(drat + qsec ~ "secondary"))
-  x <- prescribe(t, pattern = "sequential")
-  lof <- construct_script(x)
-
 })

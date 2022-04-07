@@ -3,16 +3,11 @@
 \name{script}
 \alias{script}
 \alias{prescribe}
-\alias{prescribe.formula}
-\alias{prescribe.term_archetype}
-\alias{prescribe.default}
 \alias{rx}
 \title{Prescriptions}
 \usage{
-prescribe(x = unspecified(), ...)
-
-\method{prescribe}{formula}(
-  x,
+prescribe(
+  x = unspecified(),
   role = list(),
   tier = list(),
   label = list(),
@@ -20,26 +15,20 @@ prescribe(x = unspecified(), ...)
   ...
 )
 
-\method{prescribe}{term_archetype}(
-  x,
+rx(
+  x = unspecified(),
   role = list(),
   tier = list(),
   label = list(),
   pattern = character(),
   ...
 )
-
-\method{prescribe}{default}(x = unspecified(), ...)
-
-rx(x = unspecified(), ...)
 }
 \arguments{
 \item{x}{Objects of the following types can be used as inputs
 \itemize{
 \item \code{term_archetype}
 }}
-
-\item{...}{Arguments to be passed to or from other methods}
 
 \item{role}{Specific roles the variable plays within the formula. These are
 of particular importance, as they serve as special terms that can effect
@@ -76,6 +65,8 @@ by tiers, as indicated
 \item \strong{parallel}: the covariates or tiers of covariates will be placed in
 parallel
 }}
+
+\item{...}{Arguments to be passed to or from other methods}
 }
 \value{
 An object of class \code{script}

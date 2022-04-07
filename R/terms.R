@@ -446,6 +446,18 @@ term_archetype.model_fit <- function(x,
 
 #' @rdname terms
 #' @export
+term_archetype.term_archetype <- function(x, ...) {
+  # Early Break if needed
+  if (validate_empty(x)) {
+    return(new_term())
+  }
+
+  # Return the same
+  x
+}
+
+#' @rdname terms
+#' @export
 term_archetype.formula_archetype <- function(x, ...) {
   # Early Break if needed
   if (validate_empty(x)) {

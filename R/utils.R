@@ -402,6 +402,29 @@ add_strata <- function(x, strata, ...) {
   c(x, strata_term)
 }
 
+#' Match the terms with the a formula, returning a subset of terms
+#' @noRd
+match_terms <- function(t, f) {
+  validate_class(t, "term_archetype")
+
+  if ("formula" %in% class(f)) {
+    vars <- c(lhs(f), rhs(f))
+  } else if ("character" %in% class(f)) {
+    vars <- f
+  }
+
+  # Terms
+  vt <- vec_data(t)
+
+  # New term creation and matching
+  mt <-
+    vt[vt$terms %in% vars, ] |>
+    vec_restore(to = term_archetype())
+
+  # Return
+  mt
+}
+
 # Updating Functions -----------------------------------------------------------
 
 #' Update Prescriptions

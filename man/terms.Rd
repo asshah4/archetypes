@@ -9,6 +9,7 @@
 \alias{term_archetype.lm}
 \alias{term_archetype.glm}
 \alias{term_archetype.model_fit}
+\alias{term_archetype.term_archetype}
 \alias{term_archetype.formula_archetype}
 \alias{term_archetype.script}
 \alias{term_archetype.default}
@@ -80,6 +81,8 @@ term_archetype(x = unspecified(), ...)
   subtype = list(),
   ...
 )
+
+\method{term_archetype}{term_archetype}(x, ...)
 
 \method{term_archetype}{formula_archetype}(x, ...)
 

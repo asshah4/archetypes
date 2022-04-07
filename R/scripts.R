@@ -79,23 +79,18 @@
 #' @return An object of class `script`
 #' @name script
 #' @export
-prescribe <- function(x = unspecified(), ...) {
-  UseMethod("prescribe", object = x)
-}
+prescribe <- function(x = unspecified(),
+                      role = list(),
+                      tier = list(),
+                      label = list(),
+                      pattern = character(),
+                      ...) {
 
-#' @rdname script
-#' @export
-prescribe.formula <- function(x,
-                              role = list(),
-                              tier = list(),
-                              label = list(),
-                              pattern = character(),
-                              ...) {
-
-  # Early Break if needed
+  # Validate early and if empty, break early
   if (validate_empty(x)) {
     return(new_script())
   }
+  validate_class(x, c("term_archetype", "formula"))
 
   # Check pattern
   if (length(pattern) == 0) {
@@ -108,7 +103,6 @@ prescribe.formula <- function(x,
       call. = FALSE
     )
   }
-
 
   # terms list (nested for field length equivalence)
   # Updated attributes/components internally
@@ -118,81 +112,21 @@ prescribe.formula <- function(x,
     set_tiers(tiers = formula_args_to_list(tier)) |>
     set_labels(labels = formula_args_to_list(label))
 
-  # Formula
-  f <- formula_archetype(
-    x = t,
-    family = character(),
-    source = character(),
-    pattern = pattern
-  )
-
-  # Return
-  new_script(
-    formula = f,
-    terms = t,
-    pattern = pattern
-  )
-}
-
-#' @rdname script
-#' @export
-prescribe.term_archetype <- function(x,
-                                     role = list(),
-                                     tier = list(),
-                                     label = list(),
-                                     pattern = character(),
-                                     ...) {
-
-  # Early Break if needed
-  if (validate_empty(x)) {
-    return(new_script())
-  }
-
-  # Updated attributes/components internally
-  t <-
-    x |>
-    set_roles(roles = formula_args_to_list(role)) |>
-    set_tiers(tiers = formula_args_to_list(tier)) |>
-    set_labels(labels = formula_args_to_list(label))
-
-  # Check pattern
-  if (length(pattern) == 0) {
-    pattern <- "direct"
-  }
-  if (!pattern %in% c("direct", "sequential", "parallel")) {
-    stop("The pattern ",
-      deparse(pattern),
-      " is not yet supported.",
-      call. = FALSE
-    )
-  }
+  # Look at composition of terms
+  order <- decipher(t)
 
   # Formula
   f <- deparse1(stats::formula(t))
 
   # Return
   new_script(
-    terms = t,
     formula = f,
-    pattern = pattern
+    terms = t,
+    pattern = pattern,
+    order = order
   )
 }
 
-
-#' @rdname script
-#' @export
-prescribe.default <- function(x = unspecified(), ...) {
-  # Early break if not viable method dispatch
-  if (length(x) == 0) {
-    return(new_script())
-  } else {
-    stop("`prescribe()` is not defined for a `",
-      class(x)[1],
-      "` object.",
-      call. = FALSE
-    )
-  }
-}
 
 #' @rdname script
 #' @export
@@ -218,8 +152,7 @@ new_script <- function(terms = term_archetype(),
   if (vec_size(terms) == 0) {
     terms <- term_archetype()
   } else {
-    terms <- list_of(terms)
-    order <- 4L
+    terms <- list(terms)
   }
 
   # Everything needs to be the same length
@@ -270,9 +203,9 @@ obj_print_data.script <- function(x, ...) {
         x,
         FUN = function(.x) {
           t <- field(.x, "terms")[[1]]
-          tm <- vec_data(t)
-          left <- vec_restore(tm[tm$side == "left", ], to = tm())
-          right <- vec_restore(tm[tm$side == "right", ], to = tm())
+          f <- stats::formula(field(.x, "formula"))
+          left <- match_terms(t, lhs(f))
+          right <- match_terms(t, rhs(f))
 
           f <-
             paste(format(left), collapse = " + ") |>
@@ -281,6 +214,7 @@ obj_print_data.script <- function(x, ...) {
           f
         }
       )
+
   }
 
   if (length(fmt) > 1) {

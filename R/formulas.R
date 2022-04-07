@@ -18,120 +18,100 @@ formula_archetype <- function(x = unspecified(),
     return(new_formula())
   }
 
+  # Empty formula list to generate
+  fa <- formula_archetype()
+
   # Usable classes
   acceptable_classes <-
-    c("character",
-      "formula",
+    c(
+      "script",
       "term_archetype",
       "formula_archetype",
-      "script")
+      "character",
+      "formula"
+    )
 
   if (!any(acceptable_classes %in% class(x))) {
     stop("`formula_archetype()` is not defined for a `",
-         class(x)[1],
-         "` object.",
-         call. = FALSE)
+      class(x)[1],
+      "` object.",
+      call. = FALSE
+    )
   }
 
-
-  # Generate rough-draft of terms
+  # Extract and/or generate terms
   if ("character" %in% class(x)) {
-    y <- tm(stats::formula(x))
-    if (length(strata) > 0) {
-      y <- add_strata(y, strata)
-    }
+    t <- tm(stats::formula(x))
   } else if ("formula" %in% class(x)) {
-    y <- tm(x)
+    t <- tm(x)
   } else if ("script" %in% class(x)) {
-    y <- tm(x)
+    t <- tm(x)
     pattern <- field(x, "pattern")
   } else if ("term_archetype" %in% class(x)) {
-    y <- x
+    t <- x
   }
 
-  # Create terms
+  # Add strata back in
+  if (length(strata) > 0) {
+    t <- add_strata(t, strata)
+  } else {
+    strata <- NA_character_
+  }
+
+  # Update terms
   t <-
-    y |>
+    t |>
     set_roles(roles = formula_args_to_list(role)) |>
     set_tiers(tiers = formula_args_to_list(tier)) |>
     set_labels(labels = formula_args_to_list(label))
 
-  # Formulas
-  f <- deparse1(stats::formula(t))
-
-  # Underlying terms and their roles
-
-  # Strata
-  if (length(strata) == 0) {
-    strata <- NA_character_
+  # Generate or re-generate script, should be only a single script to start
+  # Filter out just the second order formulas for now
+  ancestor <- deparse1(stats::formula(t))
+  n <- decipher(t)
+  s <- rx(t, pattern = pattern)
+  for (i in 1:(n - 2)) {
+    s <- decompose_roles(s)
   }
 
-  # Pattern
-  if (length(pattern) == 0) {
-    pattern <- NA_character_
+
+  # Turn each of these into formulas
+  for (i in seq_along(s)) {
+
+    # From all of the scripts, obtain the expansion patterns if possible
+    fl <- decompose_patterns(s[i])
+    tl <- field(s[i], "terms")[[1]]
+    strata <- names(roles(tl)[roles(tl) == "strata"])
+
+    for (j in seq_along(fl)) {
+      tms <- match_terms(tl, stats::formula(fl[[j]]))
+      rls <- roles(tms)
+
+      f <- new_formula(
+        formula = fl[[j]],
+        outcome = list(names(rls[rls == "outcome"])),
+        exposure = list(names(rls[rls == "exposure"])),
+        confounder = list(names(rls[rls == "confounder"])),
+        mediator = list(names(rls[rls == "mediator"])),
+        unknown = list(names(rls[rls == "unknown"])),
+        strata = strata,
+        pattern = field(s[i], "pattern"),
+        ancestor = ancestor,
+        order = field(s[i], "order")
+      )
+
+      fa <- append(fa, f)
+    }
+
   }
 
-  #############
-  ### ORDER ###
-  #############
-
-    # ZEROETH
-      # Only single term object
-    # FIRST
-      # Does not follow rules of roles
-      # LHS = 1
-      # RHS = 1
-    # SECOND
-      # Follows rules of roles
-      # LHS = 1
-      # RHS = exposure + confounder
-      # RHS = mediator (no confounders allowed)
-      # RHS =/= outcome
-    # THIRD
-      # Does not follow rules of roles
-      # LHS = 1
-      # RHS > 1 exposure
-      # RHS > 1 mediator
-      # RHS = exposure + mediator
-    # FOURTH
-      # LHS > 1
-  vt <- vec_data(t)
-  rls <- roles(t)
-  outcome <- names(rls[rls == "outcome"])
-  predictor <- names(rls[rls == "predictor"])
-  exposure <- names(rls[rls == "exposure"])
-  confounder <- names(rls[rls == "confounder"])
-  mediator <- names(rls[rls == "mediator"])
-  unknown <- names(rls[rls == "unknown"])
-  strata <- names(rls[rls == "strata"])
-  out <- length(outcome)
-  exp <- length(exposure)
-  prd <- length(c(confounder, predictor))
-  med <- length(mediator)
-  unk <- length(unknown)
-
-  # This will check the complexity and break down of the formulas
-  # Rules are...
-
-
-  # Lineage
-
-  new_formula(
-    formula = f,
-    outcome = outcome,
-    exposure = list(exposure),
-    confounder = list(confounder),
-    mediator = list(mediator),
-    unknown = list(unknown),
-    strata = strata,
-    order = order,
-    lineage = lineage
-  )
+  # Return formulas
+  unique(fa)
 }
 
 #' @rdname formula
 #' @export
-fmls = formula_archetype
+fmls <- formula_archetype
 
 # Record definition ------------------------------------------------------------
 
@@ -139,25 +119,27 @@ fmls = formula_archetype
 #' @keywords internal
 #' @noRd
 new_formula <- function(formula = character(),
-                        outcome = character(),
+                        outcome = list(),
                         exposure = list(),
                         confounder = list(),
                         mediator = list(),
                         unknown = list(),
                         strata = character(),
-                        order = integer(),
-                        lineage = list()) {
+                        pattern = character(),
+                        ancestor = character(),
+                        order = integer()) {
 
   # Validation will depend
   vec_assert(formula, ptype = character())
-  vec_assert(outcome, ptype = character())
+  vec_assert(outcome, ptype = list())
   vec_assert(exposure, ptype = list())
   vec_assert(confounder, ptype = list())
   vec_assert(mediator, ptype = list())
   vec_assert(unknown, ptype = list())
   vec_assert(strata, ptype = character())
+  vec_assert(pattern, ptype = character())
+  vec_assert(ancestor, ptype = character())
   vec_assert(order, ptype = integer())
-  vec_assert(lineage, ptype = list())
 
   new_rcrd(
     fields = list(
@@ -168,8 +150,9 @@ new_formula <- function(formula = character(),
       "mediator" = mediator,
       "unknown" = unknown,
       "strata" = strata,
-      "order" = order,
-      "lineage" = lineage
+      "pattern" = pattern,
+      "ancestor" = ancestor,
+      "order" = order
     ),
     class = "formula_archetype"
   )

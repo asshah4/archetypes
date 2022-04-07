@@ -1,37 +1,134 @@
-#' Carrying out the instructions of a `script`
-#'
-#' This function uses the components of a `script` object to expand a list of
-#' formulas that can subsequently be used.
-#'
-#' @param s A `script` object from the `prescribe()` or `rx()` functions
-#' @export
-compose_script <- function(s) {
+#' Decompose scripts into a level/order below, down to level 2 for formula
+#' @noRd
+decompose_roles <- function(s) {
+
+  # Validation, also can take more than one script at a time
   validate_class(s, "script")
-  pattern <- field(s, "pattern")
+  sl <- s
+
+  for (i in seq_along(sl)) {
+    t <- field(s[i], "terms")[[1]]
+    vt <- vec_data(t)
+    order <- field(s[i], "order")
+
+    # Roles
+    rls <- roles(t)
+    outcome <- names(rls[rls == "outcome"])
+    predictor <- names(rls[rls == "predictor"])
+    exposure <- names(rls[rls == "exposure"])
+    confounder <- names(rls[rls == "confounder"])
+    mediator <- names(rls[rls == "mediator"])
+    covariates <- c(confounder, predictor)
+
+    # Creating formulas one level down
+    if (order == 3) {
+
+      # Exposure on the right
+      for (j in seq_along(exposure)) {
+        f <- paste0(
+          outcome,
+          " ~ ",
+          paste(c(exposure[j], covariates), collapse = " + ")
+        )
+        mt <- match_terms(t, stats::formula(f))
+        p <- field(s[i], "pattern")
+        sl <- append(
+          sl,
+          new_script(
+            formula = f,
+            terms = mt,
+            pattern = p,
+            order = decipher(mt)
+          )
+        )
+      }
+
+      # Mediation if present
+      if (length(mediator) > 0) {
+        for (j in 1:seq_along(mediator)) {
+          # Mediator on the right
+          f <- paste0(
+            outcome,
+            " ~ ",
+            mediator[j]
+          )
+          mt <- match_terms(t, stats::formula(f))
+          p <- field(s[i], "pattern")
+          sl <- append(
+            sl,
+            new_script(
+              formula = f,
+              terms = mt,
+              pattern = p,
+              order = decipher(mt)
+            )
+          )
+
+          # Mediator on the left
+          f <- paste0(
+            mediator[j],
+            " ~ ",
+            paste(c(exposure, covariates), collapse = " + ")
+          )
+          mt <- match_terms(t, stats::formula(f))
+          p <- field(s[i], "pattern")
+          sl <- append(
+            sl,
+            new_script(
+              formula = f,
+              terms = mt,
+              pattern = p,
+              order = decipher(mt)
+            )
+          )
+        }
+      }
+    }
+
+    if (order == 4) {
+      for (j in seq_along(outcome)) {
+        f <- paste0(
+          outcome[j],
+          " ~ ",
+          paste(c(exposure, covariates), collapse = " + ")
+        )
+        mt <- match_terms(t, stats::formula(f))
+        p <- field(s[i], "pattern")
+        sl <- append(
+          sl,
+          new_script(
+            formula = f,
+            terms = mt,
+            pattern = p,
+            order = decipher(mt)
+          )
+        )
+      }
+    }
+  }
+
+  # Return scripts, expected to have one level order less
+  unique(sl)
+}
+
+#' Expand the patterns that affect the covariates of a term set
+#' @noRd
+decompose_patterns <- function(s) {
+
+  # Validation, also can take more than one script at a time
+  validate_class(s, "script")
+
   t <- field(s, "terms")[[1]]
+  vt <- vec_data(t)
+  pattern <- field(s, "pattern")
+
+  # Roles
   rls <- roles(t)
-  tbl <- list_to_table(rls, id = "terms", val = "roles")
-  tm <- vec_data(t)
-
-  # Variables of each type
-  outcomes <- names(rls[rls == "outcome"])
-  exposures <- names(rls[rls == "exposure"])
-  confounders <- names(rls[rls == "confounder"])
-  mediators <- names(rls[rls == "mediator"])
-  unknowns <- names(rls[rls == "unknown"])
-  independent <- names(rls[rls == "independent"])
-  dependent <- names(rls[rls == "dependent"])
-  strata <- names(rls[rls == "strata"])
-
-  # Outcomes are a mix of both specified outcomes and dependent variables
-  outcomes <- c(outcomes, dependent)
-
-  # Counts of each variable type to be potentially included
-  out <- length(outcomes) # Mix of response/outcome variables
-  exp <- length(exposures)
-  con <- length(confounders)
-  med <- length(mediators)
-  unk <- length(unknowns)
+  outcome <- names(rls[rls == "outcome"])
+  predictor <- names(rls[rls == "predictor"])
+  exposure <- names(rls[rls == "exposure"])
+  confounder <- names(rls[rls == "confounder"])
+  mediator <- names(rls[rls == "mediator"])
 
   # Covariates and grouped variables that are not part of the main outcome and
   # exposure relationships must be separated out
@@ -46,219 +143,97 @@ compose_script <- function(s) {
   }
 
   covariates <-
-    c(independent, confounders) |>
+    c(confounder, predictor) |>
     {
       \(.x) .x[!(.x %in% names(tier_list))]
     }() |>
     c(tier_vars)
 
-  # Empty list for combinations
+  # Empty list for combinations for all combinations
   fl <- list()
 
-  # Normal
-  if (med == 0) {
-    for (o in seq_along(outcomes)) {
-      if (exp == 0) {
-        fl <-
-          pattern_switch(
-            formula_list = fl,
-            pattern = pattern,
-            left = outcomes[o],
-            right = NULL,
-            others = covariates
-          )
-      } else {
-        for (x in seq_along(exposures)) {
-          fl <-
-            pattern_switch(
-              formula_list = fl,
-              pattern = pattern,
-              left = outcomes[o],
-              right = exposures[x],
-              others = covariates
-            )
-        }
-      }
-    }
-  }
-
-
-  # Mediation
-  if (med > 0) {
-    # Outcome ~ Exposure
-    for (o in seq_along(outcomes)) {
-      if (exp == 0) {
-        fl <- pattern_switch(
-          fl,
-          pattern = pattern,
-          left = outcomes[o],
-          right = NULL,
-          others = covariates
-        )
-      } else {
-        for (x in seq_along(exposures)) {
-          fl <- pattern_switch(
-            fl,
-            pattern = pattern,
-            left = outcomes[o],
-            right = exposures[x],
-            others = covariates
-          )
-        }
-      }
-    }
-
-    # Outcome ~ Mediator
-    for (o in seq_along(outcomes)) {
-      for (m in seq_along(mediators)) {
-        fl <- pattern_switch(
-          fl,
-          pattern = pattern,
-          left = outcomes[o],
-          right = mediators[m],
-          others = NULL
-        )
-      }
-    }
-
-    # Mediator ~ Exposure
-    for (m in seq_along(mediators)) {
-      if (exp == 0) {
-        fl <- pattern_switch(
-          fl,
-          pattern = pattern,
-          left = mediators[m],
-          right = NULL,
-          others = covariates
-        )
-      } else {
-        for (x in seq_along(exposures)) {
-          fl <- pattern_switch(
-            fl,
-            pattern = pattern,
-            left = mediators[m],
-            right = exposures[x],
-            others = covariates
-          )
-        }
-      }
-    }
-  }
-
-  # Back to archetypes
-  fa <- formula_archetype()
-  for (i in fl) {
-    v <-
-      i |>
-      stats::formula() |>
-      all.vars()
-    vt <- tbl[tbl$terms %in% v, ]
-
-    rl <- table_to_list(vt)
-
-    f <- formula_archetype(
-      x = i,
-      role = list_to_formula_args(rl),
-      strata = strata,
-      family = as.character(rx),
-      source = "script",
-      pattern = pattern
-    )
-
-    fa <- append(fa, f)
-  }
-
-  # Return list
-  fa
-}
-
-#' Pattern switcher
-#' @return List of formulas
-#' @keywords internal
-#' @noRd
-pattern_switch <- function(formula_list,
-                           pattern,
-                           left,
-                           right,
-                           others) {
   switch(pattern,
     direct = {
       f <-
-        c(right, others) |>
+        c(exposure, mediator, covariates) |>
         paste(collapse = " + ") |>
         {
-          \(.x) paste(left, .x, sep = " ~ ")
+          \(.x) paste(outcome, .x, sep = " ~ ")
         }()
 
-      formula_list <- append(formula_list, f)
+      fl <- append(fl, f)
     },
     sequential = {
-      for (n in 0:length(others)) {
+      for (n in 0:length(covariates)) {
         f <-
-          c(right, others[0:n]) |>
+          c(exposure, mediator, covariates[0:n]) |>
           paste0(collapse = " + ") |>
           {
-            \(.x) paste(left, .x, sep = " ~ ")
+            \(.x) paste(outcome, .x, sep = " ~ ")
           }()
 
-        formula_list <- append(formula_list, f)
+        fl <- append(fl, f)
       }
     },
     parallel = {
       # Modifier for covariates in mediation
-      if (is.null(others)) {
-        seq_others <- 1
+      if (is.null(covariates)) {
+        seq_covariates <- 1
       } else {
-        seq_others <- seq_along(others)
+        seq_covariates <- seq_along(covariates)
       }
 
-      for (n in seq_others) {
+      for (n in seq_covariates) {
         f <-
-          c(right, others[n]) |>
+          c(exposure, mediator, covariates[n]) |>
           paste0(collapse = " + ") |>
           {
-            \(.x) paste(left, .x, sep = " ~ ")
+            \(.x) paste(outcome, .x, sep = " ~ ")
           }()
 
-        formula_list <- append(formula_list, f)
+        fl <- append(fl, f)
       }
     }
   )
 
   # Return
-  formula_list
+  fl
 }
+
 
 #' Identify order or complexity of a set of terms or formula
 #' @export
 decipher <- function(t) {
   validate_class(t, "term_archetype")
 
-  #############
   ### ORDER ###
-  #############
+
   order <- integer()
 
-    # ZEROETH
-      # Only single term object
-    # FIRST
-      # Does not follow rules of roles
-      # LHS = 1
-      # RHS = 1
-    # SECOND
-      # Follows rules of roles
-      # LHS = 1
-      # RHS = exposure + confounder
-      # RHS = mediator (no confounders allowed)
-      # RHS =/= outcome
-    # THIRD
-      # Does not follow rules of roles
-      # LHS = 1
-      # RHS > 1 exposure
-      # RHS > 1 mediator
-      # RHS = exposure + mediator
-    # FOURTH
-      # LHS > 1
+  # ZEROETH
+  # Only single term object
+
+  # FIRST
+  # Does not follow rules of roles
+  # LHS = 1
+  # RHS = 1
+
+  # SECOND
+  # Follows rules of roles
+  # LHS = 1
+  # RHS = exposure + confounder
+  # RHS = mediator (no confounders allowed)
+  # RHS =/= outcome
+
+  # THIRD
+  # Does not follow rules of roles
+  # LHS = 1
+  # RHS > 1 exposure
+  # RHS > 1 mediator
+  # RHS = exposure + mediator
+
+  # FOURTH
+  # LHS > 1
 
   vt <- vec_data(t)
   rls <- roles(t)
@@ -281,38 +256,48 @@ decipher <- function(t) {
   left <- sum(out)
   right <- sum(exp, prd, med, unk)
 
+
   # Zeroeth order
   if (length(t) == 1) {
     order <- 0L
   }
 
   # First order
-  if (left == 1 & right == 1) {
+  if (length(t) == 2 & sum(exp, med) == 0) {
     order <- 1L
   }
 
   # Second order
-  if (left == 1 & right >= 1) {
-
-    if (med > 0 & right = 1) {
+  if (length(t) >= 2) {
+    if (out == 1 & any(exp) & med == 0) {
       order <- 2L
     }
-
-    if (exp > 0 & med == 0) {
+    if (med == 1 & out == 0 & exp == 1) {
       order <- 2L
     }
-
-    if (exp == 0 & med == 0 & prd > 1) {
+    if (out == 1 & med == 1 & exp == 0 & prd == 0) {
       order <- 2L
     }
-
   }
 
   # Third order
+  if (length(t) > 2) {
+    if (all(exp, med)) {
+      order <- 3L
+    }
+    if (exp > 1) {
+      order <- 3L
+    }
+    if (med > 1) {
+      order <- 3L
+    }
+  }
 
   # Fourth order
   if (left > 1) {
     order <- 4L
   }
 
+  # Return
+  order
 }
