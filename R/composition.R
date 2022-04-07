@@ -263,7 +263,7 @@ decipher <- function(t) {
   }
 
   # First order
-  if (length(t) == 2 & sum(exp, med) == 0) {
+  if (length(t) == 2) {
     order <- 1L
   }
 
@@ -272,10 +272,19 @@ decipher <- function(t) {
     if (out == 1 & any(exp) & med == 0) {
       order <- 2L
     }
-    if (med == 1 & out == 0 & exp == 1) {
+    if (out == 0 & med == 1 & exp == 1) {
       order <- 2L
     }
     if (out == 1 & med == 1 & exp == 0 & prd == 0) {
+      order <- 2L
+    }
+    if (out == 1 & prd > 1 & exp == 0) {
+      order <- 2L
+    }
+    if (out == 1 & prd > 1 & exp == 0) {
+      order <- 2L
+    }
+    if (out == 1 & prd >= 1 & exp == 1) {
       order <- 2L
     }
   }

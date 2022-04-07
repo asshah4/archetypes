@@ -121,7 +121,7 @@ term_archetype.character <- function(x,
     side <- "unknown"
   }
   if (length(role) == 0) {
-    role <- "unknown"
+    role <- "predictor"
   }
   if (length(tier) == 0) {
     tier <- NA
@@ -464,10 +464,15 @@ term_archetype.formula_archetype <- function(x, ...) {
     return(new_term())
   }
 
-  # Return to terms
-  x |>
-    stats::as.formula() |>
-    term_archetype.formula()
+  # Convert to basic terms
+  f <- field(x, "formula")
+  t <- term_archetype.formula(stats::formula(f))
+
+  # Roles
+  rls <- list(
+    outcome = field(x, "outcome")
+  )
+
 }
 
 #' @rdname terms

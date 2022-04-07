@@ -96,7 +96,7 @@ test_that("formatting is correct", {
   }
 })
 
-test_that("vctr based operations work", {
+test_that("casting and coercion for different dispatches work", {
 
   # Basic cast into character
   x1 <- term_archetype("x1", side = "right", role = "exposure", label = "Independent Variable")
@@ -105,6 +105,12 @@ test_that("vctr based operations work", {
   expect_type(c(x1, y), "character")
   expect_s3_class(c(x1, x2), "term_archetype")
   expect_type(vec_c(x1, y), "character")
+
+  # Formula archetypes
+  s <- rx(mpg ~ X(wt) + M(cyl) + hp)
+  f <- fmls(s) # Not appropriately adding hte mediation class here
+  expect_error(f)
+
 })
 
 

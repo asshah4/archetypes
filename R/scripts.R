@@ -104,7 +104,7 @@ prescribe <- function(x = unspecified(),
     )
   }
 
-  # terms list (nested for field length equivalence)
+  # Terms list (nested for field length equivalence)
   # Updated attributes/components internally
   t <-
     term_archetype(x) |>

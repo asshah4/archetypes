@@ -23,7 +23,7 @@ test_that("appropriate family tracking occurs in strata", {
   f <- mpg ~ X(wt) + hp + qsec + S(cyl)
   label <- list(mpg ~ "Mileage", hp ~ "Horsepower")
   tier <- list(qsec ~ "speed", wt ~ "hardware")
-  t <- tm(f, label = labels, tier = tiers)
+  t <- tm(f, label = label, tier = tier)
   x <- rx(t, pattern = "sequential")
   fl <- fmls(x)
   expect_equal(field(fl, "order")[1], 2)

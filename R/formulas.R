@@ -51,11 +51,14 @@ formula_archetype <- function(x = unspecified(),
     t <- x
   }
 
-  # Add strata back in
+  # Add strata back in (if not already available)
   if (length(strata) > 0) {
     t <- add_strata(t, strata)
   } else {
-    strata <- NA_character_
+    strata <- names(roles(t)[roles(t) == "strata"])
+    if (length(strata) == 0) {
+      strata <- NA_character_
+    }
   }
 
   # Update terms
@@ -74,14 +77,12 @@ formula_archetype <- function(x = unspecified(),
     s <- decompose_roles(s)
   }
 
-
   # Turn each of these into formulas
   for (i in seq_along(s)) {
 
     # From all of the scripts, obtain the expansion patterns if possible
     fl <- decompose_patterns(s[i])
     tl <- field(s[i], "terms")[[1]]
-    strata <- names(roles(tl)[roles(tl) == "strata"])
 
     for (j in seq_along(fl)) {
       tms <- match_terms(tl, stats::formula(fl[[j]]))
