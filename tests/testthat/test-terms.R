@@ -57,6 +57,7 @@ test_that("new term_archetypes can be made from character/atomic components", {
   t <- c(ty, tm, tm, tc, ts)
 
   expect_length(t, 5)
+  expect_true(is_term(t))
 })
 
 test_that("term_archetype() makes term_archetype object or errors", {
@@ -110,8 +111,10 @@ test_that("casting and coercion for different dispatches work", {
   s <- rx(mpg ~ X(wt) + M(cyl) + hp)
   f <- fmls(s)
   t <- tm(f)
-  expect_length(t, 5)
+  expect_length(t, 4)
   expect_equal(decipher(t), 3)
+  expect_equal(decipher(t), field(s, "order"))
+  expect_equal(length(t), length(field(s, "terms")[[1]]))
 
 })
 

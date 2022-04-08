@@ -487,8 +487,16 @@ term_archetype.formula_archetype <- function(x, ...) {
 
   }
 
-  # Return
-  unique(tl)
+  # Clean up terms and return
+  unique(tl) |>
+    vec_data() |>
+    {\(.x) {
+      .x$side[.x$role %in% c("exposure", "mediator", "predictor")] <- "right"
+      .x$side[.x$role == "outcome"] <- "left"
+      .x
+    }}() |>
+    vec_restore(tm()) |>
+    unique()
 
 }
 

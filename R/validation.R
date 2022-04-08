@@ -62,40 +62,13 @@ validate_models <- function(x) {
   }
 }
 
-#' Check the complexity of a formula
-#' @keywords internal
-#' @noRd
-check_complexity <- function(x) {
-
-  validate_class(x, "term_archetype")
-  y <- vec_data(x)
-  out <- c(y$terms[y$role == "outcome"], y$terms[y$role == "dependent"])
-  exp <- y$terms[y$role == "exposure"]
-  ind <- y$terms[y$role == "independent"]
-  med <- y$terms[y$role == "mediator"]
-
-  # Complexity levels:
-    # "unit" = a 1:1 relationship, one LHS and one RHS term
-    # "simple" = may have covariates or additional terms, but only 1 outcome
-    # "complex" = may still have multiple outcomes or predictors
-  if (length(y$side[y$side %in% c("left", "right")]) == 2) {
-    z <- "unit"
-  } else if (length(out) == 1 & length(exp) < 2) {
-    z <- "simple"
-  } else {
-    z <- "complex"
-  }
-
-  # Return
-  z
-}
-
 #' Identification of formula and formula-adjacent objects
 #'
 #' @param x Confirmation of an object being of the following classes:
 #'
-#'   * `term`
-#'   * `rx`
+#'   * `term_archetype`
+#'   * `formula_archetype`
+#'   * `script`
 #'
 #' @name check
 #' @export

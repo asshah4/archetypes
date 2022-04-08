@@ -1,6 +1,9 @@
 # Formula class ----------------------------------------------------------------
 
 #' Formula Archetype
+#'
+#' @param order Describes the requested order that formulas should be decomposed
+#'   into. The default is to return ALL formula decompositions. Options include any integer vector between _1_ and _4_. If no value is given, all orders are returned.
 #' @name formula
 #' @export
 formula_archetype <- function(x = unspecified(),
@@ -10,7 +13,7 @@ formula_archetype <- function(x = unspecified(),
                               strata = character(),
                               pattern = character(),
                               lineage = list(),
-                              order = integer(),
+                              order = "all",
                               ...) {
 
   # Early Break if needed
@@ -107,7 +110,15 @@ formula_archetype <- function(x = unspecified(),
   }
 
   # Return formulas
-  unique(fa)
+  if (length(order) == 0) {
+    return(unique(fa))
+  } else {
+    if (is.integer(order)) {
+      return(unique(fa[field(fa, "order") %in% order]))
+    } else {
+      return(unique(fa))
+    }
+  }
 }
 
 #' @rdname formula

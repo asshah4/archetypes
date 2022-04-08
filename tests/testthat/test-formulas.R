@@ -4,7 +4,7 @@ test_that("custom formuals can be initialized", {
   f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
   t <- tm(f)
   x <- rx(t, pattern = "direct")
-  fl <- fmls(x)
+  fl <- fmls(x, order = "all")
   expect_length(fl, 8)
 
   # Terms
@@ -17,6 +17,7 @@ test_that("custom formuals can be initialized", {
   f <- mpg ~ wt + hp + S(cyl)
   x <- formula_archetype(f)
   expect_s3_class(x, "formula_archetype")
+  expect_true(is_formula(x))
 })
 
 test_that("appropriate family tracking occurs in strata", {

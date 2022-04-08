@@ -16,8 +16,9 @@ is_formula(x)
 \arguments{
 \item{x}{Confirmation of an object being of the following classes:
 \itemize{
-\item \code{term}
-\item \code{rx}
+\item \code{term_archetype}
+\item \code{formula_archetype}
+\item \code{script}
 }}
 }
 \description{

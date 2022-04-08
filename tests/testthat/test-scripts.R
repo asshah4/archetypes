@@ -1,4 +1,4 @@
-test_that("a formula can be upgraded into a prescribe object", {
+test_that("a formula can be upgraded into a script object", {
   f <- prescribe(
     mpg + wt ~ hp + cyl + gear + drat + qsec,
     role = list(hp ~ "exposure", cyl ~ "mediator")
@@ -16,6 +16,7 @@ test_that("basic formula vector can be made and displayed", {
   f1 <- prescribe(t, label = list(mpg ~ "Mileage", cyl ~ "Cylinders"))
   expect_length(rhs(f1), 5)
   expect_length(lhs(f1), 2)
+  expect_true(is_script(f1))
 
   expect_silent(validate_class(f1, "script"))
   expect_silent(validate_class(t, "term_archetype"))
