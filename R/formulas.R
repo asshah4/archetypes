@@ -3,7 +3,10 @@
 #' Formula Archetype
 #'
 #' @param order Describes the requested order that formulas should be decomposed
-#'   into. The default is to return ALL formula decompositions. Options include any integer vector between _1_ and _4_. If no value is given, all orders are returned.
+#'   into. The default is to return ALL formula decompositions. Options include
+#'   any integer vector between _1_ and _4_. The default is `2L:4L`, which
+#'   includes every functional formula and its parent.
+#'   are returned.
 #' @name formula
 #' @export
 formula_archetype <- function(x = unspecified(),
@@ -13,33 +16,36 @@ formula_archetype <- function(x = unspecified(),
                               strata = character(),
                               pattern = character(),
                               lineage = list(),
-                              order = "all",
+                              order = 2L:4L,
                               ...) {
 
-  # Early Break if needed
+  # Early break and validation
   if (length(x) == 0) {
     return(new_formula())
   }
 
-  # Empty formula list to generate
-  fa <- formula_archetype()
-
-  # Usable classes
-  acceptable_classes <-
+  if (!any(
     c(
       "script",
       "term_archetype",
       "formula_archetype",
       "character",
       "formula"
-    )
-
-  if (!any(acceptable_classes %in% class(x))) {
+    ) %in% class(x)
+  )) {
     stop("`formula_archetype()` is not defined for a `",
       class(x)[1],
       "` object.",
       call. = FALSE
     )
+  }
+
+  if (!all(order %in% 1:4)) {
+    stop("The order should be an integer range between 1 to 4.")
+  }
+
+  if ("script" %in% class(x) & length(x) > 1) {
+    stop("`formula_archetype()` can only accept 1 `script` object at a time.")
   }
 
   # Extract and/or generate terms
@@ -76,11 +82,12 @@ formula_archetype <- function(x = unspecified(),
   ancestor <- deparse1(stats::formula(t))
   n <- decipher(t)
   s <- rx(t, pattern = pattern)
-  for (i in 1:(n - 2)) {
+  for (i in 1:(n - 1)) {
     s <- recompose_roles(s)
   }
 
   # Turn each of these into formulas
+  fa <- formula_archetype()
   for (i in seq_along(s)) {
 
     # From all of the scripts, obtain the expansion patterns if possible
@@ -106,19 +113,22 @@ formula_archetype <- function(x = unspecified(),
 
       fa <- append(fa, f)
     }
-
   }
 
   # Return formulas
-  if (length(order) == 0) {
-    return(unique(fa))
+  if (is.numeric(order)) {
+    fls <-
+      fa |>
+      vec_data() |>
+      {
+        \(.x) {.x[.x$order == 1L, ]}
+      }() |>
+      vec_restore(to = fmls())
   } else {
-    if (is.integer(order)) {
-      return(unique(fa[field(fa, "order") %in% order]))
-    } else {
-      return(unique(fa))
-    }
+    fls <- unique(fa)
   }
+
+  fls
 }
 
 #' @rdname formula

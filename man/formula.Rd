@@ -14,7 +14,7 @@ formula_archetype(
   strata = character(),
   pattern = character(),
   lineage = list(),
-  order = "all",
+  order = 2L:4L,
   ...
 )
 
@@ -26,13 +26,16 @@ fmls(
   strata = character(),
   pattern = character(),
   lineage = list(),
-  order = "all",
+  order = 2L:4L,
   ...
 )
 }
 \arguments{
 \item{order}{Describes the requested order that formulas should be decomposed
-into. The default is to return ALL formula decompositions. Options include any integer vector between \emph{1} and \emph{4}. If no value is given, all orders are returned.}
+into. The default is to return ALL formula decompositions. Options include
+any integer vector between \emph{1} and \emph{4}. The default is \code{2L:4L}, which
+includes every functional formula and its parent.
+are returned.}
 }
 \description{
 Formula Archetype

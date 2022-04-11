@@ -4,7 +4,7 @@ test_that("custom formuals can be initialized", {
   f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
   t <- tm(f)
   x <- rx(t, pattern = "direct")
-  fl <- fmls(x, order = "all")
+  fl <- fmls(x)
   expect_length(fl, 8)
 
   # Terms
@@ -18,6 +18,57 @@ test_that("custom formuals can be initialized", {
   x <- formula_archetype(f)
   expect_s3_class(x, "formula_archetype")
   expect_true(is_formula(x))
+
+  # Character look alikes
+  f <- "mpg ~ wt + hp"
+  x <- formula_archetype(f)
+  expect_match(field(x, "outcome")[[1]], "mpg")
+
+  # Errors
+  expect_error(formula_archetype(1))
+  expect_error(formula_archetype("test"))
+})
+
+test_that("output is appropriate", {
+
+  # Empty
+  expect_output(print(fmls()), "[0]")
+
+  # Simple output
+  f <- rx(mpg ~ wt + hp + S(cyl), pattern = "sequential")
+  x <- formula_archetype(f)
+  expect_type(format(x), "character")
+
+  # Tibble
+  if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
+    tibble::tibble(x) |>
+      print() |>
+      expect_output("<fmls>")
+  }
+
+})
+
+test_that("casting and coercion for formulas works", {
+
+  # Character
+  f <- "mpg ~ wt + hp"
+  x <- c(fmls(f), f)
+  expect_length(x, 2)
+  expect_type(x, "character")
+  x <- vec_c(f, fmls(f))
+  expect_length(x, 2)
+  expect_type(x, "character")
+
+
+})
+
+test_that("appropriate orders of formulas occur", {
+
+  f <- rx(mpg ~ wt + hp, pattern = "direct")
+  x <- fmls(f, order = 1)
+  expect_length(x, 2)
+
+
 })
 
 test_that("appropriate family tracking occurs in strata", {

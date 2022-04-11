@@ -9,7 +9,7 @@ test_that("formulas can be made with appropriate roles and complexity", {
   expect_equal(decipher(t), 1)
 
   # Second order
-  t <- tm(y ~ X(x))
+  t <- tm(y ~ X(x) + c)
   expect_equal(decipher(t), 2)
 
   # Third order/mediation
@@ -19,7 +19,6 @@ test_that("formulas can be made with appropriate roles and complexity", {
   # Fourth order/script
   t <- tm(y1 + y2 ~ X(x) + M(m) + C(c))
   expect_equal(decipher(t), 4)
-
 
 })
 
@@ -39,6 +38,14 @@ test_that("scripts can be decomposed appropriately", {
   s2 <- recompose_roles(s3)
   expect_length(s2, 4) # Second order decomposition
   expect_equal(format(s2[2]), "y ~ x + c")
+
+  # Second order recomposition (into first order)
+  t <- tm(y ~ X(x) + c)
+  expect_equal(decipher(t), 2)
+  s <- rx(t)
+  sl <- recompose_roles(s)
+  expect_length(sl, 3)
+  expect_equal(field(sl, "formula")[2], "y ~ x")
 
   # Multiple order decompositions
   f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
@@ -116,8 +123,8 @@ test_that("strata can be made appropriately", {
   labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
   tiers <- list(qsec ~ "speed", wt ~ "hardware")
   t <- tm(f, label = labels, tier = tiers)
-  x <- rx(t, pattern = "sequential")
-  sl <- recompose_roles(x)
-  expect_length(sl, 1)
+  s <- rx(t, pattern = "sequential")
+  sl <- recompose_roles(s)
+  expect_length(sl, 4)
 })
 

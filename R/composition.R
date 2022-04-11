@@ -1,4 +1,4 @@
-#' Decompose scripts into a level/order below, down to level 2 for formula
+#' Recompose scripts into a level/order below, down to level 2 for formula
 #' @noRd
 recompose_roles <- function(s) {
 
@@ -21,6 +21,27 @@ recompose_roles <- function(s) {
     covariates <- c(confounder, predictor)
 
     # Creating formulas one level down
+    if (order == 2) {
+      left <- lhs(t)
+      right <- rhs(t)
+      for (j in seq_along(left)) {
+        for (k in seq_along(right)) {
+          f <- paste0(left[j], " ~ ", right[k])
+          mt <- match_terms(t, stats::formula(f))
+          p <- field(s[i], "pattern")
+          sl <- append(
+            sl,
+            new_script(
+              formula = f,
+              terms = mt,
+              pattern = p,
+              order = decipher(mt)
+            )
+          )
+        }
+      }
+    }
+
     if (order == 3) {
 
       # Exposure on the right
@@ -111,7 +132,7 @@ recompose_roles <- function(s) {
   unique(sl)
 }
 
-#' Expand the patterns that affect the covariates of a term set
+#' Decompose and expand the patterns that affect the covariates of a script
 #' @noRd
 decompose_patterns <- function(s) {
 
@@ -160,7 +181,7 @@ decompose_patterns <- function(s) {
     }
     if (length(mediator) == 0) {
       left <- outcome
-      right <- c(exposure, mediator)
+      right <- exposure
     }
 
     switch(pattern,
@@ -175,7 +196,8 @@ decompose_patterns <- function(s) {
         fl <- append(fl, f)
       },
       sequential = {
-        for (n in 0:length(covariates)) {
+        p <- ifelse(length(right) == 0, 1, 0)
+        for (n in p:length(covariates)) {
           f <-
             c(right, covariates[0:n]) |>
             paste0(collapse = " + ") |>
@@ -289,13 +311,13 @@ decipher <- function(t) {
     if (out == 1 & med == 1 & exp == 0 & prd == 0) {
       order <- 2L
     }
-    if (out == 1 & prd > 1 & exp == 0) {
+    if (out == 1 & prd > 1 & exp == 0 & med == 0) {
       order <- 2L
     }
-    if (out == 1 & prd > 1 & exp == 0) {
+    if (out == 1 & prd > 1 & exp == 0 & med == 0) {
       order <- 2L
     }
-    if (out == 1 & prd >= 1 & exp == 1) {
+    if (out == 1 & prd >= 1 & exp == 1 & med == 0) {
       order <- 2L
     }
   }
