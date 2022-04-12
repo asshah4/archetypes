@@ -1,8 +1,6 @@
 # Conversion -------------------------------------------------------------------
 
-#' Convert between lists and tables
-#'
-#' @return A `data.frame` or `list` object
+#' Convert between lists, list-formulas, and tables
 #'
 #' @param x
 #'
@@ -18,14 +16,26 @@
 #'
 #' @details
 #'
-#' For `table_to_list()`:
+#' `table_to_list()`:
 #'
 #' Takes a `data.frame` and uses the columns to generate a named list. This
 #' removes the original column names, as it assumes that the data is contained
 #' within the frame itself. It defaults to using the first column as the names
 #' of the list.
 #'
-#' @name lists_tbls
+#' `formula_to_named_list()`:
+#'
+#' Handling of list-formula arguments. Stylistic choice to make arguments
+#' entered in the form of a list, with each entry being a formula. The LHS will
+#' always be the terms, and the RHS will always be the non-terms item (e.g.
+#' group, label, role, etc).
+#'
+#' `named_list_to_formula()`:
+#'
+#' Converts a named list set to a formula pattern. The LHS is the term, and the
+#' RHS is the value, such as a label, role, or tier.
+#'
+#' @name list-helpers
 #' @export
 list_to_table <- function(x, id = "terms", val = "ops", ...) {
   tbl <- as.data.frame(cbind(names(x), unlist(unname(x))))
@@ -33,7 +43,7 @@ list_to_table <- function(x, id = "terms", val = "ops", ...) {
   tbl
 }
 
-#' @rdname lists_tbls
+#' @rdname list-helpers
 #' @export
 table_to_list <- function(x, id = "terms", ...) {
   validate_class(x, "data.frame")
@@ -54,12 +64,9 @@ table_to_list <- function(x, id = "terms", ...) {
   }
 }
 
-#' Handling of list-formula arguments
-#' Stylistic choice to make arguments entered in the form of a list, with each
-#' entry being a formula. The LHS will always be the terms, and the RHS will
-#' always be the non-terms item (e.g. group, label, role, etc).
-#' @noRd
-formula_args_to_list <- function(x, ...) {
+#' @rdname list-helpers
+#' @export
+formula_to_named_list <- function(x, ...) {
   validate_class(x, "list")
 
   pl <- list()
@@ -91,9 +98,9 @@ formula_args_to_list <- function(x, ...) {
   pl
 }
 
-#' Handling of named lists (to convert back into arguments for formulas)
-#' @noRd
-list_to_formula_args <- function(x, ...) {
+#' @rdname list-helpers
+#' @export
+named_list_to_formula <- function(x, ...) {
   validate_class(x, "list")
 
   fl <- list()

@@ -7,9 +7,8 @@ recompose_roles <- function(s) {
   sl <- s
 
   for (i in seq_along(sl)) {
-    t <- field(s[i], "terms")[[1]]
-    vt <- vec_data(t)
-    order <- field(s[i], "order")
+    t <- field(sl[i], "terms")[[1]]
+    order <- decipher(t)
 
     # Roles
     rls <- roles(t)
@@ -22,13 +21,19 @@ recompose_roles <- function(s) {
 
     # Creating formulas one level down
     if (order == 2) {
-      left <- lhs(t)
-      right <- rhs(t)
+      if (length(mediator) > 0 & length(outcome) == 0) {
+        left <- mediator
+        right <- setdiff(rhs(t), mediator)
+      } else {
+        left <- lhs(t)
+        right <- rhs(t)
+      }
+
       for (j in seq_along(left)) {
         for (k in seq_along(right)) {
           f <- paste0(left[j], " ~ ", right[k])
           mt <- match_terms(t, stats::formula(f))
-          p <- field(s[i], "pattern")
+          p <- field(sl[i], "pattern")
           sl <- append(
             sl,
             new_script(
@@ -44,34 +49,13 @@ recompose_roles <- function(s) {
 
     if (order == 3) {
 
-      # Exposure on the right
-      for (j in seq_along(exposure)) {
-        f <- paste0(
-          outcome,
-          " ~ ",
-          paste(c(exposure[j], covariates), collapse = " + ")
-        )
-        mt <- match_terms(t, stats::formula(f))
-        p <- field(s[i], "pattern")
-        sl <- append(
-          sl,
-          new_script(
-            formula = f,
-            terms = mt,
-            pattern = p,
-            order = decipher(mt)
-          )
-        )
-      }
-
-      # Mediation if present
-      if (length(mediator) > 0) {
-        for (j in 1:seq_along(mediator)) {
-          # Mediator on the right
+      # Exposure on the right if outcome is present
+      if (length(outcome) > 0) {
+        for (j in seq_along(exposure)) {
           f <- paste0(
             outcome,
             " ~ ",
-            mediator[j]
+            paste(c(exposure[j], covariates), collapse = " + ")
           )
           mt <- match_terms(t, stats::formula(f))
           p <- field(s[i], "pattern")
@@ -84,6 +68,31 @@ recompose_roles <- function(s) {
               order = decipher(mt)
             )
           )
+        }
+      }
+
+      # Mediation if present
+      if (length(mediator) > 0) {
+        for (j in 1:seq_along(mediator)) {
+          # Mediator on the right if outcome is available
+          if (length(outcome) > 0) {
+            f <- paste0(
+              outcome,
+              " ~ ",
+              mediator[j]
+            )
+            mt <- match_terms(t, stats::formula(f))
+            p <- field(sl[i], "pattern")
+            sl <- append(
+              sl,
+              new_script(
+                formula = f,
+                terms = mt,
+                pattern = p,
+                order = decipher(mt)
+              )
+            )
+          }
 
           # Mediator on the left
           f <- paste0(
@@ -92,7 +101,7 @@ recompose_roles <- function(s) {
             paste(c(exposure, covariates), collapse = " + ")
           )
           mt <- match_terms(t, stats::formula(f))
-          p <- field(s[i], "pattern")
+          p <- field(sl[i], "pattern")
           sl <- append(
             sl,
             new_script(
@@ -111,10 +120,10 @@ recompose_roles <- function(s) {
         f <- paste0(
           outcome[j],
           " ~ ",
-          paste(c(exposure, covariates), collapse = " + ")
+          paste(c(exposure, mediator, covariates), collapse = " + ")
         )
         mt <- match_terms(t, stats::formula(f))
-        p <- field(s[i], "pattern")
+        p <- field(sl[i], "pattern")
         sl <- append(
           sl,
           new_script(
@@ -296,8 +305,11 @@ decipher <- function(t) {
   }
 
   # First order
+  # TODO
   if (length(t) == 2) {
-    order <- 1L
+    if (med == 1 & sum(exp, prd, unk) == 1) {
+      order <- 2L
+    }
   }
 
   # Second order
@@ -324,7 +336,7 @@ decipher <- function(t) {
 
   # Third order
   if (length(t) > 2) {
-    if (all(exp, med)) {
+    if (all(out, exp, med)) {
       order <- 3L
     }
     if (exp > 1) {

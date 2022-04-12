@@ -73,17 +73,19 @@ formula_archetype <- function(x = unspecified(),
   # Update terms
   t <-
     t |>
-    set_roles(roles = formula_args_to_list(role)) |>
-    set_tiers(tiers = formula_args_to_list(tier)) |>
-    set_labels(labels = formula_args_to_list(label))
+    set_roles(roles = formula_to_named_list(role)) |>
+    set_tiers(tiers = formula_to_named_list(tier)) |>
+    set_labels(labels = formula_to_named_list(label))
 
   # Generate or re-generate script, should be only a single script to start
   # Filter out just the second order formulas for now
   ancestor <- deparse1(stats::formula(t))
   n <- decipher(t)
   s <- rx(t, pattern = pattern)
-  for (i in 1:(n - min(order))) {
+  o <- min(order)
+  while (n > o) {
     s <- recompose_roles(s)
+    n <- n - 1
   }
 
   # Turn each of these into formulas
@@ -100,8 +102,9 @@ formula_archetype <- function(x = unspecified(),
 
       f <- new_formula(
         formula = fl[[j]],
-        left = list(lhs(t)),
-        right = list(rhs(t)),
+        n = length(tms),
+        left = list(lhs(tms)),
+        right = list(rhs(tms)),
         outcome = list(names(rls[rls == "outcome"])),
         exposure = list(names(rls[rls == "exposure"])),
         confounder = list(names(rls[rls == "confounder"])),
@@ -137,6 +140,7 @@ fmls <- formula_archetype
 #' @keywords internal
 #' @noRd
 new_formula <- function(formula = character(),
+                        n = integer(),
                         left = list(),
                         right = list(),
                         outcome = list(),
@@ -151,6 +155,7 @@ new_formula <- function(formula = character(),
 
   # Validation will depend
   vec_assert(formula, ptype = character())
+  vec_assert(n, ptype = integer())
   vec_assert(left, ptype = list())
   vec_assert(right, ptype = list())
   vec_assert(outcome, ptype = list())
@@ -166,6 +171,7 @@ new_formula <- function(formula = character(),
   new_rcrd(
     fields = list(
       "formula" = formula,
+      "n" = n,
       "left" = left,
       "right" = right,
       "outcome" = outcome,

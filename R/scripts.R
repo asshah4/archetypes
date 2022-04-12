@@ -108,9 +108,9 @@ prescribe <- function(x = unspecified(),
   # Updated attributes/components internally
   t <-
     term_archetype(x) |>
-    set_roles(roles = formula_args_to_list(role)) |>
-    set_tiers(tiers = formula_args_to_list(tier)) |>
-    set_labels(labels = formula_args_to_list(label))
+    set_roles(roles = formula_to_named_list(role)) |>
+    set_tiers(tiers = formula_to_named_list(tier)) |>
+    set_labels(labels = formula_to_named_list(label))
 
   # Look at composition of terms
   order <- decipher(t)

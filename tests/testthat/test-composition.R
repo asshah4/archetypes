@@ -56,6 +56,14 @@ test_that("scripts can be decomposed appropriately", {
   s2 <- recompose_roles(s1)
   expect_length(s2, 7)
 
+  # Complex break down with mediation
+  s <- rx(mpg + wt ~ X(hp) + M(cyl) + am)
+  s1 <- recompose_roles(x)
+  expect_equal(min(field(s1, "order")), 3)
+  s2 <- recompose_roles(s1)
+  s3 <- recompose_roles(s2[6])
+
+
 })
 
 test_that("scripts can be re-expanded into formulas", {

@@ -64,9 +64,24 @@ test_that("casting and coercion for formulas works", {
 
 test_that("appropriate orders of formulas occur", {
 
+  # Simple order check
   f <- rx(mpg ~ wt + hp, pattern = "direct")
   x <- fmls(f, order = 1)
   expect_length(x, 2)
+
+  # Complex breakdown to order 1
+  f <- rx(mpg + wt ~ X(hp) + am)
+  x <- fmls(f, order = 1:2)
+  expect_length(x, 6)
+  expect_length(x[field(x, "n") == 2], 4)
+
+  # Mediation break down works
+  t <- tm(mpg + wt ~ X(hp) + M(cyl) + am)
+  f <- rx(t)
+  x <- fmls(f, order = 1:4)
+  expect_length(x, 6)
+  expect_length(x[field(x, "n") == 2], 4)
+
 
 
 })

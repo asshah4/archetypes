@@ -12,3 +12,25 @@ test_that("term matching works correctly", {
 
 	expect_length(unique(tl), 2)
 })
+
+
+test_that("list manipulation occurs for formulas, tables, and named lists", {
+
+	# Named lists of different varieties
+  label <- list(mpg ~ "Mileage", hp ~ Horsepower)
+  tier <- list("qsec" ~ "speed", wt ~ "hardware")
+  role <- list(cyl + gear ~ "confounder")
+
+  # Convert to formulas
+  expect_named(formula_to_named_list(label), c("mpg", "hp"))
+  expect_named(formula_to_named_list(tier), c("qsec", "wt"))
+  expect_named(formula_to_named_list(role), c("cyl", "gear"))
+
+  # Convert back to named list
+  x <- formula_to_named_list(role)
+  y <- named_list_to_formula(x)
+  expect_length(y, 2)
+  expect_equal(y[[1]], cyl ~ "confounder", ignore_attr = TRUE)
+
+
+})
