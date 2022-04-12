@@ -58,7 +58,7 @@ recompose_roles <- function(s) {
             paste(c(exposure[j], covariates), collapse = " + ")
           )
           mt <- match_terms(t, stats::formula(f))
-          p <- field(s[i], "pattern")
+          p <- field(sl[i], "pattern")
           sl <- append(
             sl,
             new_script(
@@ -278,7 +278,6 @@ decipher <- function(t) {
   # FOURTH
   # LHS > 1
 
-  vt <- vec_data(t)
   rls <- roles(t)
   outcome <- names(rls[rls == "outcome"])
   predictor <- names(rls[rls == "predictor"])
@@ -305,11 +304,8 @@ decipher <- function(t) {
   }
 
   # First order
-  # TODO
   if (length(t) == 2) {
-    if (med == 1 & sum(exp, prd, unk) == 1) {
-      order <- 2L
-    }
+    order <- 1L
   }
 
   # Second order

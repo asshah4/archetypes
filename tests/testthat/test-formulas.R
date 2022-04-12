@@ -76,13 +76,10 @@ test_that("appropriate orders of formulas occur", {
   expect_length(x[field(x, "n") == 2], 4)
 
   # Mediation break down works
-  t <- tm(mpg + wt ~ X(hp) + M(cyl) + am)
+  t <- tm(mpg + wt ~ X(hp) + M(cyl) + qsec)
   f <- rx(t)
   x <- fmls(f, order = 1:4)
-  expect_length(x, 6)
-  expect_length(x[field(x, "n") == 2], 4)
-
-
+  expect_length(x, 14)
 
 })
 
