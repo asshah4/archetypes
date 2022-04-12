@@ -126,27 +126,27 @@ rhs <- function(x, ...) {
 #' @rdname sides
 #' @export
 rhs.term_archetype <- function(x, ...) {
-  tm <- vec_data(x)
-  tm$terms[tm$side == "right"]
+  tms <- vec_data(x)
+  tms$terms[tms$side == "right"]
 }
 
 #' @rdname sides
 #' @export
 lhs.term_archetype <- function(x, ...) {
-  tm <- vec_data(x)
-  tm$terms[tm$side == "left"]
+  tms <- vec_data(x)
+  tms$terms[tms$side == "left"]
 }
 
 #' @rdname sides
 #' @export
 rhs.formula_archetype <- function(x, ...) {
-  vec_data(x)$right[[1]]
+  field(x, "right")[[1]]
 }
 
 #' @rdname sides
 #' @export
 lhs.formula_archetype <- function(x, ...) {
-  vec_data(x)$left[[1]]
+  field(x, "left")[[1]]
 }
 
 #' @rdname sides

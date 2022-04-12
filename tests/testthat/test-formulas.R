@@ -4,7 +4,7 @@ test_that("custom formuals can be initialized", {
   f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
   t <- tm(f)
   x <- rx(t, pattern = "direct")
-  fl <- fmls(x)
+  fl <- fmls(x, order = 2:4)
   expect_length(fl, 8)
 
   # Terms
@@ -84,3 +84,4 @@ test_that("appropriate family tracking occurs in strata", {
   expect_equal(field(fl, "ancestor")[1], field(fl, "ancestor")[2])
   expect_equal(field(fl, "strata")[1], "cyl")
 })
+

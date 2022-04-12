@@ -40,7 +40,7 @@ formula_archetype <- function(x = unspecified(),
     )
   }
 
-  if (!all(order %in% 1:4)) {
+  if (is.numeric(order) & !all(order %in% 1:4)) {
     stop("The order should be an integer range between 1 to 4.")
   }
 
@@ -82,7 +82,7 @@ formula_archetype <- function(x = unspecified(),
   ancestor <- deparse1(stats::formula(t))
   n <- decipher(t)
   s <- rx(t, pattern = pattern)
-  for (i in 1:(n - 1)) {
+  for (i in 1:(n - min(order))) {
     s <- recompose_roles(s)
   }
 
@@ -100,6 +100,8 @@ formula_archetype <- function(x = unspecified(),
 
       f <- new_formula(
         formula = fl[[j]],
+        left = list(lhs(t)),
+        right = list(rhs(t)),
         outcome = list(names(rls[rls == "outcome"])),
         exposure = list(names(rls[rls == "exposure"])),
         confounder = list(names(rls[rls == "confounder"])),
@@ -116,19 +118,13 @@ formula_archetype <- function(x = unspecified(),
   }
 
   # Return formulas
-  if (is.numeric(order)) {
-    fls <-
-      fa |>
-      vec_data() |>
-      {
-        \(.x) {.x[.x$order == 1L, ]}
-      }() |>
-      vec_restore(to = fmls())
-  } else {
-    fls <- unique(fa)
-  }
-
-  fls
+  fa |>
+    vec_data() |>
+    {
+      \(.x) {.x[.x$order %in% order, ]}
+    }() |>
+    vec_restore(to = fmls()) |>
+    unique()
 }
 
 #' @rdname formula
@@ -141,6 +137,8 @@ fmls <- formula_archetype
 #' @keywords internal
 #' @noRd
 new_formula <- function(formula = character(),
+                        left = list(),
+                        right = list(),
                         outcome = list(),
                         exposure = list(),
                         confounder = list(),
@@ -153,6 +151,8 @@ new_formula <- function(formula = character(),
 
   # Validation will depend
   vec_assert(formula, ptype = character())
+  vec_assert(left, ptype = list())
+  vec_assert(right, ptype = list())
   vec_assert(outcome, ptype = list())
   vec_assert(exposure, ptype = list())
   vec_assert(confounder, ptype = list())
@@ -166,6 +166,8 @@ new_formula <- function(formula = character(),
   new_rcrd(
     fields = list(
       "formula" = formula,
+      "left" = left,
+      "right" = right,
       "outcome" = outcome,
       "exposure" = exposure,
       "confounder" = confounder,
