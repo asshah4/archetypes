@@ -13,6 +13,11 @@ test_that("custom formuals can be initialized", {
   x <- formula_archetype(t)
   expect_s3_class(x, "formula_archetype")
 
+  y <- term_archetype("Y", side = "left")
+  x <- term_archetype("X", side = "right")
+  t <- c(x, y)
+  f <- fmls(t, order = 1)
+
   # Formula
   f <- mpg ~ wt + hp + S(cyl)
   x <- formula_archetype(f)

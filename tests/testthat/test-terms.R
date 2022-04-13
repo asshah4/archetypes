@@ -58,6 +58,14 @@ test_that("new term_archetypes can be made from character/atomic components", {
 
   expect_length(t, 5)
   expect_true(is_term(t))
+
+  # Complex examples with mediation
+  x <- tm("M", side = "right")
+  y <- tm("Y", side = "left")
+  role = list(M ~ "mediator", Y ~ "covariate")
+  expect_error(set_roles(c(x, y), roles = formula_to_named_list(role)))
+
+
 })
 
 test_that("term_archetype() makes term_archetype object or errors", {

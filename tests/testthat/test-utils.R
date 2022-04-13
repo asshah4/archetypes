@@ -34,3 +34,18 @@ test_that("list manipulation occurs for formulas, tables, and named lists", {
 
 
 })
+
+test_that("sides can be obtained from formulaic objects", {
+
+	x <- rx(mpg + wt ~ X(hp) + M(cyl) + qsec)
+	fl <-
+		fmls(x, order = 1:4) |>
+		{
+			\(.x) .x[field(.x, "n") == 2]
+		}()
+	# Number 5 doesn't have a "left" hand side, which is wrong.
+	f <- fl[5]
+	expect_equal(lhs(f), "cyl")
+
+
+})

@@ -343,6 +343,21 @@ set_roles <- function(x, roles, ...) {
   # Update and append roles
   rls <- append(roles(x), roles)
 
+  # If roles are not appropriate, should stop or error now
+  accepted_roles <-
+    c("outcome",
+      "predictor",
+      "exposure",
+      "confounder",
+      "mediator",
+      "unknown")
+
+  if (!all(rls %in% accepted_roles)) {
+    stop("An invalid role was entered. It should be one of: `c(",
+         paste(accepted_roles, collapse = ", "),
+         ")`")
+  }
+
   # Save the most "recent" updated label and erase prior if duplicate
   t <- vec_data(x)
   for (i in seq_along(rls)) {

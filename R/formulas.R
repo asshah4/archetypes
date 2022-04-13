@@ -93,18 +93,23 @@ formula_archetype <- function(x = unspecified(),
   for (i in seq_along(s)) {
 
     # From all of the scripts, obtain the expansion patterns if possible
-    fl <- decompose_patterns(s[i])
+    if (field(s[i], "order") == 1) {
+      fl <- field(s[i], "formula")
+    } else {
+      fl <- decompose_patterns(s[i])
+    }
     tl <- field(s[i], "terms")[[1]]
 
     for (j in seq_along(fl)) {
-      tms <- match_terms(tl, stats::formula(fl[[j]]))
+      fx <- stats::formula(fl[[j]])
+      tms <- match_terms(tl, fx)
       rls <- roles(tms)
 
       f <- new_formula(
         formula = fl[[j]],
         n = length(tms),
-        left = list(lhs(tms)),
-        right = list(rhs(tms)),
+        left = list(lhs(fx)),
+        right = list(rhs(fx)),
         outcome = list(names(rls[rls == "outcome"])),
         exposure = list(names(rls[rls == "exposure"])),
         confounder = list(names(rls[rls == "confounder"])),
