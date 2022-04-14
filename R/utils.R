@@ -350,6 +350,7 @@ set_roles <- function(x, roles, ...) {
       "exposure",
       "confounder",
       "mediator",
+      "strata",
       "unknown")
 
   if (!all(rls %in% accepted_roles)) {

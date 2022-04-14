@@ -65,14 +65,6 @@ test_that("new term_archetypes can be made from character/atomic components", {
   role = list(M ~ "mediator", Y ~ "covariate")
   expect_error(set_roles(c(x, y), roles = formula_to_named_list(role)))
 
-
-  p2 <- paths(
-    x = "M",
-    to = "Y",
-    role = list(M ~ "mediator", Y ~ "covariate"),
-    label = list(M ~ "Intermediary Variable", Y ~ "Dependent Variable")
-  )
-
 })
 
 test_that("term_archetype() makes term_archetype object or errors", {

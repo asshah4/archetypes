@@ -162,13 +162,13 @@ as \code{character} or \code{numeric} or \code{factor}}
 \section{Pluralized Arguments}{
 
 
-For the arguments that would be dispatched for objects that are plural, e.g.
-containing multiple terms such as a \code{formula} object, the input should be
-wrapped within a \code{list()}.
+For the arguments that would be dispatched for objects that are plural,
+e.g. containing multiple terms such as a \code{formula} object, the input should
+be wrapped within a \code{list()}.
 
 For example, for the \strong{role} argument, it would be written:
 
-\code{role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "confounder")}
+\code{role = list(X ~ "exposure", M ~ "mediator", C ~ "confounder")}
 
 This applies for all others plural objects and arguments.
 }

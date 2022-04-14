@@ -79,15 +79,15 @@
 #'
 #' @section Pluralized Arguments:
 #'
-#' For the arguments that would be dispatched for objects that are plural, e.g.
-#' containing multiple terms such as a `formula` object, the input should be
-#' wrapped within a `list()`.
+#'   For the arguments that would be dispatched for objects that are plural,
+#'   e.g. containing multiple terms such as a `formula` object, the input should
+#'   be wrapped within a `list()`.
 #'
-#' For example, for the __role__ argument, it would be written:
+#'   For example, for the __role__ argument, it would be written:
 #'
-#' `role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator", C ~ "confounder")`
+#'   `role = list(X ~ "exposure", M ~ "mediator", C ~ "confounder")`
 #'
-#' This applies for all others plural objects and arguments.
+#'   This applies for all others plural objects and arguments.
 #'
 #' @inheritSection script Roles
 #'
@@ -592,51 +592,52 @@ methods::setOldClass(c("term_archetype", "rcrds_rcrd"))
 
 #' @export
 format.term_archetype <- function(x, ...) {
-  tm <- vec_data(x)
+  tms <- vec_data(x)
   fmt <- character()
 
   if (vec_size(x) == 0) {
     fmt <- new_term()
   } else if (has_cli() & vec_size(x) > 0) {
-    for (i in 1:nrow(tm)) {
-      if (tm$role[i] == "outcome") {
-        t <- tm$terms[i]
+    for (i in 1:nrow(tms)) {
+      if (tms$role[i] == "outcome") {
+        t <- tms$terms[i]
         fmt <- append(fmt, cli::col_yellow(t))
       }
 
-      if (tm$role[i] == "exposure") {
-        t <- tm$terms[i]
+      if (tms$role[i] == "predictor") {
+        t <- tms$terms[i]
+        fmt <- append(fmt, t)
+      }
+
+      if (tms$role[i] == "exposure") {
+        t <- tms$terms[i]
         fmt <- append(fmt, cli::col_magenta(t))
       }
 
-      if (tm$role[i] == "mediator") {
-        t <- tm$terms[i]
+      if (tms$role[i] == "mediator") {
+        t <- tms$terms[i]
         fmt <- append(fmt, cli::col_cyan(t))
       }
 
-      if (tm$role[i] == "confounder") {
-        t <- tm$terms[i]
+      if (tms$role[i] == "confounder") {
+        t <- tms$terms[i]
         fmt <- append(fmt, cli::col_blue(t))
       }
 
-      if (tm$role[i] == "strata") {
-        t <- tm$terms[i]
+      if (tms$role[i] == "strata") {
+        t <- tms$terms[i]
         fmt <- append(fmt, cli::col_br_white(t))
       }
 
-      if (tm$role[i] == "unknown") {
-        t <- tm$terms[i]
+      if (tms$role[i] == "unknown") {
+        t <- tms$terms[i]
         fmt <- append(fmt, t)
       }
 
-      if (tm$role[i] == "predictor") {
-        t <- tm$terms[i]
-        fmt <- append(fmt, t)
-      }
     }
   } else {
-    for (i in 1:nrow(tm)) {
-      fmt <- append(fmt, tm$terms[i])
+    for (i in 1:nrow(tms)) {
+      fmt <- append(fmt, tms$terms[i])
     }
   }
 
