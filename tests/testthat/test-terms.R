@@ -59,12 +59,19 @@ test_that("new term_archetypes can be made from character/atomic components", {
   expect_length(t, 5)
   expect_true(is_term(t))
 
-  # Complex examples with mediation
+  # Inappropriate variables should lead to stop
   x <- tm("M", side = "right")
   y <- tm("Y", side = "left")
   role = list(M ~ "mediator", Y ~ "covariate")
   expect_error(set_roles(c(x, y), roles = formula_to_named_list(role)))
 
+
+  p2 <- paths(
+    x = "M",
+    to = "Y",
+    role = list(M ~ "mediator", Y ~ "covariate"),
+    label = list(M ~ "Intermediary Variable", Y ~ "Dependent Variable")
+  )
 
 })
 
