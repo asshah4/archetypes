@@ -86,11 +86,15 @@ prescribe <- function(x = unspecified(),
                       pattern = character(),
                       ...) {
 
-  # Validate early and if empty, break early
-  if (validate_empty(x)) {
+  # Break early if nothing is given
+  # If appropriate class, but empty, then also break early but warn/message
+  if (class(x)[1] == "vctrs_unspecified") {
     return(new_script())
   }
   validate_class(x, c("term_archetype", "formula"))
+  if (validate_empty(x)) {
+    return(new_script())
+  }
 
   # Check pattern
   if (length(pattern) == 0) {
@@ -175,7 +179,6 @@ methods::setOldClass(c("script", "vctrs_vctr"))
 
 #' @export
 format.script <- function(x, ...) {
-
 
   # Character representation of formula
   if (vec_size(x) == 0) {

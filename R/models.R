@@ -14,76 +14,38 @@ model_archetype <- function(x = unspecified(), ...) {
 
 #' @rdname models
 #' @export
-model_archetype.lm <- function(x = unspecified(),
+model_archetype.lm <- function(x,
                                name = deparse(substitute(x)),
-                               label = character(),
                                description = character(),
-                               term_labels = list(),
-                               term_roles = list(),
+                               label = list(),
+                               role = list(),
                                ...) {
-
-  # Early Break if needed
-  if (validate_empty(x)) {
-    return(new_model())
-  }
 
   # Wrap model
   m <- list(x)
 
   # Need the term and formulas
   # Terms should be extracted and updated with the roles and labels as needed
-  t <- tm(x, label = term_labels, role = term_roles)
-  f <- rx(t)
+  t <- tm(x, label = label, role = role)
+  f <- fmls(t, order = 1:4)[1] # Top level or first formula made is what we want
 
   # Type and subtypes
   type <- class(x)[1]
   subtype <- class(x)[2]
 
-  # Create a shorter call object as a character
-  if ("model_fit" %in% class(x)) {
-    call_name <-
-      stats::na.omit(c(subtype, type)) |>
-      paste0(collapse = "")
-  } else {
-    call_name <- type
-  }
-  cl <- paste0(call_name, "(", f, ")")
-
   # Labels and descriptions for model
-  if (length(label) == 0) {
-    label <- NA_character_
-  }
   if (length(description) == 0) {
     description <- NA_character_
   }
 
-  # Create tag/hash
-  tag <-
-    paste0(
-      ifelse(name == "", "unknown", name),
-      "_",
-      type,
-      "_",
-      ifelse(is.na(subtype), NA, subtype),
-      "_",
-      "T",
-      length(t),
-      "L",
-      ifelse(is.na(label), 0, 1),
-      "D",
-      ifelse(is.na(description), 0, 1)
-    )
-
+  # Creation
   new_model(
     model = m,
     type = type,
     subtype = subtype,
     name = name,
-    label = label,
     description = description,
-    call = cl,
-    script = f,
-    tag = tag
+    fmls = f
   )
 }
 
@@ -98,11 +60,15 @@ model_archetype.model_fit <- model_archetype.lm
 #' @rdname models
 #' @export
 model_archetype.list <- function(x = unspecified(),
-                                 label = character(),
                                  description = character(),
-                                 term_labels = list(),
-                                 term_roles = list(),
+                                 label = list(),
+                                 role = list(),
                                  ...) {
+
+  # Validated early break
+  if (validate_empty(x)) {
+    return(new_model())
+  }
 
   # Create a vector of the model archetypes
   ma <- model_archetype()
@@ -113,8 +79,8 @@ model_archetype.list <- function(x = unspecified(),
 
     m <- model_archetype(x[[i]],
       name = names(x)[i],
-      term_labels = term_labels,
-      term_roles = term_roles
+      label = label,
+      role = role
     )
 
     ma <- append(ma, m)
@@ -152,24 +118,16 @@ new_model <- function(model = list(),
                       type = character(),
                       subtype = character(),
                       name = character(),
-                      label = character(),
                       description = character(),
-                      call = character(),
-                      script = prescribe(),
-                      tag = character()) {
+                      fmls = formula_archetype()) {
 
   # Validation
   vec_assert(model, ptype = list())
   vec_assert(type, ptype = character())
   vec_assert(subtype, ptype = character())
   vec_assert(name, ptype = character())
-  vec_assert(label, ptype = character())
   vec_assert(description, ptype = character())
-  vec_assert(call, ptype = character())
-  vec_assert(tag, ptype = character())
-
-  # TODO
-  # Scripts are not yet validated
+  vec_assert(fmls, ptype = formula_archetype())
 
   # Model archetype description is essentially deconstructed here
   # class = defined by the model_archetype, its base class, and a list
@@ -183,11 +141,8 @@ new_model <- function(model = list(),
       "type" = type,
       "subtype" = subtype,
       "name" = name,
-      "label" = label,
       "description" = description,
-      "call" = call,
-      "script" = script,
-      "tag" = tag
+      "fmls" = fmls
     ),
     class = "model_archetype"
   )
@@ -201,7 +156,29 @@ methods::setOldClass(c("model_archetype", "vctrs_vctr"))
 
 #' @export
 format.model_archetype <- function(x, ...) {
-  field(x, "call")
+
+  # Character representation of formula
+  if (vec_size(x) == 0) {
+    return()
+  } else {
+    fmt <-
+      sapply(x, FUN = function(.x) {
+        f <- field(field(.x, "fmls"), "formula")
+        t <- field(.x, "type")
+        st <- field(.x, "subtype")
+
+        if (st == "model_fit") {
+          cl <- paste0(st, "_", t)
+        } else {
+          cl <- t
+        }
+
+        paste0(cl, "(", f, ")")
+      })
+  }
+  # Return
+  fmt
+
 }
 
 #' @export

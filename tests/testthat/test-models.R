@@ -6,9 +6,8 @@ test_that("models can be made from base regressions", {
   m <- lm(mpg ~ hp + cyl, mtcars)
   m1 <- model_archetype(
     x = m,
-    term_labels = list(mpg ~ "Mileage"),
-    term_roles = list(hp ~ "exposure"),
-    label = "LM Test"
+    label = list(mpg ~ "Mileage"),
+    role = list(hp ~ "exposure")
   )
   expect_length(m1, 1)
   expect_output(print(m1), "lm")
@@ -16,9 +15,8 @@ test_that("models can be made from base regressions", {
   m <- glm(am ~ hp + cyl, mtcars, family = "binomial")
   m2 <- model_archetype(
     m,
-    term_labels = list(am ~ "Automatic", cyl ~ "Cylinders"),
-    term_roles = list(am ~ "outcome"),
-    label = "GLM Test"
+    label = list(am ~ "Automatic", cyl ~ "Cylinders"),
+    role = list(am ~ "outcome")
   )
   expect_length(m2, 1)
   expect_output(print(m2), "glm")
@@ -52,8 +50,7 @@ test_that("model specs can also be used to generate archetypes", {
 
     mp <- model_archetype(
       pm,
-      term_labels = list(mpg ~ "Mileage"),
-      label = "Parsnip"
+      label = list(mpg ~ "Mileage")
     )
 
     expect_length(mp, 1)
@@ -69,7 +66,11 @@ test_that("list of models will dispatch appropriately", {
   m3 <- lm(mpg ~ wt + gear, mtcars)
   x <- list(first = m1, second = m2, m3)
 
-  ma <- model_archetype(x)
-  expect_length(ma, 3)
+  # Handling list of models
+  m <- md(x)
+  expect_length(m, 3)
+
+  # Expect error
+  expect_error(md(list(first = m1, second = "test")))
 
 })

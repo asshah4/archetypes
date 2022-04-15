@@ -27,12 +27,16 @@ validate_empty <- function(x) {
   # x is the primary argument of the parent function
   n <- length(x)
 
+  fn <- deparse(sys.calls()[[sys.nframe() - 1]][[1]])
+
   # Print message if needed
   if (n == 0) {
     message(
-      "An empty `",
+      "`",
+      fn,
+      "()` recieved an empty `",
       class(x)[1],
-      "` was provided, resulting in a [0] length object."
+      "` argument, returning a [0] length object."
     )
     return(TRUE)
   } else {
@@ -53,13 +57,20 @@ validate_models <- function(x) {
       "model_fit"
     )
 
+  fn <- deparse(sys.calls()[[sys.nframe() - 1]][[1]])
+
   if (!any(class(x) %in% supported_classes)) {
-    stop("`model_archetype()` is not defined for a `",
+    stop(
+      "`",
+      fn,
+      "()` is not defined for a `",
       class(x)[1],
       "` object.",
       call. = FALSE
     )
   }
+
+  invisible(TRUE)
 }
 
 #' Identification of formula and formula-adjacent objects

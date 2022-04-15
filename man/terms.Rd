@@ -5,7 +5,6 @@
 \alias{term_archetype}
 \alias{term_archetype.character}
 \alias{term_archetype.formula}
-\alias{term_archetype.data.frame}
 \alias{term_archetype.lm}
 \alias{term_archetype.glm}
 \alias{term_archetype.model_fit}
@@ -43,8 +42,6 @@ term_archetype(x = unspecified(), ...)
   subtype = list(),
   ...
 )
-
-\method{term_archetype}{data.frame}(x, ...)
 
 \method{term_archetype}{lm}(
   x,
@@ -101,7 +98,7 @@ via a list of formulas. See details for further explanation.
 \item \code{character}
 \item \code{formula}
 \item \code{lm}
-\item \code{data.frame}
+\item \code{glm}
 }}
 
 \item{side}{states the side of the formula the variable belongs on:

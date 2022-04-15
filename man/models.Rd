@@ -14,41 +14,37 @@
 model_archetype(x = unspecified(), ...)
 
 \method{model_archetype}{lm}(
-  x = unspecified(),
+  x,
   name = deparse(substitute(x)),
-  label = character(),
   description = character(),
-  term_labels = list(),
-  term_roles = list(),
+  label = list(),
+  role = list(),
   ...
 )
 
 \method{model_archetype}{glm}(
-  x = unspecified(),
+  x,
   name = deparse(substitute(x)),
-  label = character(),
   description = character(),
-  term_labels = list(),
-  term_roles = list(),
+  label = list(),
+  role = list(),
   ...
 )
 
 \method{model_archetype}{model_fit}(
-  x = unspecified(),
+  x,
   name = deparse(substitute(x)),
-  label = character(),
   description = character(),
-  term_labels = list(),
-  term_roles = list(),
+  label = list(),
+  role = list(),
   ...
 )
 
 \method{model_archetype}{list}(
   x = unspecified(),
-  label = character(),
   description = character(),
-  term_labels = list(),
-  term_roles = list(),
+  label = list(),
+  role = list(),
   ...
 )
 

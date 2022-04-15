@@ -111,8 +111,6 @@ test_that("vctrs casting and coercion work appropriately", {
 
   # character()
   expect_type(as.character(f1), "character")
-  expect_type(vec_ptype2(rx(x = character()), character()), "character")
-  expect_type(vec_ptype2(character(), rx(x = character())), "character")
 
   # Between terms and formulas
   x <- mpg + qsec ~ X(wt) + M(hp)

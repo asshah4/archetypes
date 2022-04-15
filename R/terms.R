@@ -17,7 +17,7 @@
 #'
 #'   * `lm`
 #'
-#'   * `data.frame`
+#'   * `glm`
 #'
 #' @param side states the side of the formula the variable belongs on:
 #'
@@ -338,18 +338,6 @@ term_archetype.formula <- function(x,
     vec_list_cast(to = term_archetype())
 }
 
-#' @rdname terms
-#' @export
-term_archetype.data.frame <- function(x, ...) {
-
-  # Early Break if needed
-  if (validate_empty(x)) {
-    return(new_term())
-  }
-
-  # TODO
-  message("not currently implemented")
-}
 
 #' @rdname terms
 #' @export
@@ -386,36 +374,7 @@ term_archetype.lm <- function(x,
 
 #' @rdname terms
 #' @export
-term_archetype.glm <- function(x,
-                               role = list(),
-                               tier = list(),
-                               label = list(),
-                               description = list(),
-                               distribution = list(),
-                               type = list(),
-                               subtype = list(),
-                               ...) {
-
-  # Early Break if needed
-  if (validate_empty(x)) {
-    return(new_term())
-  }
-
-  # obtain original formula
-  f <- stats::formula(x)
-
-  # generate terms
-  term_archetype.formula(
-    f,
-    role = role,
-    tier = tier,
-    label = label,
-    description = description,
-    distribution = distribution,
-    type = type,
-    subtype = subtype
-  )
-}
+term_archetype.glm <- term_archetype.lm
 
 #' @rdname terms
 #' @export
@@ -429,19 +388,17 @@ term_archetype.model_fit <- function(x,
                                      subtype = list(),
                                      ...) {
 
-  # Early Break if needed
+  # Early break and validation
   if (validate_empty(x)) {
     return(new_term())
   }
 
-  # acceptable model types
-  model_types <- c("lm", "glm")
-
-  # get model fit and pass to appropriate term_archetype dispatcher
+  # Get model fit and pass to appropriate term_archetype dispatcher
   m <- x$fit
-  if (class(m) %in% model_types) {
-    term_archetype(m)
-  }
+  validate_models(m)
+
+  # Return
+  term_archetype(m)
 }
 
 #' @rdname terms
