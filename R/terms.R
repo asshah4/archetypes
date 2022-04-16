@@ -432,7 +432,8 @@ term_archetype.formula_archetype <- function(x, ...) {
       field(x[i], "exposure")[[1]],
       field(x[i], "confounder")[[1]],
       field(x[i], "mediator")[[1]],
-      field(x[i], "unknown")[[1]]
+      field(x[i], "unknown")[[1]],
+      field(x[i], "strata")[[1]]
     )
 
     tl <- append(tl, t)

@@ -63,7 +63,6 @@ formula_archetype <- function(x = unspecified(),
   if (length(strata) > 0) {
     t <- add_strata(t, strata)
   }
-  strata <- get_terms(t, "role", "strata")
 
   # Update terms
   t <-
@@ -78,7 +77,7 @@ formula_archetype <- function(x = unspecified(),
   n <- decipher(t)
   s <- rx(t, pattern = pattern)
   o <- min(order)
-  while (n > o) {
+  while (n >= o) {
     s <- recompose_roles(s)
     n <- n - 1
   }
@@ -110,7 +109,7 @@ formula_archetype <- function(x = unspecified(),
         confounder = list(get_terms(tms, "role", "confounder")),
         mediator = list(get_terms(tms, "role", "mediator")),
         unknown = list(get_terms(tms, "role", "unknown")),
-        strata = ifelse(length(strata) == 0, NA_character_, strata),
+        strata = list(get_terms(t, "role", "strata")),
         pattern = field(s[i], "pattern"),
         ancestor = ancestor,
         order = field(s[i], "order"),
@@ -150,7 +149,7 @@ new_formula <- function(formula = character(),
                         confounder = list(),
                         mediator = list(),
                         unknown = list(),
-                        strata = term_archetype(),
+                        strata = list(),
                         pattern = character(),
                         ancestor = character(),
                         source = character(),
@@ -171,7 +170,7 @@ new_formula <- function(formula = character(),
   vec_assert(confounder, ptype = list())
   vec_assert(mediator, ptype = list())
   vec_assert(unknown, ptype = list())
-  #vec_assert(strata, ptype = term_archetype())
+  vec_assert(strata, ptype = list())
 
   # Specification information
   vec_assert(pattern, ptype = character())
