@@ -5,7 +5,7 @@
 \alias{roles}
 \alias{roles.term_archetype}
 \alias{roles.script}
-\alias{roles.list_of_formulas}
+\alias{get_terms}
 \alias{labels.term_archetype}
 \alias{labels.script}
 \alias{labels.list_of_formulas}
@@ -21,7 +21,7 @@ roles(x, ...)
 
 \method{roles}{script}(x, ...)
 
-\method{roles}{list_of_formulas}(x, ...)
+get_terms(x, field, value)
 
 \method{labels}{term_archetype}(object, ...)
 

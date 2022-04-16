@@ -423,37 +423,24 @@ term_archetype.formula_archetype <- function(x, ...) {
 
   # Convert to basic terms
   tl <- term_archetype()
-  d <- vec_data(x)[c("outcome", "exposure", "confounder", "mediator", "unknown", "strata")]
 
   for (i in seq_along(x)) {
 
-    f <- field(x[i], "formula")
-    t <-
-      stats::formula(f) |>
-      term_archetype.formula()
+    t <- c(
+      field(x[i], "outcome")[[1]],
+      field(x[i], "predictor")[[1]],
+      field(x[i], "exposure")[[1]],
+      field(x[i], "confounder")[[1]],
+      field(x[i], "mediator")[[1]],
+      field(x[i], "unknown")[[1]]
+    )
 
-    rl <-
-      d[i, ] |>
-      unlist() |>
-      stats::na.omit()
-
-    rls <- as.list(names(rl))
-    names(rls) <- unname(rl)
-
-    tl <- append(tl, set_roles(t, roles = rls))
+    tl <- append(tl, t)
 
   }
 
   # Clean up terms and return
-  unique(tl) |>
-    vec_data() |>
-    {\(.x) {
-      .x$side[.x$role %in% c("exposure", "mediator", "predictor")] <- "right"
-      .x$side[.x$role == "outcome"] <- "left"
-      .x
-    }}() |>
-    vec_restore(tm()) |>
-    unique()
+  unique(tl)
 
 }
 

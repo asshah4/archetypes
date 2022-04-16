@@ -13,7 +13,6 @@ formula_archetype(
   label = list(),
   strata = character(),
   pattern = character(),
-  lineage = list(),
   order = 2L:4L,
   ...
 )
@@ -25,7 +24,6 @@ fmls(
   label = list(),
   strata = character(),
   pattern = character(),
-  lineage = list(),
   order = 2L:4L,
   ...
 )

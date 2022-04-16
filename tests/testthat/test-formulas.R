@@ -27,7 +27,7 @@ test_that("custom formuals can be initialized", {
   # Character look alikes
   f <- "mpg ~ wt + hp"
   x <- formula_archetype(f)
-  expect_match(field(x, "outcome")[[1]], "mpg")
+  expect_match(as.character(field(x, "outcome")[[1]]), "mpg")
 
   # Errors
   expect_error(formula_archetype(1))

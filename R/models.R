@@ -167,8 +167,12 @@ format.model_archetype <- function(x, ...) {
         t <- field(.x, "type")
         st <- field(.x, "subtype")
 
-        if (st == "model_fit") {
-          cl <- paste0(st, "_", t)
+        if (!is.na(st)) {
+          if (st == "model_fit") {
+            cl <- paste0(st, t)
+          } else {
+            cl <- t
+          }
         } else {
           cl <- t
         }

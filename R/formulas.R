@@ -15,7 +15,6 @@ formula_archetype <- function(x = unspecified(),
                               label = list(),
                               strata = character(),
                               pattern = character(),
-                              lineage = list(),
                               order = 2L:4L,
                               ...) {
 
@@ -63,12 +62,8 @@ formula_archetype <- function(x = unspecified(),
   # Add strata back in (if not already available)
   if (length(strata) > 0) {
     t <- add_strata(t, strata)
-  } else {
-    strata <- names(roles(t)[roles(t) == "strata"])
-    if (length(strata) == 0) {
-      strata <- NA_character_
-    }
   }
+  strata <- get_terms(t, "role", "strata")
 
   # Update terms
   t <-
@@ -103,22 +98,23 @@ formula_archetype <- function(x = unspecified(),
     for (j in seq_along(fl)) {
       fx <- stats::formula(fl[[j]])
       tms <- match_terms(tl, fx)
-      rls <- roles(tms)
 
       f <- new_formula(
         formula = fl[[j]],
         n = length(tms),
         left = list(lhs(fx)),
         right = list(rhs(fx)),
-        outcome = list(names(rls[rls == "outcome"])),
-        exposure = list(names(rls[rls == "exposure"])),
-        confounder = list(names(rls[rls == "confounder"])),
-        mediator = list(names(rls[rls == "mediator"])),
-        unknown = list(names(rls[rls == "unknown"])),
-        strata = strata,
+        outcome = list(get_terms(tms, "role", "outcome")),
+        predictor = list(get_terms(tms, "role", "predictor")),
+        exposure = list(get_terms(tms, "role", "exposure")),
+        confounder = list(get_terms(tms, "role", "confounder")),
+        mediator = list(get_terms(tms, "role", "mediator")),
+        unknown = list(get_terms(tms, "role", "unknown")),
+        strata = ifelse(length(strata) == 0, NA_character_, strata),
         pattern = field(s[i], "pattern"),
         ancestor = ancestor,
-        order = field(s[i], "order")
+        order = field(s[i], "order"),
+        source = class(x)[1]
       )
 
       fa <- append(fa, f)
@@ -149,28 +145,38 @@ new_formula <- function(formula = character(),
                         left = list(),
                         right = list(),
                         outcome = list(),
+                        predictor = list(),
                         exposure = list(),
                         confounder = list(),
                         mediator = list(),
                         unknown = list(),
-                        strata = character(),
+                        strata = term_archetype(),
                         pattern = character(),
                         ancestor = character(),
+                        source = character(),
                         order = integer()) {
 
-  # Validation will depend
+  # Validation
   vec_assert(formula, ptype = character())
   vec_assert(n, ptype = integer())
+
+  # Character vectors based on sides
   vec_assert(left, ptype = list())
   vec_assert(right, ptype = list())
+
+  # Roles (in term_archetype() format)
   vec_assert(outcome, ptype = list())
+  vec_assert(predictor, ptype = list())
   vec_assert(exposure, ptype = list())
   vec_assert(confounder, ptype = list())
   vec_assert(mediator, ptype = list())
   vec_assert(unknown, ptype = list())
-  vec_assert(strata, ptype = character())
+  #vec_assert(strata, ptype = term_archetype())
+
+  # Specification information
   vec_assert(pattern, ptype = character())
   vec_assert(ancestor, ptype = character())
+  vec_assert(source, ptype = character())
   vec_assert(order, ptype = integer())
 
   new_rcrd(
@@ -180,6 +186,7 @@ new_formula <- function(formula = character(),
       "left" = left,
       "right" = right,
       "outcome" = outcome,
+      "predictor" = predictor,
       "exposure" = exposure,
       "confounder" = confounder,
       "mediator" = mediator,

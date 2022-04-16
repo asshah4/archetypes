@@ -255,9 +255,11 @@ roles.script <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-roles.list_of_formulas <- function(x, ...) {
-  attr(x, "terms") |>
-    roles.term_archetype()
+get_terms <- function(x, field, value) {
+
+  if (class(x)[1] == "term_archetype") {
+    x[field(x, field) == value]
+  }
 }
 
 

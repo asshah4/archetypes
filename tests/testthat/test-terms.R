@@ -108,7 +108,7 @@ test_that("casting and coercion for different dispatches work", {
 
   # Basic cast into character
   x1 <- term_archetype("x1", side = "right", role = "exposure", label = "Independent Variable")
-  x2 <- term_archetype("x2", side = "right", role = "covariate", label = "Independent Variable")
+  x2 <- term_archetype("x2", side = "right", role = "confounder", label = "Independent Variable")
   y <- "y"
   expect_type(c(x1, y), "character")
   expect_s3_class(c(x1, x2), "term_archetype")
@@ -118,7 +118,7 @@ test_that("casting and coercion for different dispatches work", {
   s <- rx(mpg ~ X(wt) + M(cyl) + hp)
   f <- fmls(s)
   t <- tm(f)
-  expect_length(t, 4)
+    expect_length(t, 4)
   expect_equal(decipher(t), 3)
   expect_equal(decipher(t), field(s, "order"))
   expect_equal(length(t), length(field(s, "terms")[[1]]))
