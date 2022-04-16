@@ -193,7 +193,8 @@ new_formula <- function(formula = character(),
       "strata" = strata,
       "pattern" = pattern,
       "ancestor" = ancestor,
-      "order" = order
+      "order" = order,
+      "source" = source
     ),
     class = "formula_archetype"
   )

@@ -421,27 +421,7 @@ term_archetype.formula_archetype <- function(x, ...) {
     return(new_term())
   }
 
-  # Convert to basic terms
-  tl <- term_archetype()
-
-  for (i in seq_along(x)) {
-
-    t <- c(
-      field(x[i], "outcome")[[1]],
-      field(x[i], "predictor")[[1]],
-      field(x[i], "exposure")[[1]],
-      field(x[i], "confounder")[[1]],
-      field(x[i], "mediator")[[1]],
-      field(x[i], "unknown")[[1]],
-      field(x[i], "strata")[[1]]
-    )
-
-    tl <- append(tl, t)
-
-  }
-
-  # Clean up terms and return
-  unique(tl)
+  get_terms(x)
 
 }
 

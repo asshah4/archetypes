@@ -21,7 +21,7 @@ roles(x, ...)
 
 \method{roles}{script}(x, ...)
 
-get_terms(x, field, value)
+get_terms(x, field = NA, value = NA)
 
 \method{labels}{term_archetype}(object, ...)
 

@@ -255,11 +255,38 @@ roles.script <- function(x, ...) {
 
 #' @rdname getters
 #' @export
-get_terms <- function(x, field, value) {
-
+get_terms <- function(x, field = NA, value = NA) {
   if (class(x)[1] == "term_archetype") {
-    x[field(x, field) == value]
+    if (!is.na(field) & !is.na(field)) {
+      t <- x[field(x, field) == value]
+    } else {
+      t <- x
+    }
   }
+
+  if (class(x)[1] == "formula_archetype") {
+    # Convert to basic terms
+    tl <- term_archetype()
+
+    for (i in seq_along(x)) {
+      t <- c(
+        field(x[i], "outcome")[[1]],
+        field(x[i], "predictor")[[1]],
+        field(x[i], "exposure")[[1]],
+        field(x[i], "confounder")[[1]],
+        field(x[i], "mediator")[[1]],
+        field(x[i], "unknown")[[1]],
+        field(x[i], "strata")[[1]]
+      )
+
+      tl <- append(tl, t)
+    }
+
+    t <- unique(tl)
+  }
+
+
+  t
 }
 
 
@@ -347,18 +374,22 @@ set_roles <- function(x, roles, ...) {
 
   # If roles are not appropriate, should stop or error now
   accepted_roles <-
-    c("outcome",
+    c(
+      "outcome",
       "predictor",
       "exposure",
       "confounder",
       "mediator",
       "strata",
-      "unknown")
+      "unknown"
+    )
 
   if (!all(rls %in% accepted_roles)) {
-    stop("An invalid role was entered. It should be one of: `c(",
-         paste(accepted_roles, collapse = ", "),
-         ")`")
+    stop(
+      "An invalid role was entered. It should be one of: `c(",
+      paste(accepted_roles, collapse = ", "),
+      ")`"
+    )
   }
 
   # Save the most "recent" updated label and erase prior if duplicate
