@@ -60,6 +60,7 @@ model_archetype.model_fit <- model_archetype.lm
 #' @rdname models
 #' @export
 model_archetype.list <- function(x = unspecified(),
+                                 name = deparse1(substitute(x)),
                                  description = character(),
                                  label = list(),
                                  role = list(),
@@ -77,8 +78,14 @@ model_archetype.list <- function(x = unspecified(),
   for (i in seq_along(x)) {
     validate_models(x[[i]])
 
+    if (names(x)[i] == "") {
+      nm <- name
+    } else {
+      nm <- names(x)[i]
+    }
+
     m <- model_archetype(x[[i]],
-      name = names(x)[i],
+      name = nm,
       label = label,
       role = role
     )

@@ -42,6 +42,7 @@ model_archetype(x = unspecified(), ...)
 
 \method{model_archetype}{list}(
   x = unspecified(),
+  name = deparse1(substitute(x)),
   description = character(),
   label = list(),
   role = list(),
