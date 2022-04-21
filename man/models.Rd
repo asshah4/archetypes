@@ -19,6 +19,7 @@ model_archetype(x = unspecified(), ...)
   description = character(),
   label = list(),
   role = list(),
+  fmls = formula_archetype(),
   ...
 )
 
@@ -28,6 +29,7 @@ model_archetype(x = unspecified(), ...)
   description = character(),
   label = list(),
   role = list(),
+  fmls = formula_archetype(),
   ...
 )
 
@@ -37,6 +39,7 @@ model_archetype(x = unspecified(), ...)
   description = character(),
   label = list(),
   role = list(),
+  fmls = formula_archetype(),
   ...
 )
 

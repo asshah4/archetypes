@@ -19,6 +19,7 @@ model_archetype.lm <- function(x,
                                description = character(),
                                label = list(),
                                role = list(),
+                               fmls = formula_archetype(),
                                ...) {
 
   # Wrap model
@@ -27,7 +28,13 @@ model_archetype.lm <- function(x,
   # Need the term and formulas
   # Terms should be extracted and updated with the roles and labels as needed
   t <- tm(x, label = label, role = role)
-  f <- fmls(t, order = 1:4)[1] # Top level or first formula made is what we want
+
+  if (length(fmls) == 0) {
+    f <- fmls(t, order = 1:4)[1] # Top level or first formula made is what we want
+  } else {
+    validate_class(fmls, "formula_archetype")
+    f <- fmls
+  }
 
   # Type and subtypes
   type <- class(x)[1]
