@@ -66,7 +66,7 @@ model_archetype.model_fit <- model_archetype.lm
 
 #' @rdname models
 #' @export
-model_archetype.list <- function(x = unspecified(),
+model_archetype.list <- function(x,
                                  name = deparse1(substitute(x)),
                                  description = character(),
                                  label = list(),
@@ -78,15 +78,24 @@ model_archetype.list <- function(x = unspecified(),
     return(new_model())
   }
 
-  # Create a vector of the model archetypes
+
+  # Create a vector of the model archetypes to prepare to iterate through list
+  n <- length(x)
   ma <- model_archetype()
 
-  # Go through the list
-  for (i in seq_along(x)) {
-    validate_models(x[[i]])
+  # Get names if needed
+  if (length(name) == n) {
+    names(x) <- name
+  }
 
-    if (names(x)[i] == "") {
-      nm <- name
+  # Go through the list
+  for (i in 1:n) {
+    validate_models(x[[i]]) # Can only be used WITHIN the function
+
+    if (is.null(names(x)[i])) {
+      nm <- paste0(name, "_", i)
+    } else if (names(x)[i] == "") {
+      nm <- paste0(name, "_", i)
     } else {
       nm <- names(x)[i]
     }

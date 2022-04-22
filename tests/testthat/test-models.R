@@ -70,6 +70,10 @@ test_that("list of models will dispatch appropriately", {
   m <- md(x)
   expect_length(m, 3)
 
+  # If unnamed
+  x <- list(m1, m2, m3)
+  m <- md(x)
+
   # Expect error
   expect_error(md(list(first = m1, second = "test")))
 
