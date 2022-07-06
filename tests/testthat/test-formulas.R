@@ -80,6 +80,13 @@ test_that("appropriate orders of formulas occur", {
   expect_length(x, 6)
   expect_length(x[field(x, "n") == 2], 4)
 
+  # Long lists of sequential with default order of 2:4
+  f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + qsec
+  labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
+  tiers <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
+  t <- tm(f, label = labels, tier = tiers)
+  x <- rx(t, pattern = "sequential")
+
   # Mediation break down works
   t <- tm(mpg + wt ~ X(hp) + M(cyl) + qsec)
   f <- rx(t)

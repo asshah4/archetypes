@@ -30,10 +30,14 @@ model_archetype.lm <- function(x,
   t <- tm(x, label = label, role = role)
 
   if (length(fmls) == 0) {
-    f <- fmls(t, order = 1:4)[1] # Top level or first formula made is what we want
+    # Top level or first formula made is what we want
+    f <- formula_archetype(t, order = 1:4)[1]
   } else {
     validate_class(fmls, "formula_archetype")
     f <- fmls
+    if (is.na(f)) {
+      f <- formula_archetype(t, order = 1:4)[1]
+    }
   }
 
   # Type and subtypes
@@ -71,6 +75,7 @@ model_archetype.list <- function(x,
                                  description = character(),
                                  label = list(),
                                  role = list(),
+                                 fmls = formula_archetype(),
                                  ...) {
 
   # Validated early break
@@ -78,10 +83,18 @@ model_archetype.list <- function(x,
     return(new_model())
   }
 
-
   # Create a vector of the model archetypes to prepare to iterate through list
   n <- length(x)
   ma <- model_archetype()
+
+  # Flush out the rest of the formulas if they are not available
+  if (length(fmls) < n) {
+    n_fmls <- length(fmls)
+    n_fill <- n - n_fmls
+    f <- c(fmls, vec_init(fmls(), n_fill))
+  } else if (length(fmls) == n) {
+    f <- fmls
+  }
 
   # Get names if needed
   if (length(name) == n) {
@@ -103,7 +116,8 @@ model_archetype.list <- function(x,
     m <- model_archetype(x[[i]],
       name = nm,
       label = label,
-      role = role
+      role = role,
+      fmls = f[i]
     )
 
     ma <- append(ma, m)
