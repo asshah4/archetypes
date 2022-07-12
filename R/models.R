@@ -99,6 +99,8 @@ model_archetype.list <- function(x,
   # Get names if needed
   if (length(name) == n) {
     names(x) <- name
+  } else {
+    nms <- paste0(name, sep = "_", 1:n)
   }
 
   # Go through the list
