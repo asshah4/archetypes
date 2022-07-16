@@ -100,7 +100,7 @@ prescribe <- function(x = unspecified(),
   if (length(pattern) == 0) {
     pattern <- "direct"
   }
-  if (!pattern %in% c("direct", "sequential", "parallel")) {
+  if (!pattern %in% c("direct", "sequential", "parallel", "fundamental")) {
     stop("The pattern ",
       deparse(pattern),
       " is not yet supported.",

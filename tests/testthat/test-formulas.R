@@ -5,7 +5,7 @@ test_that("custom formuals can be initialized", {
   t <- tm(f)
   x <- rx(t, pattern = "direct")
   fl <- fmls(x, order = 2:4)
-  expect_length(fl, 12)
+  expect_length(fl, 7)
 
   # Terms
   f <- mpg + wt ~ X(hp) + X(cyl) + gear + drat + log(qsec)
@@ -71,11 +71,11 @@ test_that("appropriate orders of formulas occur", {
 
   # Simple order check
   f <- rx(mpg ~ wt + hp, pattern = "direct")
-  x <- fmls(f, order = 1)
-  expect_length(x, 2)
+  x <- fmls(f, order = 1:4)
+  expect_length(x, 1)
 
   # Complex breakdown to order 1
-  f <- rx(mpg + wt ~ X(hp) + am)
+  f <- rx(mpg + wt ~ X(hp) + am, pattern = "sequential")
   x <- fmls(f, order = 1:2)
   expect_length(x, 6)
   expect_length(x[field(x, "n") == 2], 4)
@@ -91,7 +91,7 @@ test_that("appropriate orders of formulas occur", {
   t <- tm(mpg + wt ~ X(hp) + M(cyl) + qsec)
   f <- rx(t)
   x <- fmls(f, order = 1:4)
-  expect_length(x, 14)
+  expect_length(x, 9)
 
 })
 
@@ -109,3 +109,12 @@ test_that("appropriate family tracking occurs in strata", {
   expect_equal(as.character(field(fl, "strata")[[1]]), "cyl")
 })
 
+
+test_that("multiple strata expand appropriately", {
+
+  x <- rx(mpg ~ X(wt) + C(hp) + S(am) + S(vs), pattern = "direct")
+  f <- fmls(x, order = 2)
+  expect_length(f, 2)
+  f <- fmls(x, order = 3)
+  expect_length(f, 1)
+})

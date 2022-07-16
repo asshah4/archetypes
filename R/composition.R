@@ -9,6 +9,7 @@ recompose_roles <- function(s) {
   for (i in seq_along(sl)) {
     t <- field(sl[i], "terms")[[1]]
     order <- decipher(t)
+    p <- field(sl[i], "pattern")
 
     # Roles
     rls <- roles(t)
@@ -17,6 +18,7 @@ recompose_roles <- function(s) {
     exposure <- names(rls[rls == "exposure"])
     confounder <- names(rls[rls == "confounder"])
     mediator <- names(rls[rls == "mediator"])
+    strata <- names(rls[rls == "strata"])
     covariates <- c(confounder, predictor)
 
     # Creating formulas one level down
@@ -29,20 +31,40 @@ recompose_roles <- function(s) {
         right <- rhs(t)
       }
 
+      if (p == "direct") {
+        right <- paste0(right, collapse = " + ")
+      }
+
       for (j in seq_along(left)) {
         for (k in seq_along(right)) {
-          f <- paste0(left[j], " ~ ", right[k])
-          mt <- match_terms(t, stats::formula(f))
-          p <- field(sl[i], "pattern")
-          sl <- append(
-            sl,
-            new_script(
-              formula = f,
-              terms = mt,
-              pattern = p,
-              order = decipher(mt)
-            )
-          )
+
+            f <- paste0(left[j], " ~ ", right[k])
+            if (length(strata) > 0) { for (l in seq_along(strata)) {
+              mt <-
+                match_terms(t, stats::formula(f)) |>
+                add(tm(strata[l], role = "strata", side = "meta"))
+              sl <- append(
+                sl,
+                new_script(
+                  formula = f,
+                  terms = mt,
+                  pattern = p,
+                  order = decipher(mt)
+                )
+              )
+            }} else {
+              mt <- match_terms(t, stats::formula(f))
+              p <- field(sl[i], "pattern")
+              sl <- append(
+                sl,
+                new_script(
+                  formula = f,
+                  terms = mt,
+                  pattern = p,
+                  order = decipher(mt)
+                )
+              )
+            }
         }
       }
     }
@@ -57,17 +79,33 @@ recompose_roles <- function(s) {
             " ~ ",
             paste(c(exposure[j], covariates), collapse = " + ")
           )
-          mt <- match_terms(t, stats::formula(f))
-          p <- field(sl[i], "pattern")
-          sl <- append(
-            sl,
-            new_script(
-              formula = f,
-              terms = mt,
-              pattern = p,
-              order = decipher(mt)
+          if (length(strata) > 0) for (k in seq_along(strata)) {
+            mt <-
+              match_terms(t, stats::formula(f)) |>
+              add(tm(strata[k], role = "strata", side = "meta"))
+            p <- field(sl[i], "pattern")
+            sl <- append(
+              sl,
+              new_script(
+                formula = f,
+                terms = mt,
+                pattern = p,
+                order = decipher(mt)
+              )
             )
-          )
+          } else {
+            mt <- match_terms(t, stats::formula(f))
+            p <- field(sl[i], "pattern")
+            sl <- append(
+              sl,
+              new_script(
+                formula = f,
+                terms = mt,
+                pattern = p,
+                order = decipher(mt)
+              )
+            )
+          }
         }
       }
 
@@ -81,6 +119,57 @@ recompose_roles <- function(s) {
               " ~ ",
               mediator[j]
             )
+            if (length(strata) > 0) for (k in seq_along(strata)) {
+              mt <-
+                match_terms(t, stats::formula(f)) |>
+                add(tm(strata[k], role = "strata", side = "meta"))
+              p <- field(sl[i], "pattern")
+              sl <- append(
+                sl,
+                new_script(
+                  formula = f,
+                  terms = mt,
+                  pattern = p,
+                  order = decipher(mt)
+                )
+              )
+            } else {
+              mt <- match_terms(t, stats::formula(f))
+              p <- field(sl[i], "pattern")
+              sl <- append(
+                sl,
+                new_script(
+                  formula = f,
+                  terms = mt,
+                  pattern = p,
+                  order = decipher(mt)
+                )
+              )
+            }
+          }
+
+          # Mediator on the left
+          f <- paste0(
+            mediator[j],
+            " ~ ",
+            paste(c(exposure, covariates), collapse = " + ")
+          )
+          # Adding strata to the decomposition if needed
+          if (length(strata) > 0) for (k in seq_along(strata)) {
+            mt <-
+              match_terms(t, stats::formula(f)) |>
+              add(tm(strata[k], role = "strata", side = "meta"))
+            p <- field(sl[i], "pattern")
+            sl <- append(
+              sl,
+              new_script(
+                formula = f,
+                terms = mt,
+                pattern = p,
+                order = decipher(mt)
+              )
+            )
+          } else {
             mt <- match_terms(t, stats::formula(f))
             p <- field(sl[i], "pattern")
             sl <- append(
@@ -93,24 +182,6 @@ recompose_roles <- function(s) {
               )
             )
           }
-
-          # Mediator on the left
-          f <- paste0(
-            mediator[j],
-            " ~ ",
-            paste(c(exposure, covariates), collapse = " + ")
-          )
-          mt <- match_terms(t, stats::formula(f))
-          p <- field(sl[i], "pattern")
-          sl <- append(
-            sl,
-            new_script(
-              formula = f,
-              terms = mt,
-              pattern = p,
-              order = decipher(mt)
-            )
-          )
         }
       }
     }
@@ -151,7 +222,17 @@ decompose_patterns <- function(s) {
   # Empty list for combinations for all combinations
   fl <- list()
 
+  # Handle the special case of the order being 4
   for (i in seq_along(s)) {
+
+    if (field(s[i], "order") == 4) {
+      fl <- append(fl, as.character(s[i]))
+    }
+
+  }
+
+  for (i in seq_along(s)) {
+
     t <- field(s[i], "terms")[[1]]
     vt <- vec_data(t)
     pattern <- field(s[i], "pattern")
@@ -235,7 +316,16 @@ decompose_patterns <- function(s) {
 
           fl <- append(fl, f)
         }
-      }
+      },
+      fundamental = {
+        all_right <- c(right, covariates)
+        for (j in seq_along(outcome)) {
+          for (k in seq_along(all_right)) {
+            f <- paste(outcome[j], all_right[k], sep = " ~ ")
+            fl <- append(fl, f)
+          }
+        }
+      },
     )
   }
 
@@ -260,6 +350,7 @@ decipher <- function(t) {
   # Does not follow rules of roles
   # LHS = 1
   # RHS = 1
+  # Strata = 0
 
   # SECOND
   # Follows rules of roles
@@ -267,6 +358,7 @@ decipher <- function(t) {
   # RHS = exposure + confounder
   # RHS = mediator (no confounders allowed)
   # RHS =/= outcome
+  # Strata = 1
 
   # THIRD
   # Does not follow rules of roles
@@ -274,6 +366,7 @@ decipher <- function(t) {
   # RHS > 1 exposure
   # RHS > 1 mediator
   # RHS = exposure + mediator
+  # Strata > 1
 
   # FOURTH
   # LHS > 1
@@ -293,10 +386,12 @@ decipher <- function(t) {
   prd <- length(c(confounder, predictor))
   med <- length(mediator)
   unk <- length(unknown)
+  sta <- length(strata)
 
   # Number of left and right terms
   left <- sum(out)
   right <- sum(exp, prd, med, unk)
+  n <- sum(left, right)
 
   # Zeroeth order
   if (length(t) == 1) {
@@ -304,12 +399,12 @@ decipher <- function(t) {
   }
 
   # First order
-  if (length(t) == 2) {
+  if (n == 2) {
     order <- 1L
   }
 
   # Second order
-  if (length(t) >= 2) {
+  if (length(t) >= 2 & sta <= 1) {
     if (out == 1 & any(exp) & med == 0) {
       order <- 2L
     }
@@ -322,10 +417,10 @@ decipher <- function(t) {
     if (out == 1 & prd > 1 & exp == 0 & med == 0) {
       order <- 2L
     }
-    if (out == 1 & prd > 1 & exp == 0 & med == 0) {
+    if (out == 1 & prd > 1 & exp == 1 & med == 0) {
       order <- 2L
     }
-    if (out == 1 & prd >= 1 & exp == 1 & med == 0) {
+    if (sta == 1) {
       order <- 2L
     }
   }
@@ -339,6 +434,9 @@ decipher <- function(t) {
       order <- 3L
     }
     if (med > 1) {
+      order <- 3L
+    }
+    if (sta > 1) {
       order <- 3L
     }
   }

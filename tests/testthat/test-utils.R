@@ -3,7 +3,7 @@ test_that("term matching works correctly", {
 	# Create list of formulas to test term matchign
 	t <- tm(mpg + wt ~ hp + am + vs + cyl)
 	f <- deparse1(stats::formula(t)) # Trace/pare
-	fl <- fmls(t, order = 1) # Unit level paths
+	fl <- fmls(t, order = 1:4, pattern = "fundamental") # Unit level paths
 	tl <- tm()
 
 	for (i in seq_along(fl)) {
@@ -44,7 +44,7 @@ test_that("sides can be obtained from formulaic objects", {
 			\(.x) .x[field(.x, "n") == 2]
 		}()
 	# Number 5 doesn't have a "left" hand side, which is wrong.
-	f <- fl[5]
+	f <- fl[2]
 	expect_equal(lhs(f), "cyl")
 
 

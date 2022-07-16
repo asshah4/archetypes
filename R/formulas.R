@@ -2,11 +2,10 @@
 
 #' Formula Archetype
 #'
-#' @param order Describes the requested order that formulas should be decomposed
+#' @param order Requested order that formulas are decomposed
 #'   into. The default is to return ALL formula decompositions. Options include
-#'   any integer vector between _1_ and _4_. The default is `2L:4L`, which
+#'   any integer inclusive from _1_ to _4_. The default is `2L:4L`, which
 #'   includes every functional formula and its parent.
-#'   are returned.
 #' @name formula
 #' @export
 formula_archetype <- function(x = unspecified(),
@@ -96,11 +95,14 @@ formula_archetype <- function(x = unspecified(),
 
     for (j in seq_along(fl)) {
       fx <- stats::formula(fl[[j]])
-      tms <- match_terms(tl, fx)
+      tms <-
+        match_terms(tl, fx) |>
+        add(get_terms(tl, "role", "strata"))
 
       f <- new_formula(
         formula = fl[[j]],
-        n = length(tms),
+
+          n = length(tms),
         left = list(lhs(fx)),
         right = list(rhs(fx)),
         outcome = list(get_terms(tms, "role", "outcome")),
@@ -109,10 +111,11 @@ formula_archetype <- function(x = unspecified(),
         confounder = list(get_terms(tms, "role", "confounder")),
         mediator = list(get_terms(tms, "role", "mediator")),
         unknown = list(get_terms(tms, "role", "unknown")),
-        strata = list(get_terms(t, "role", "strata")),
+        # Strata may get lost unless brought in from above
+        strata = list(get_terms(tl, "role", "strata")),
         pattern = field(s[i], "pattern"),
         ancestor = ancestor,
-        order = field(s[i], "order"),
+        order = decipher(tms), # Only program lis if there are strata...
         source = class(x)[1]
       )
 

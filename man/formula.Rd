@@ -29,11 +29,10 @@ fmls(
 )
 }
 \arguments{
-\item{order}{Describes the requested order that formulas should be decomposed
+\item{order}{Requested order that formulas are decomposed
 into. The default is to return ALL formula decompositions. Options include
-any integer vector between \emph{1} and \emph{4}. The default is \code{2L:4L}, which
-includes every functional formula and its parent.
-are returned.}
+any integer inclusive from \emph{1} to \emph{4}. The default is \code{2L:4L}, which
+includes every functional formula and its parent.}
 }
 \description{
 Formula Archetype

@@ -42,7 +42,7 @@ test_that("scripts can be decomposed appropriately", {
   # Second order recomposition (into first order)
   t <- tm(y ~ X(x) + c)
   expect_equal(decipher(t), 2)
-  s <- rx(t)
+  s <- rx(t, pattern = "fundamental")
   sl <- recompose_roles(s)
   expect_length(sl, 3)
   expect_equal(field(sl, "formula")[2], "y ~ x")
@@ -73,21 +73,21 @@ test_that("scripts can be re-expanded into formulas", {
   t <- term_archetype(f)
   x <- prescribe(t, pattern = "direct")
   lof <- decompose_patterns(x)
-  expect_length(lof, 2)
+  expect_length(lof, 3)
 
   # Sequential
   f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
   t <- term_archetype(f, tier = list(drat + qsec ~ "secondary"))
   x <- prescribe(t, pattern = "sequential")
   lof <- decompose_patterns(x)
-  expect_length(lof, 4)
+  expect_length(lof, 5)
 
   # Parallel
   f <- mpg + wt ~ X(hp) + X(cyl) + drat + qsec
   t <- term_archetype(f, tier = list(qsec ~ "measurement"))
   x <- prescribe(t, pattern = "parallel")
   lof <- decompose_patterns(x)
-  expect_length(lof, 4)
+  expect_length(lof, 5)
 })
 
 test_that("mediation creates appropriate lists", {
@@ -106,15 +106,15 @@ test_that("mediation creates appropriate lists", {
   sl <- recompose_roles(x)
   fl <- decompose_patterns(sl)
   expect_length(sl, 3)
-  expect_length(fl, 3)
+  expect_length(fl, 4) # Since includes parent structure of order = 4
 
   x <- rx(t, pattern = "parallel")
   fl <- decompose_patterns(x)
-  expect_length(fl, 3)
+  expect_length(fl, 4)
 
   x <- rx(t, pattern = "sequential")
   fl <- decompose_patterns(x)
-  expect_length(fl, 4)
+  expect_length(fl, 5)
 
   # Mediation complexity
   s <- rx(mpg ~ X(wt) + M(cyl) + hp)
