@@ -78,3 +78,16 @@ test_that("list of models will dispatch appropriately", {
   expect_error(md(list(first = m1, second = "test")))
 
 })
+
+
+test_that("strata information can be passed along safely", {
+
+  fit <- lm(mpg ~ hp, data = subset(mtcars, am == 0))
+  m <- md(fit, strata_info = am ~ 0)
+  expect_type(vec_data(m)$strata_info, "character")
+  f <- as.formula(vec_data(m)$strata_info)
+  expect_s3_class(f, "formula")
+  expect_type(f[[3]], "double")
+  expect_type(f[[2]], "symbol")
+
+})

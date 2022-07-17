@@ -101,8 +101,7 @@ formula_archetype <- function(x = unspecified(),
 
       f <- new_formula(
         formula = fl[[j]],
-
-          n = length(tms),
+        n = length(tms),
         left = list(lhs(fx)),
         right = list(rhs(fx)),
         outcome = list(get_terms(tms, "role", "outcome")),
@@ -115,7 +114,8 @@ formula_archetype <- function(x = unspecified(),
         strata = list(get_terms(tl, "role", "strata")),
         pattern = field(s[i], "pattern"),
         ancestor = ancestor,
-        order = decipher(tms), # Only program lis if there are strata...
+        order = decipher(tms),
+        # Only program lis if there are strata...
         source = class(x)[1]
       )
 

@@ -6,6 +6,11 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
+#' @param strata_info User-defined `formula`, with the LHS being the column
+#'   representing the strata, and the RHS being the level used in the model. For
+#'   example, `am ~ 0` in the `mtcars` data, the model was subset for only
+#'   cars that did not have automatic transmission named in the `am` variable.
+#'
 #' @name models
 #' @export
 model_archetype <- function(x = unspecified(), ...) {
@@ -16,10 +21,11 @@ model_archetype <- function(x = unspecified(), ...) {
 #' @export
 model_archetype.lm <- function(x,
                                name = deparse(substitute(x)),
-                               description = character(),
                                label = list(),
                                role = list(),
                                fmls = formula_archetype(),
+                               description = character(),
+                               strata_info = formula(),
                                ...) {
 
   # Wrap model
@@ -48,6 +54,13 @@ model_archetype.lm <- function(x,
   if (length(description) == 0) {
     description <- NA_character_
   }
+  # Strata description from formula to character for moving it in vectors
+  # Formula environment doesn't matter here
+  if (length(strata_info) == 0) {
+    strata_info <- NA_character_
+  } else if (inherits(strata_info, "formula")) {
+    strata_info <- deparse1(strata_info)
+  }
 
   # Creation
   new_model(
@@ -55,8 +68,9 @@ model_archetype.lm <- function(x,
     type = type,
     subtype = subtype,
     name = name,
+    fmls = f,
     description = description,
-    fmls = f
+    strata_info = strata_info
   )
 }
 
@@ -72,10 +86,11 @@ model_archetype.model_fit <- model_archetype.lm
 #' @export
 model_archetype.list <- function(x,
                                  name = deparse1(substitute(x)),
-                                 description = character(),
                                  label = list(),
                                  role = list(),
                                  fmls = formula_archetype(),
+                                 description = character(),
+                                 strata_info = formula(),
                                  ...) {
 
   # Validated early break
@@ -115,11 +130,14 @@ model_archetype.list <- function(x,
       nm <- names(x)[i]
     }
 
-    m <- model_archetype(x[[i]],
+    m <- model_archetype(
+      x[[i]],
       name = nm,
       label = label,
       role = role,
-      fmls = f[i]
+      fmls = f[i],
+      description = description,
+      strata_info = strata_info,
     )
 
     ma <- append(ma, m)
@@ -157,21 +175,23 @@ new_model <- function(model = list(),
                       type = character(),
                       subtype = character(),
                       name = character(),
+                      fmls = formula_archetype(),
                       description = character(),
-                      fmls = formula_archetype()) {
+                      strata_info = character()) {
 
   # Validation
   vec_assert(model, ptype = list())
   vec_assert(type, ptype = character())
   vec_assert(subtype, ptype = character())
   vec_assert(name, ptype = character())
-  vec_assert(description, ptype = character())
   vec_assert(fmls, ptype = formula_archetype())
+  vec_assert(description, ptype = character())
+  vec_assert(strata_info, ptype = character())
 
   # Model archetype description is essentially deconstructed here
   # class = defined by the model_archetype, its base class, and a list
-  # user defined descriptors = tag, label, description
-  # model defined descriptors = type, subtype, call
+  # user defined descriptors = description
+  # model defined descriptors = type, subtype
   # model level findings = statistics, formula
   # internals = terms, term descriptors... contained within the script
   new_rcrd(
@@ -181,6 +201,7 @@ new_model <- function(model = list(),
       "subtype" = subtype,
       "name" = name,
       "description" = description,
+      "strata_info" = strata_info,
       "fmls" = fmls
     ),
     class = "model_archetype"

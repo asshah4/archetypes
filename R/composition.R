@@ -420,7 +420,7 @@ decipher <- function(t) {
     if (out == 1 & prd > 1 & exp == 1 & med == 0) {
       order <- 2L
     }
-    if (sta == 1) {
+    if (sta == 1 & exp == 1) {
       order <- 2L
     }
   }

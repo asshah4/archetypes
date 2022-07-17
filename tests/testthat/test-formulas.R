@@ -117,4 +117,28 @@ test_that("multiple strata expand appropriately", {
   expect_length(f, 2)
   f <- fmls(x, order = 3)
   expect_length(f, 1)
+  expect_s3_class(f, "formula_archetype")
+
+  # Should have three formulas total when sequential
+  f <- mpg ~ X(wt) + hp + qsec + S(cyl)
+  labels <- list(mpg ~ "Mileage", hp ~  "Horsepower")
+  tiers <- list(c(drat, qsec) ~ "speed", wt ~ "hardware")
+  t <- tm(f, label = labels, tier = tiers)
+  x <- rx(t, pattern = "sequential")
+  expect_length(fmls(x, order = 1:4), 5)
+  expect_length(fmls(x), 3)
+
+})
+
+test_that("survival terms work for formulas", {
+
+  # Testing more complex survival models
+  x <- rx(
+    Surv(death_timeto, death_any_yn) + Surv(death_timeto, death_cv_yn) ~
+      X(hf_stress_rest_delta_zn) + hf_rest_ln_zn + age_bl + blackrace +  hx_hypertension_bl + hx_diabetes_bl + hx_hbchol_bl + cath_gensini_bl + ejection_fraction + S(female_bl),
+    pattern = "sequential"
+  )
+  f <- fmls(x)
+  expect_length(f, 37)
+
 })

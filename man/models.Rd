@@ -16,46 +16,56 @@ model_archetype(x = unspecified(), ...)
 \method{model_archetype}{lm}(
   x,
   name = deparse(substitute(x)),
-  description = character(),
   label = list(),
   role = list(),
   fmls = formula_archetype(),
+  description = character(),
+  strata_info = formula(),
   ...
 )
 
 \method{model_archetype}{glm}(
   x,
   name = deparse(substitute(x)),
-  description = character(),
   label = list(),
   role = list(),
   fmls = formula_archetype(),
+  description = character(),
+  strata_info = formula(),
   ...
 )
 
 \method{model_archetype}{model_fit}(
   x,
   name = deparse(substitute(x)),
-  description = character(),
   label = list(),
   role = list(),
   fmls = formula_archetype(),
+  description = character(),
+  strata_info = formula(),
   ...
 )
 
 \method{model_archetype}{list}(
   x,
   name = deparse1(substitute(x)),
-  description = character(),
   label = list(),
   role = list(),
   fmls = formula_archetype(),
+  description = character(),
+  strata_info = formula(),
   ...
 )
 
 \method{model_archetype}{default}(x = unspecified(), ...)
 
 md(x = unspecified(), ...)
+}
+\arguments{
+\item{strata_info}{User-defined \code{formula}, with the LHS being the column
+representing the strata, and the RHS being the level used in the model. For
+example, \code{am ~ 0} in the \code{mtcars} data, the model was subset for only
+cars that did not have automatic transmission named in the \code{am} variable.}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

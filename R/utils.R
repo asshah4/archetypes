@@ -598,7 +598,7 @@ add.term_archetype <- function(object, parameters, ...) {
     vec_data() |>
     {
       \(.x) {
-        .x[!duplicated(.x$terms, fromLast = TRUE)]
+        .x[!duplicated(.x$terms, fromLast = TRUE), ]
       }
     }() |>
     vec_restore(to = term_archetype())
